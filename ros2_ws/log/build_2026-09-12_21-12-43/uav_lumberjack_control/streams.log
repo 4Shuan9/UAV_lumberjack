@@ -1,0 +1,28 @@
+[0.008s] Invoking command in '/home/ashuang/UAV_lumberjack/ros2_ws/build/uav_lumberjack_control': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/ashuang/UAV_lumberjack/ros2_ws/build/uav_lumberjack_control -- -j12 -l12
+[0.041s] [35m[1mConsolidate compiler generated dependencies of target arm_controller[0m
+[0.050s] [ 50%] Built target arm_j1_test
+[0.054s] [ 75%] [32mBuilding CXX object CMakeFiles/arm_controller.dir/src/arm_controller.cpp.o[0m
+[5.688s] [100%] [32m[1mLinking CXX executable arm_controller[0m
+[5.933s] [100%] Built target arm_controller
+[5.942s] Invoked command in '/home/ashuang/UAV_lumberjack/ros2_ws/build/uav_lumberjack_control' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/ashuang/UAV_lumberjack/ros2_ws/build/uav_lumberjack_control -- -j12 -l12
+[5.950s] Invoking command in '/home/ashuang/UAV_lumberjack/ros2_ws/build/uav_lumberjack_control': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/ashuang/UAV_lumberjack/ros2_ws/build/uav_lumberjack_control
+[5.954s] -- Install configuration: ""
+[5.955s] -- Execute custom install script
+[5.955s] -- Up-to-date symlink: /home/ashuang/UAV_lumberjack/ros2_ws/install/uav_lumberjack_control/lib/uav_lumberjack_control/arm_j1_test
+[5.955s] -- Up-to-date symlink: /home/ashuang/UAV_lumberjack/ros2_ws/install/uav_lumberjack_control/lib/uav_lumberjack_control/arm_controller
+[5.955s] -- Up-to-date symlink: /home/ashuang/UAV_lumberjack/ros2_ws/install/uav_lumberjack_control/share/ament_index/resource_index/package_run_dependencies/uav_lumberjack_control
+[5.955s] -- Up-to-date symlink: /home/ashuang/UAV_lumberjack/ros2_ws/install/uav_lumberjack_control/share/ament_index/resource_index/parent_prefix_path/uav_lumberjack_control
+[5.955s] -- Up-to-date symlink: /home/ashuang/UAV_lumberjack/ros2_ws/install/uav_lumberjack_control/share/uav_lumberjack_control/environment/ament_prefix_path.sh
+[5.956s] -- Up-to-date symlink: /home/ashuang/UAV_lumberjack/ros2_ws/install/uav_lumberjack_control/share/uav_lumberjack_control/environment/ament_prefix_path.dsv
+[5.956s] -- Up-to-date symlink: /home/ashuang/UAV_lumberjack/ros2_ws/install/uav_lumberjack_control/share/uav_lumberjack_control/environment/path.sh
+[5.956s] -- Up-to-date symlink: /home/ashuang/UAV_lumberjack/ros2_ws/install/uav_lumberjack_control/share/uav_lumberjack_control/environment/path.dsv
+[5.956s] -- Up-to-date symlink: /home/ashuang/UAV_lumberjack/ros2_ws/install/uav_lumberjack_control/share/uav_lumberjack_control/local_setup.bash
+[5.956s] -- Up-to-date symlink: /home/ashuang/UAV_lumberjack/ros2_ws/install/uav_lumberjack_control/share/uav_lumberjack_control/local_setup.sh
+[5.956s] -- Up-to-date symlink: /home/ashuang/UAV_lumberjack/ros2_ws/install/uav_lumberjack_control/share/uav_lumberjack_control/local_setup.zsh
+[5.956s] -- Up-to-date symlink: /home/ashuang/UAV_lumberjack/ros2_ws/install/uav_lumberjack_control/share/uav_lumberjack_control/local_setup.dsv
+[5.956s] -- Symlinking: /home/ashuang/UAV_lumberjack/ros2_ws/install/uav_lumberjack_control/share/uav_lumberjack_control/package.dsv
+[5.963s] -- Up-to-date symlink: /home/ashuang/UAV_lumberjack/ros2_ws/install/uav_lumberjack_control/share/ament_index/resource_index/packages/uav_lumberjack_control
+[5.963s] -- Up-to-date symlink: /home/ashuang/UAV_lumberjack/ros2_ws/install/uav_lumberjack_control/share/uav_lumberjack_control/cmake/uav_lumberjack_controlConfig.cmake
+[5.963s] -- Up-to-date symlink: /home/ashuang/UAV_lumberjack/ros2_ws/install/uav_lumberjack_control/share/uav_lumberjack_control/cmake/uav_lumberjack_controlConfig-version.cmake
+[5.963s] -- Up-to-date symlink: /home/ashuang/UAV_lumberjack/ros2_ws/install/uav_lumberjack_control/share/uav_lumberjack_control/package.xml
+[5.965s] Invoked command in '/home/ashuang/UAV_lumberjack/ros2_ws/build/uav_lumberjack_control' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/ashuang/UAV_lumberjack/ros2_ws/build/uav_lumberjack_control

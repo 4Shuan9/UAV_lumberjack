@@ -1,0 +1,531 @@
+<?xml version="1.0" ?>
+
+<sdf version="1.9">
+
+  <world name="arm_3dof_world">
+
+    <!-- ==================== World Systems ==================== -->
+
+    <plugin
+      filename="gz-sim-physics-system"
+      name="gz::sim::systems::Physics">
+    </plugin>
+
+    <plugin
+      filename="gz-sim-user-commands-system"
+      name="gz::sim::systems::UserCommands">
+    </plugin>
+
+    <plugin
+      filename="gz-sim-scene-broadcaster-system"
+      name="gz::sim::systems::SceneBroadcaster">
+    </plugin>
+
+
+    <!-- ==================== Light ==================== -->
+
+    <light type="directional" name="sun">
+
+      <cast_shadows>true</cast_shadows>
+
+      <pose>0 0 10 0 0 0</pose>
+
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+
+      <specular>0.2 0.2 0.2 1</specular>
+
+      <direction>-0.5 0.1 -0.9</direction>
+
+    </light>
+
+
+    <!-- ====================================================== -->
+    <!--                 3-DOF Lumberjack Arm                   -->
+    <!-- ====================================================== -->
+
+    <model name="lumberjack_arm">
+
+
+      <!-- ==================================================== -->
+      <!-- Base Link                                            -->
+      <!-- ==================================================== -->
+
+      <link name="base_link">
+
+        <pose>0 0 0.06 0 0 0</pose>
+
+        <inertial>
+
+          <mass>2.0</mass>
+
+          <inertia>
+            <ixx>0.0186</ixx>
+            <iyy>0.0186</iyy>
+            <izz>0.0324</izz>
+
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyz>0</iyz>
+          </inertia>
+
+        </inertial>
+
+
+        <visual name="base_visual">
+
+          <geometry>
+
+            <cylinder>
+              <radius>0.18</radius>
+              <length>0.12</length>
+            </cylinder>
+
+          </geometry>
+
+          <material>
+            <ambient>0.12 0.12 0.12 1</ambient>
+            <diffuse>0.22 0.22 0.22 1</diffuse>
+          </material>
+
+        </visual>
+
+
+        <collision name="base_collision">
+
+          <geometry>
+
+            <cylinder>
+              <radius>0.18</radius>
+              <length>0.12</length>
+            </cylinder>
+
+          </geometry>
+
+        </collision>
+
+      </link>
+
+
+      <!-- ==================================================== -->
+      <!-- Yaw / Shoulder Mount                                 -->
+      <!-- ==================================================== -->
+
+      <link name="yaw_link">
+
+        <pose relative_to="base_link">
+          0 0 0.14 0 0 0
+        </pose>
+
+        <inertial>
+
+          <mass>0.30</mass>
+
+          <inertia>
+            <ixx>0.0036</ixx>
+            <iyy>0.0036</iyy>
+            <izz>0.0015</izz>
+
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyz>0</iyz>
+          </inertia>
+
+        </inertial>
+
+
+        <visual name="yaw_visual">
+
+          <geometry>
+
+            <cylinder>
+              <radius>0.10</radius>
+              <length>0.16</length>
+            </cylinder>
+
+          </geometry>
+
+          <material>
+            <ambient>0.65 0.20 0.10 1</ambient>
+            <diffuse>0.85 0.30 0.15 1</diffuse>
+          </material>
+
+        </visual>
+
+
+        <collision name="yaw_collision">
+
+          <geometry>
+
+            <cylinder>
+              <radius>0.10</radius>
+              <length>0.16</length>
+            </cylinder>
+
+          </geometry>
+
+        </collision>
+
+        <visual name="j2_joint_cover">
+
+          <pose>0 0 0.08 0 0 0</pose>
+
+          <geometry>
+            <sphere>
+              <radius>0.075</radius>
+            </sphere>
+          </geometry>
+
+          <material>
+            <ambient>0.70 0.05 0.05 1</ambient>
+            <diffuse>0.90 0.08 0.08 1</diffuse>
+          </material>
+
+        </visual>
+        
+      </link>
+
+
+      <!-- ==================================================== -->
+      <!-- Upper Arm                                            -->
+      <!-- ==================================================== -->
+
+      <link name="upper_arm">
+
+        <pose relative_to="yaw_link">
+          0.28 0 0.08 0 0 0
+        </pose>
+
+        <inertial>
+
+          <mass>0.25</mass>
+
+          <inertia>
+            <ixx>0.00034</ixx>
+            <iyy>0.00670</iyy>
+            <izz>0.00670</izz>
+
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyz>0</iyz>
+          </inertia>
+
+        </inertial>
+
+
+        <visual name="upper_arm_visual">
+
+          <!--
+            Gazebo 的 cylinder 默认沿 Z 轴。
+            绕 Y 轴旋转 90°，使其沿 X 轴伸展。
+          -->
+          <pose>0 0 0 0 1.5708 0</pose>
+
+          <geometry>
+            <cylinder>
+              <radius>0.055</radius>
+              <length>0.56</length>
+            </cylinder>
+          </geometry>
+
+          <material>
+            <ambient>0.10 0.35 0.70 1</ambient>
+            <diffuse>0.15 0.45 0.90 1</diffuse>
+          </material>
+
+        </visual>
+
+
+        <collision name="upper_arm_collision">
+
+          <pose>0 0 0 0 1.5708 0</pose>
+
+          <geometry>
+            <cylinder>
+              <radius>0.055</radius>
+              <length>0.56</length>
+            </cylinder>
+          </geometry>
+
+        </collision>
+
+        <visual name="j3_joint_cover">
+
+          <pose>0.28 0 0 0 0 0</pose>
+
+          <geometry>
+            <sphere>
+              <radius>0.065</radius>
+            </sphere>
+          </geometry>
+
+          <material>
+            <ambient>0.70 0.05 0.05 1</ambient>
+            <diffuse>0.90 0.08 0.08 1</diffuse>
+          </material>
+
+        </visual>
+
+      </link>
+
+
+      <!-- ==================================================== -->
+      <!-- Forearm                                              -->
+      <!-- ==================================================== -->
+
+      <link name="forearm">
+
+        <pose relative_to="upper_arm">
+          0.47 0 0 0 0 0
+        </pose>
+
+        <inertial>
+
+          <mass>0.18</mass>
+
+          <inertia>
+            <ixx>0.00019</ixx>
+            <iyy>0.00226</iyy>
+            <izz>0.00226</izz>
+
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyz>0</iyz>
+          </inertia>
+
+        </inertial>
+
+
+        <visual name="forearm_visual">
+
+          <pose>0 0 0 0 1.5708 0</pose>
+
+          <geometry>
+            <cylinder>
+              <radius>0.045</radius>
+              <length>0.38</length>
+            </cylinder>
+          </geometry>
+
+          <material>
+            <ambient>0.15 0.55 0.25 1</ambient>
+            <diffuse>0.20 0.70 0.30 1</diffuse>
+          </material>
+
+        </visual>
+
+
+        <collision name="forearm_collision">
+
+          <pose>0 0 0 0 1.5708 0</pose>
+
+          <geometry>
+            <cylinder>
+              <radius>0.045</radius>
+              <length>0.38</length>
+            </cylinder>
+          </geometry>
+
+        </collision>
+
+      </link>
+
+
+      <!-- ==================================================== -->
+      <!-- Fix Base To World                                    -->
+      <!-- ==================================================== -->
+
+      <joint name="base_fixed" type="fixed">
+
+        <parent>world</parent>
+
+        <child>base_link</child>
+
+      </joint>
+
+
+      <!-- ==================================================== -->
+      <!-- J1 : Base Yaw                                        -->
+      <!-- ==================================================== -->
+
+      <joint name="j1" type="revolute">
+
+        <pose relative_to="base_link">
+          0 0 0.06 0 0 0
+        </pose>
+
+        <parent>base_link</parent>
+
+        <child>yaw_link</child>
+
+        <axis>
+
+          <xyz>0 0 1</xyz>
+
+          <limit>
+            <lower>-3.14159</lower>
+            <upper>3.14159</upper>
+            <effort>30</effort>
+            <velocity>2.0</velocity>
+          </limit>
+
+        </axis>
+
+      </joint>
+
+
+      <!-- ==================================================== -->
+      <!-- J2 : Shoulder Pitch                                  -->
+      <!-- ==================================================== -->
+
+      <joint name="j2" type="revolute">
+
+        <pose relative_to="yaw_link">
+          0 0 0.08 0 0 0
+        </pose>
+
+        <parent>yaw_link</parent>
+
+        <child>upper_arm</child>
+
+        <axis>
+
+          <xyz>0 -1 0</xyz>
+
+          <limit>
+
+            <lower>-1.5708</lower>
+
+            <upper>1.5708</upper>
+
+            <effort>30</effort>
+
+            <velocity>2.0</velocity>
+
+          </limit>
+
+        </axis>
+
+      </joint>
+
+
+      <!-- ==================================================== -->
+      <!-- J3 : Elbow Pitch                                     -->
+      <!-- ==================================================== -->
+
+      <joint name="j3" type="revolute">
+
+        <pose relative_to="upper_arm">
+          0.28 0 0 0 0 0
+        </pose>
+
+        <parent>upper_arm</parent>
+
+        <child>forearm</child>
+
+        <axis>
+
+          <xyz>0 -1 0</xyz>
+
+          <limit>
+
+            <lower>-1.5708</lower>
+
+            <upper>1.5708</upper>
+
+            <effort>20</effort>
+
+            <velocity>2.0</velocity>
+
+          </limit>
+
+        </axis>
+
+      </joint>
+
+
+      <!-- ==================================================== -->
+      <!-- J1 Controller                                        -->
+      <!-- ==================================================== -->
+
+      <plugin
+        filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+
+        <joint_name>j1</joint_name>
+
+        <p_gain>20.0</p_gain>
+        <i_gain>0.0</i_gain>
+        <d_gain>1.5</d_gain>
+
+        <cmd_max>25.0</cmd_max>
+        <cmd_min>-25.0</cmd_min>
+
+      </plugin>
+
+
+      <!-- ==================================================== -->
+      <!-- J2 Controller                                        -->
+      <!-- ==================================================== -->
+
+      <plugin
+        filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+
+        <joint_name>j2</joint_name>
+
+        <p_gain>50.0</p_gain>
+        <i_gain>5.0</i_gain>
+        <d_gain>2.0</d_gain>
+
+        <i_max>5.0</i_max>
+        <i_min>-5.0</i_min>
+
+        <cmd_max>35.0</cmd_max>
+        <cmd_min>-35.0</cmd_min>
+
+      </plugin>
+
+
+      <!-- ==================================================== -->
+      <!-- J3 Controller                                        -->
+      <!-- ==================================================== -->
+
+      <plugin
+        filename="gz-sim-joint-position-controller-system"
+        name="gz::sim::systems::JointPositionController">
+
+        <joint_name>j3</joint_name>
+
+        <p_gain>35.0</p_gain>
+        <i_gain>3.0</i_gain>
+        <d_gain>1.5</d_gain>
+
+        <i_max>3.0</i_max>
+        <i_min>-3.0</i_min>
+
+        <cmd_max>30.0</cmd_max>
+        <cmd_min>-30.0</cmd_min>
+
+      </plugin>
+
+      <!-- ==================================================== -->
+      <!-- Joint State Publisher                                -->
+      <!-- ==================================================== -->
+
+      <plugin
+        filename="gz-sim-joint-state-publisher-system"
+        name="gz::sim::systems::JointStatePublisher">
+
+        <topic>/lumberjack_arm/joint_states</topic>
+
+        <joint_name>j1</joint_name>
+        <joint_name>j2</joint_name>
+        <joint_name>j3</joint_name>
+
+      </plugin>
+
+    </model>
+
+  </world>
+
+</sdf>

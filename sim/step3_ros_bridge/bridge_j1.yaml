@@ -1,0 +1,7 @@
+- ros_topic_name: "/lumberjack_arm/j1/cmd_pos"
+  gz_topic_name: "/model/lumberjack_arm/joint/j1/0/cmd_pos"
+
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+
+  direction: ROS_TO_GZ

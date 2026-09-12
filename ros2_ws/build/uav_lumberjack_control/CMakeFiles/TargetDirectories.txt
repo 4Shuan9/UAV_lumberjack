@@ -1,0 +1,11 @@
+/home/ashuang/UAV_lumberjack/ros2_ws/build/uav_lumberjack_control/CMakeFiles/uninstall.dir
+/home/ashuang/UAV_lumberjack/ros2_ws/build/uav_lumberjack_control/CMakeFiles/uav_lumberjack_control_uninstall.dir
+/home/ashuang/UAV_lumberjack/ros2_ws/build/uav_lumberjack_control/CMakeFiles/arm_j1_test.dir
+/home/ashuang/UAV_lumberjack/ros2_ws/build/uav_lumberjack_control/CMakeFiles/arm_controller.dir
+/home/ashuang/UAV_lumberjack/ros2_ws/build/uav_lumberjack_control/CMakeFiles/test.dir
+/home/ashuang/UAV_lumberjack/ros2_ws/build/uav_lumberjack_control/CMakeFiles/edit_cache.dir
+/home/ashuang/UAV_lumberjack/ros2_ws/build/uav_lumberjack_control/CMakeFiles/rebuild_cache.dir
+/home/ashuang/UAV_lumberjack/ros2_ws/build/uav_lumberjack_control/CMakeFiles/list_install_components.dir
+/home/ashuang/UAV_lumberjack/ros2_ws/build/uav_lumberjack_control/CMakeFiles/install.dir
+/home/ashuang/UAV_lumberjack/ros2_ws/build/uav_lumberjack_control/CMakeFiles/install/local.dir
+/home/ashuang/UAV_lumberjack/ros2_ws/build/uav_lumberjack_control/CMakeFiles/install/strip.dir

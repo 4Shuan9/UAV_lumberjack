@@ -1,0 +1,1 @@
+ament_cmake_symlink_install_targets("TARGET_FILES" "/home/ashuang/UAV_lumberjack/ros2_ws/build/uav_lumberjack_control/arm_j1_test" "/home/ashuang/UAV_lumberjack/ros2_ws/build/uav_lumberjack_control/arm_controller" "TARGETS" "arm_j1_test" "arm_controller" "DESTINATION" "lib/uav_lumberjack_control")
