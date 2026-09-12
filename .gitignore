@@ -1,0 +1,16 @@
+cat << 'EOF' >> ~/.gitignore_temp
+# ROS 2 编译输出与日志
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+
+# 隐藏编译配置及缓存
+ros2_ws/*COLCON_IGNORE*
+.colcon/
+*.pyc
+__pycache__/
+
+# 仿真视频（若视频较大超过 50MB-100MB 建议忽略或走 Git LFS）
+# *.mp4
+EOF
+mv ~/.gitignore_temp .gitignore
