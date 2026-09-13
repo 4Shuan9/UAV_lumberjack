@@ -1,1 +1,0 @@
-/home/ashuang/UAV_lumberjack/ros2_ws/build/uav_lumberjack_control/ament_cmake_core/uav_lumberjack_controlConfig-version.cmake
