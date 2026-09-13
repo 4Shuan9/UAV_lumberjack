@@ -1,0 +1,591 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<sdf version="1.9">
+
+  <model name="x500_lumberjack">
+
+    <self_collide>false</self_collide>
+
+
+    <!-- ====================================================== -->
+    <!-- PX4 X500 Base                                          -->
+    <!-- ====================================================== -->
+
+    <include merge="true">
+      <uri>model://x500_base</uri>
+    </include>
+
+
+    <!-- ====================================================== -->
+    <!-- PX4 Motor 0                                            -->
+    <!-- ====================================================== -->
+
+    <plugin
+      filename="gz-sim-multicopter-motor-model-system"
+      name="gz::sim::systems::MulticopterMotorModel">
+
+      <jointName>rotor_0_joint</jointName>
+      <linkName>rotor_0</linkName>
+      <turningDirection>ccw</turningDirection>
+
+      <timeConstantUp>0.0125</timeConstantUp>
+      <timeConstantDown>0.025</timeConstantDown>
+
+      <maxRotVelocity>1000.0</maxRotVelocity>
+
+      <motorConstant>8.54858e-06</motorConstant>
+      <momentConstant>0.016</momentConstant>
+
+      <commandSubTopic>command/motor_speed</commandSubTopic>
+      <motorNumber>0</motorNumber>
+
+      <rotorDragCoefficient>8.06428e-05</rotorDragCoefficient>
+      <rollingMomentCoefficient>1e-06</rollingMomentCoefficient>
+
+      <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
+      <motorType>velocity</motorType>
+
+    </plugin>
+
+
+    <!-- ====================================================== -->
+    <!-- PX4 Motor 1                                            -->
+    <!-- ====================================================== -->
+
+    <plugin
+      filename="gz-sim-multicopter-motor-model-system"
+      name="gz::sim::systems::MulticopterMotorModel">
+
+      <jointName>rotor_1_joint</jointName>
+      <linkName>rotor_1</linkName>
+      <turningDirection>ccw</turningDirection>
+
+      <timeConstantUp>0.0125</timeConstantUp>
+      <timeConstantDown>0.025</timeConstantDown>
+
+      <maxRotVelocity>1000.0</maxRotVelocity>
+
+      <motorConstant>8.54858e-06</motorConstant>
+      <momentConstant>0.016</momentConstant>
+
+      <commandSubTopic>command/motor_speed</commandSubTopic>
+      <motorNumber>1</motorNumber>
+
+      <rotorDragCoefficient>8.06428e-05</rotorDragCoefficient>
+      <rollingMomentCoefficient>1e-06</rollingMomentCoefficient>
+
+      <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
+      <motorType>velocity</motorType>
+
+    </plugin>
+
+
+    <!-- ====================================================== -->
+    <!-- PX4 Motor 2                                            -->
+    <!-- ====================================================== -->
+
+    <plugin
+      filename="gz-sim-multicopter-motor-model-system"
+      name="gz::sim::systems::MulticopterMotorModel">
+
+      <jointName>rotor_2_joint</jointName>
+      <linkName>rotor_2</linkName>
+      <turningDirection>cw</turningDirection>
+
+      <timeConstantUp>0.0125</timeConstantUp>
+      <timeConstantDown>0.025</timeConstantDown>
+
+      <maxRotVelocity>1000.0</maxRotVelocity>
+
+      <motorConstant>8.54858e-06</motorConstant>
+      <momentConstant>0.016</momentConstant>
+
+      <commandSubTopic>command/motor_speed</commandSubTopic>
+      <motorNumber>2</motorNumber>
+
+      <rotorDragCoefficient>8.06428e-05</rotorDragCoefficient>
+      <rollingMomentCoefficient>1e-06</rollingMomentCoefficient>
+
+      <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
+      <motorType>velocity</motorType>
+
+    </plugin>
+
+
+    <!-- ====================================================== -->
+    <!-- PX4 Motor 3                                            -->
+    <!-- ====================================================== -->
+
+    <plugin
+      filename="gz-sim-multicopter-motor-model-system"
+      name="gz::sim::systems::MulticopterMotorModel">
+
+      <jointName>rotor_3_joint</jointName>
+      <linkName>rotor_3</linkName>
+      <turningDirection>cw</turningDirection>
+
+      <timeConstantUp>0.0125</timeConstantUp>
+      <timeConstantDown>0.025</timeConstantDown>
+
+      <maxRotVelocity>1000.0</maxRotVelocity>
+
+      <motorConstant>8.54858e-06</motorConstant>
+      <momentConstant>0.016</momentConstant>
+
+      <commandSubTopic>command/motor_speed</commandSubTopic>
+      <motorNumber>3</motorNumber>
+
+      <rotorDragCoefficient>8.06428e-05</rotorDragCoefficient>
+      <rollingMomentCoefficient>1e-06</rollingMomentCoefficient>
+
+      <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
+      <motorType>velocity</motorType>
+
+    </plugin>
+
+
+    <!-- ====================================================== -->
+    <!-- Arm Base                                               -->
+    <!-- ====================================================== -->
+
+    <link name="arm_base">
+
+      <pose relative_to="base_link">
+        0 0 -0.045 0 0 0
+      </pose>
+
+      <inertial>
+        <mass>0.12</mass>
+
+        <inertia>
+          <ixx>0.000107</ixx>
+          <iyy>0.000107</iyy>
+          <izz>0.000182</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+
+      <visual name="arm_base_visual">
+
+        <geometry>
+          <cylinder>
+            <radius>0.055</radius>
+            <length>0.04</length>
+          </cylinder>
+        </geometry>
+
+        <material>
+          <ambient>0.12 0.12 0.12 1</ambient>
+          <diffuse>0.22 0.22 0.22 1</diffuse>
+        </material>
+
+      </visual>
+
+      <collision name="arm_base_collision">
+
+        <geometry>
+          <cylinder>
+            <radius>0.055</radius>
+            <length>0.04</length>
+          </cylinder>
+        </geometry>
+
+      </collision>
+
+    </link>
+
+
+    <!-- ====================================================== -->
+    <!-- J1 / Yaw Link                                          -->
+    <!-- ====================================================== -->
+
+    <link name="yaw_link">
+
+      <pose relative_to="arm_base">
+        0 0 -0.055 0 0 0
+      </pose>
+
+      <inertial>
+        <mass>0.08</mass>
+
+        <inertia>
+          <ixx>0.000073</ixx>
+          <iyy>0.000073</iyy>
+          <izz>0.000081</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+
+      <visual name="yaw_visual">
+
+        <geometry>
+          <cylinder>
+            <radius>0.038</radius>
+            <length>0.07</length>
+          </cylinder>
+        </geometry>
+
+        <material>
+          <ambient>0.62 0.46 0.08 1</ambient>
+          <diffuse>0.92 0.70 0.12 1</diffuse>
+          <specular>0.18 0.18 0.10 1</specular>
+        </material>
+
+      </visual>
+
+      <collision name="yaw_collision">
+
+        <geometry>
+          <cylinder>
+            <radius>0.038</radius>
+            <length>0.07</length>
+          </cylinder>
+        </geometry>
+
+      </collision>
+
+
+      <!-- J2 red cover -->
+
+      <visual name="j2_joint_cover">
+
+        <pose>0 0 -0.035 0 0 0</pose>
+
+        <geometry>
+          <sphere>
+            <radius>0.040</radius>
+          </sphere>
+        </geometry>
+
+        <material>
+          <ambient>0.70 0.05 0.05 1</ambient>
+          <diffuse>0.90 0.08 0.08 1</diffuse>
+        </material>
+
+      </visual>
+
+    </link>
+
+
+    <!-- ====================================================== -->
+    <!-- J2 / Upper Arm                                         -->
+    <!-- ====================================================== -->
+
+    <link name="upper_arm">
+
+      <pose relative_to="yaw_link">
+        0.11 0 -0.035 0 0 0
+      </pose>
+
+      <inertial>
+        <mass>0.10</mass>
+
+        <inertia>
+          <ixx>0.000031</ixx>
+          <iyy>0.000419</iyy>
+          <izz>0.000419</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+
+      <visual name="upper_arm_visual">
+
+        <pose>0 0 0 0 1.5708 0</pose>
+
+        <geometry>
+          <cylinder>
+            <radius>0.022</radius>
+            <length>0.22</length>
+          </cylinder>
+        </geometry>
+
+        <material>
+          <ambient>0.10 0.35 0.70 1</ambient>
+          <diffuse>0.15 0.45 0.90 1</diffuse>
+        </material>
+
+      </visual>
+
+      <collision name="upper_arm_collision">
+
+        <pose>0 0 0 0 1.5708 0</pose>
+
+        <geometry>
+          <cylinder>
+            <radius>0.022</radius>
+            <length>0.22</length>
+          </cylinder>
+        </geometry>
+
+      </collision>
+
+
+      <!-- J3 red cover -->
+
+      <visual name="j3_joint_cover">
+
+        <pose>0.11 0 0 0 0 0</pose>
+
+        <geometry>
+          <sphere>
+            <radius>0.029</radius>
+          </sphere>
+        </geometry>
+
+        <material>
+          <ambient>0.70 0.05 0.05 1</ambient>
+          <diffuse>0.90 0.08 0.08 1</diffuse>
+        </material>
+
+      </visual>
+
+    </link>
+
+
+    <!-- ====================================================== -->
+    <!-- J3 / Forearm                                           -->
+    <!-- ====================================================== -->
+
+    <link name="forearm">
+
+      <pose relative_to="upper_arm">
+        0.19 0 0 0 0 0
+      </pose>
+
+      <inertial>
+        <mass>0.07</mass>
+
+        <inertia>
+          <ixx>0.000017</ixx>
+          <iyy>0.000158</iyy>
+          <izz>0.000158</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+
+      <visual name="forearm_visual">
+
+        <pose>0 0 0 0 1.5708 0</pose>
+
+        <geometry>
+          <cylinder>
+            <radius>0.017</radius>
+            <length>0.16</length>
+          </cylinder>
+        </geometry>
+
+        <material>
+          <ambient>0.15 0.55 0.25 1</ambient>
+          <diffuse>0.20 0.70 0.30 1</diffuse>
+        </material>
+
+      </visual>
+
+      <collision name="forearm_collision">
+
+        <pose>0 0 0 0 1.5708 0</pose>
+
+        <geometry>
+          <cylinder>
+            <radius>0.017</radius>
+            <length>0.16</length>
+          </cylinder>
+        </geometry>
+
+      </collision>
+
+    </link>
+
+
+    <!-- ====================================================== -->
+    <!-- X500 -> Arm                                            -->
+    <!-- ====================================================== -->
+
+    <joint name="arm_mount_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>arm_base</child>
+    </joint>
+
+
+    <!-- ====================================================== -->
+    <!-- J1                                                     -->
+    <!-- ====================================================== -->
+
+    <joint name="j1" type="revolute">
+
+      <pose relative_to="arm_base">
+        0 0 -0.020 0 0 0
+      </pose>
+
+      <parent>arm_base</parent>
+      <child>yaw_link</child>
+
+      <axis>
+
+        <xyz>0 0 1</xyz>
+
+        <limit>
+          <lower>-3.14159</lower>
+          <upper>3.14159</upper>
+          <effort>5.0</effort>
+          <velocity>2.0</velocity>
+        </limit>
+
+      </axis>
+
+    </joint>
+
+
+    <!-- ====================================================== -->
+    <!-- J2                                                     -->
+    <!-- ====================================================== -->
+
+    <joint name="j2" type="revolute">
+
+      <pose relative_to="yaw_link">
+        0 0 -0.035 0 0 0
+      </pose>
+
+      <parent>yaw_link</parent>
+      <child>upper_arm</child>
+
+      <axis>
+
+        <xyz>0 -1 0</xyz>
+
+        <limit>
+          <lower>-1.5708</lower>
+          <upper>1.5708</upper>
+          <effort>5.0</effort>
+          <velocity>2.0</velocity>
+        </limit>
+
+      </axis>
+
+    </joint>
+
+
+    <!-- ====================================================== -->
+    <!-- J3                                                     -->
+    <!-- ====================================================== -->
+
+    <joint name="j3" type="revolute">
+
+      <pose relative_to="upper_arm">
+        0.11 0 0 0 0 0
+      </pose>
+
+      <parent>upper_arm</parent>
+      <child>forearm</child>
+
+      <axis>
+
+        <xyz>0 -1 0</xyz>
+
+        <limit>
+          <lower>-1.5708</lower>
+          <upper>1.5708</upper>
+          <effort>3.0</effort>
+          <velocity>2.0</velocity>
+        </limit>
+
+      </axis>
+
+    </joint>
+
+
+    <!-- ====================================================== -->
+    <!-- J1 Controller                                          -->
+    <!-- ====================================================== -->
+
+    <plugin
+      filename="gz-sim-joint-position-controller-system"
+      name="gz::sim::systems::JointPositionController">
+
+      <joint_name>j1</joint_name>
+
+      <p_gain>10.0</p_gain>
+      <i_gain>0.0</i_gain>
+      <d_gain>0.8</d_gain>
+
+      <cmd_max>5.0</cmd_max>
+      <cmd_min>-5.0</cmd_min>
+
+    </plugin>
+
+
+    <!-- ====================================================== -->
+    <!-- J2 Controller                                          -->
+    <!-- ====================================================== -->
+
+    <plugin
+      filename="gz-sim-joint-position-controller-system"
+      name="gz::sim::systems::JointPositionController">
+
+      <joint_name>j2</joint_name>
+
+      <p_gain>20.0</p_gain>
+      <i_gain>2.0</i_gain>
+      <d_gain>1.0</d_gain>
+
+      <i_max>2.0</i_max>
+      <i_min>-2.0</i_min>
+
+      <cmd_max>5.0</cmd_max>
+      <cmd_min>-5.0</cmd_min>
+
+    </plugin>
+
+
+    <!-- ====================================================== -->
+    <!-- J3 Controller                                          -->
+    <!-- Latest tested parameters                               -->
+    <!-- ====================================================== -->
+
+    <plugin
+      filename="gz-sim-joint-position-controller-system"
+      name="gz::sim::systems::JointPositionController">
+
+      <joint_name>j3</joint_name>
+
+      <p_gain>8.0</p_gain>
+      <i_gain>0.1</i_gain>
+      <d_gain>0.2</d_gain>
+
+      <i_max>0.1</i_max>
+      <i_min>-0.1</i_min>
+
+      <cmd_max>0.35</cmd_max>
+      <cmd_min>-0.35</cmd_min>
+
+    </plugin>
+
+
+    <!-- ====================================================== -->
+    <!-- Joint State Publisher                                  -->
+    <!-- ====================================================== -->
+
+    <plugin
+      filename="gz-sim-joint-state-publisher-system"
+      name="gz::sim::systems::JointStatePublisher">
+
+      <topic>/lumberjack_arm/joint_states</topic>
+
+      <joint_name>j1</joint_name>
+      <joint_name>j2</joint_name>
+      <joint_name>j3</joint_name>
+
+    </plugin>
+
+
+  </model>
+
+</sdf>
