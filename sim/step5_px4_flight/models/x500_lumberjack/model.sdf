@@ -468,6 +468,10 @@
           <velocity>2.0</velocity>
         </limit>
 
+        <dynamics>
+          <damping>0.20</damping>
+        </dynamics>
+
       </axis>
 
     </joint>
@@ -496,6 +500,10 @@
           <effort>3.0</effort>
           <velocity>2.0</velocity>
         </limit>
+
+        <dynamics>
+          <damping>0.05</damping>
+        </dynamics>
 
       </axis>
 
@@ -532,22 +540,18 @@
 
       <joint_name>j2</joint_name>
 
-      <p_gain>20.0</p_gain>
-      <i_gain>2.0</i_gain>
-      <d_gain>1.0</d_gain>
+      <p_gain>8.0</p_gain>
+      <i_gain>0.0</i_gain>
+      <d_gain>0.0</d_gain>
 
-      <i_max>2.0</i_max>
-      <i_min>-2.0</i_min>
-
-      <cmd_max>5.0</cmd_max>
-      <cmd_min>-5.0</cmd_min>
+      <cmd_max>0.45</cmd_max>
+      <cmd_min>-0.45</cmd_min>
 
     </plugin>
 
 
     <!-- ====================================================== -->
     <!-- J3 Controller                                          -->
-    <!-- Latest tested parameters                               -->
     <!-- ====================================================== -->
 
     <plugin
@@ -556,15 +560,12 @@
 
       <joint_name>j3</joint_name>
 
-      <p_gain>8.0</p_gain>
-      <i_gain>0.1</i_gain>
-      <d_gain>0.2</d_gain>
+      <p_gain>3.0</p_gain>
+      <i_gain>0.0</i_gain>
+      <d_gain>0.0</d_gain>
 
-      <i_max>0.1</i_max>
-      <i_min>-0.1</i_min>
-
-      <cmd_max>0.35</cmd_max>
-      <cmd_min>-0.35</cmd_min>
+      <cmd_max>0.12</cmd_max>
+      <cmd_min>-0.12</cmd_min>
 
     </plugin>
 
