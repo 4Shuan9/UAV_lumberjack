@@ -522,10 +522,10 @@
 
       <p_gain>10.0</p_gain>
       <i_gain>0.0</i_gain>
-      <d_gain>0.8</d_gain>
+      <d_gain>0.5</d_gain>
 
-      <cmd_max>5.0</cmd_max>
-      <cmd_min>-5.0</cmd_min>
+      <cmd_max>0.15</cmd_max>
+      <cmd_min>-0.15</cmd_min>
 
     </plugin>
 
@@ -540,12 +540,12 @@
 
       <joint_name>j2</joint_name>
 
-      <p_gain>8.0</p_gain>
+      <p_gain>30.0</p_gain>
       <i_gain>0.0</i_gain>
       <d_gain>0.0</d_gain>
 
-      <cmd_max>0.45</cmd_max>
-      <cmd_min>-0.45</cmd_min>
+      <cmd_max>0.5</cmd_max>
+      <cmd_min>-0.5</cmd_min>
 
     </plugin>
 
@@ -560,12 +560,12 @@
 
       <joint_name>j3</joint_name>
 
-      <p_gain>3.0</p_gain>
+      <p_gain>5.0</p_gain>
       <i_gain>0.0</i_gain>
       <d_gain>0.0</d_gain>
 
-      <cmd_max>0.12</cmd_max>
-      <cmd_min>-0.12</cmd_min>
+      <cmd_max>0.15</cmd_max>
+      <cmd_min>-0.15</cmd_min>
 
     </plugin>
 
