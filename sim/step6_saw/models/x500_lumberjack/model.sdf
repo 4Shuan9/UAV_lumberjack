@@ -536,7 +536,7 @@
       filename="gz-sim-joint-position-controller-system"
       name="gz::sim::systems::JointPositionController">
       <joint_name>j3</joint_name>
-      <p_gain>5.0</p_gain>
+      <p_gain>7.5</p_gain>
       <i_gain>0.0</i_gain>
       <d_gain>0.0</d_gain>
       <cmd_max>0.15</cmd_max>
