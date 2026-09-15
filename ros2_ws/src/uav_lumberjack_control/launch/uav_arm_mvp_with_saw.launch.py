@@ -30,8 +30,8 @@ def launch_setup(context, *args, **kwargs):
     bridge_config = os.path.join(
         project_root,
         'sim',
-        'step4_x500_arm',
-        'bridge_x500_arm.yaml'
+        'step6_saw',
+        'bridge_x500_arm_saw.yaml'
     )
 
     px4_binary = os.path.join(

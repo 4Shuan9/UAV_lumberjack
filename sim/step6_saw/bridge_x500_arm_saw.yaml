@@ -1,0 +1,59 @@
+# ============================================================
+# J1 Position Command
+# ============================================================
+
+- ros_topic_name: "/lumberjack_arm/j1/cmd_pos"
+  gz_topic_name: "/model/x500_lumberjack/joint/j1/0/cmd_pos"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+# ============================================================
+# J2 Position Command
+# ============================================================
+
+- ros_topic_name: "/lumberjack_arm/j2/cmd_pos"
+  gz_topic_name: "/model/x500_lumberjack/joint/j2/0/cmd_pos"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+# ============================================================
+# J3 Position Command
+# ============================================================
+
+- ros_topic_name: "/lumberjack_arm/j3/cmd_pos"
+  gz_topic_name: "/model/x500_lumberjack/joint/j3/0/cmd_pos"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+# ============================================================
+# J4 Position Command
+# ============================================================
+
+- ros_topic_name: "/lumberjack_arm/j4/cmd_pos"
+  gz_topic_name: "/model/x500_lumberjack/joint/j4/0/cmd_pos"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+# ============================================================
+# Saw Velocity Command
+# ============================================================
+
+- ros_topic_name: "/lumberjack_arm/saw/cmd_vel"
+  gz_topic_name: "/lumberjack_arm/saw/cmd_vel"
+  ros_type_name: "std_msgs/msg/Float64"
+  gz_type_name: "gz.msgs.Double"
+  direction: ROS_TO_GZ
+
+# ============================================================
+# Joint State Feedback
+# ============================================================
+
+- ros_topic_name: "/lumberjack_arm/joint_states"
+  gz_topic_name: "/lumberjack_arm/joint_states"
+  ros_type_name: "sensor_msgs/msg/JointState"
+  gz_type_name: "gz.msgs.Model"
+  direction: GZ_TO_ROS
