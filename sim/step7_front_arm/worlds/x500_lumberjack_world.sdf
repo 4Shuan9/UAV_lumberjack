@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<sdf version="1.9">
+
+  <world name="x500_lumberjack_world">
+
+
+    <!-- ====================================================== -->
+    <!-- Gazebo Systems                                         -->
+    <!-- ====================================================== -->
+
+    <plugin
+      filename="gz-sim-physics-system"
+      name="gz::sim::systems::Physics">
+    </plugin>
+
+    <plugin
+      filename="gz-sim-user-commands-system"
+      name="gz::sim::systems::UserCommands">
+    </plugin>
+
+    <plugin
+      filename="gz-sim-scene-broadcaster-system"
+      name="gz::sim::systems::SceneBroadcaster">
+    </plugin>
+
+    <plugin
+      filename="gz-sim-sensors-system"
+      name="gz::sim::systems::Sensors">
+
+      <render_engine>ogre2</render_engine>
+
+    </plugin>
+
+    <plugin
+      filename="gz-sim-contact-system"
+      name="gz::sim::systems::Contact">
+    </plugin>
+
+    <plugin
+      filename="gz-sim-imu-system"
+      name="gz::sim::systems::Imu">
+    </plugin>
+
+    <plugin
+      filename="gz-sim-magnetometer-system"
+      name="gz::sim::systems::Magnetometer">
+    </plugin>
+
+    <plugin
+      filename="gz-sim-altimeter-system"
+      name="gz::sim::systems::Altimeter">
+    </plugin>
+
+    <plugin
+      filename="gz-sim-navsat-system"
+      name="gz::sim::systems::NavSat">
+    </plugin>
+
+    <plugin
+      filename="gz-sim-air-pressure-system"
+      name="gz::sim::systems::AirPressure">
+    </plugin>
+
+
+    <!-- ====================================================== -->
+    <!-- Physics                                                -->
+    <!-- ====================================================== -->
+
+    <physics type="ode">
+
+      <max_step_size>0.0025</max_step_size>
+
+      <real_time_factor>1.0</real_time_factor>
+
+      <real_time_update_rate>400</real_time_update_rate>
+
+    </physics>
+
+    <gravity>0 0 -9.81</gravity>
+
+    <magnetic_field>
+      6e-06 2.3e-05 -4.2e-05
+    </magnetic_field>
+
+    <atmosphere type="adiabatic"/>
+
+
+    <!-- ====================================================== -->
+    <!-- Scene                                                  -->
+    <!-- ====================================================== -->
+
+    <scene>
+
+      <grid>true</grid>
+
+      <ambient>
+        0.4 0.4 0.4 1
+      </ambient>
+
+      <background>
+        0.7 0.7 0.7 1
+      </background>
+
+      <shadows>true</shadows>
+
+    </scene>
+
+
+    <!-- ====================================================== -->
+    <!-- Ground                                                 -->
+    <!-- ====================================================== -->
+
+    <model name="ground_plane">
+
+      <static>true</static>
+
+      <link name="link">
+
+        <collision name="collision">
+
+          <geometry>
+
+            <plane>
+
+              <normal>0 0 1</normal>
+
+              <size>100 100</size>
+
+            </plane>
+
+          </geometry>
+
+        </collision>
+
+        <visual name="visual">
+
+          <geometry>
+
+            <plane>
+
+              <normal>0 0 1</normal>
+
+              <size>100 100</size>
+
+            </plane>
+
+          </geometry>
+
+          <material>
+
+            <ambient>0.8 0.8 0.8 1</ambient>
+
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+
+          </material>
+
+        </visual>
+
+      </link>
+
+    </model>
+
+
+    <!-- ====================================================== -->
+    <!-- Sun                                                    -->
+    <!-- ====================================================== -->
+
+    <light name="sun" type="directional">
+
+      <pose>0 0 500 0 0 0</pose>
+
+      <cast_shadows>true</cast_shadows>
+
+      <intensity>1</intensity>
+
+      <direction>0.001 0.625 -0.78</direction>
+
+      <diffuse>0.904 0.904 0.904 1</diffuse>
+
+      <specular>0.271 0.271 0.271 1</specular>
+
+    </light>
+
+
+    <!-- ====================================================== -->
+    <!-- Geographic Origin                                      -->
+    <!-- ====================================================== -->
+
+    <spherical_coordinates>
+
+      <surface_model>EARTH_WGS84</surface_model>
+
+      <world_frame_orientation>ENU</world_frame_orientation>
+
+      <latitude_deg>24.623911</latitude_deg>
+
+      <longitude_deg>118.087898</longitude_deg>
+
+      <elevation>0</elevation>
+
+    </spherical_coordinates>
+
+
+    <!-- ====================================================== -->
+    <!-- X500 + 3DOF Arm                                        -->
+    <!-- ====================================================== -->
+
+    <include>
+
+      <name>x500_lumberjack</name>
+
+      <uri>model://x500_lumberjack</uri>
+
+      <pose>0 0 0.25 0 0 0</pose>
+
+    </include>
+
+
+  </world>
+
+</sdf>

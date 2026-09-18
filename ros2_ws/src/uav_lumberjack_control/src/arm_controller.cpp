@@ -22,7 +22,6 @@ class ArmController : public rclcpp::Node
 public:
     ArmController() : Node("arm_controller")
     {
-        j1_pub_ = create_publisher<std_msgs::msg::Float64>("/lumberjack_arm/j1/cmd_pos", 10);
         j2_pub_ = create_publisher<std_msgs::msg::Float64>("/lumberjack_arm/j2/cmd_pos", 10);
         j3_pub_ = create_publisher<std_msgs::msg::Float64>("/lumberjack_arm/j3/cmd_pos", 10);
         j4_pub_ = create_publisher<std_msgs::msg::Float64>("/lumberjack_arm/j4/cmd_pos", 10);
@@ -33,7 +32,7 @@ public:
             rclcpp::SensorDataQoS(),
             std::bind(&ArmController::joint_state_callback, this, std::placeholders::_1));
 
-        RCLCPP_INFO(get_logger(), "UAV_lumberjack 4-DOF Arm + Saw Controller started.");
+        RCLCPP_INFO(get_logger(), "UAV_lumberjack V2 3-DOF Front Arm + Saw Controller started.");
     }
 
     void run()
@@ -90,16 +89,25 @@ public:
                 continue;
             }
 
-            if (command == "test") {
+            if (command == "prework" || command == "ready") {
                 if (busy_.load()) {
                     reject_busy();
                     continue;
                 }
-                start_test_motion();
+                start_prework_motion();
                 continue;
             }
 
-            if (command == "j1" || command == "j2" || command == "j3" || command == "j4") {
+            if (command == "init") {
+                if (busy_.load()) {
+                    reject_busy();
+                    continue;
+                }
+                start_init_motion();
+                continue;
+            }
+
+            if (command == "j2" || command == "j3" || command == "j4") {
                 if (busy_.load()) {
                     reject_busy();
                     continue;
@@ -134,14 +142,27 @@ private:
     static constexpr double RPM_TO_RAD_S = 2.0 * PI / 60.0;
     static constexpr double RAD_S_TO_RPM = 60.0 / (2.0 * PI);
 
-    static constexpr double J1_MIN_DEG = -180.0;
-    static constexpr double J1_MAX_DEG = 180.0;
-    static constexpr double J2_MIN_DEG = -90.0;
-    static constexpr double J2_MAX_DEG = 90.0;
-    static constexpr double J3_MIN_DEG = -90.0;
-    static constexpr double J3_MAX_DEG = 90.0;
+    static constexpr double J2_MIN_DEG = -165.0;
+    static constexpr double J2_MAX_DEG = 15.0;
+    static constexpr double J3_MIN_DEG = -150.0;
+    static constexpr double J3_MAX_DEG = 150.0;
     static constexpr double J4_MIN_DEG = -180.0;
     static constexpr double J4_MAX_DEG = 180.0;
+
+    // Named operating poses
+    static constexpr double HOME_J2_DEG = -30.0;
+    static constexpr double HOME_J3_DEG = -150.0;
+    static constexpr double HOME_J4_DEG = -90.0;
+
+    static constexpr double PREWORK_J2_DEG = -60.0;
+    static constexpr double PREWORK_J3_DEG = 60.0;
+    static constexpr double PREWORK_J4_DEG = 0.0;
+
+    // Gazebo model is physically baked in HOME at raw joint position 0.
+    // User-facing logical angle = Gazebo raw angle + this offset.
+    static constexpr double J2_LOGICAL_OFFSET_DEG = HOME_J2_DEG;
+    static constexpr double J3_LOGICAL_OFFSET_DEG = HOME_J3_DEG;
+    static constexpr double J4_LOGICAL_OFFSET_DEG = HOME_J4_DEG;
     static constexpr double SAW_MIN_RPM = 0.0;
     static constexpr double SAW_MAX_RPM = 1800.0;
 
@@ -155,41 +176,34 @@ private:
     // acceleration -> constant speed -> deceleration.
     // If a move is too short to reach vmax, it automatically becomes a triangular profile.
     static constexpr int TRAJECTORY_PERIOD_MS = 20;
-    static constexpr double J1_MAX_CMD_SPEED_DEG_S = 45.0;
     static constexpr double J2_MAX_CMD_SPEED_DEG_S = 30.0;
     static constexpr double J3_MAX_CMD_SPEED_DEG_S = 45.0;
     static constexpr double J4_MAX_CMD_SPEED_DEG_S = 60.0;
 
-    static constexpr double J1_MAX_CMD_ACCEL_DEG_S2 = 30.0;
     static constexpr double J2_MAX_CMD_ACCEL_DEG_S2 = 25.0;
     static constexpr double J3_MAX_CMD_ACCEL_DEG_S2 = 35.0;
     static constexpr double J4_MAX_CMD_ACCEL_DEG_S2 = 40.0;
 
-    rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr j1_pub_;
     rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr j2_pub_;
     rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr j3_pub_;
     rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr j4_pub_;
     rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr saw_pub_;
     rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_state_sub_;
 
-    double j1_cmd_deg_ = 0.0;
-    double j2_cmd_deg_ = 0.0;
-    double j3_cmd_deg_ = 0.0;
-    double j4_cmd_deg_ = 0.0;
+    double j2_cmd_deg_ = HOME_J2_DEG;
+    double j3_cmd_deg_ = HOME_J3_DEG;
+    double j4_cmd_deg_ = HOME_J4_DEG;
     double saw_cmd_rpm_ = 0.0;
 
-    double j1_actual_deg_ = 0.0;
     double j2_actual_deg_ = 0.0;
     double j3_actual_deg_ = 0.0;
     double j4_actual_deg_ = 0.0;
     double saw_actual_rpm_ = 0.0;
 
-    double j1_velocity_deg_s_ = 0.0;
     double j2_velocity_deg_s_ = 0.0;
     double j3_velocity_deg_s_ = 0.0;
     double j4_velocity_deg_s_ = 0.0;
 
-    bool j1_feedback_received_ = false;
     bool j2_feedback_received_ = false;
     bool j3_feedback_received_ = false;
     bool j4_feedback_received_ = false;
@@ -232,25 +246,21 @@ private:
         const std::size_t count = std::min(msg->name.size(), msg->position.size());
 
         for (std::size_t i = 0; i < count; ++i) {
-            const double position_deg = msg->position[i] * RAD_TO_DEG;
+            const double raw_position_deg = msg->position[i] * RAD_TO_DEG;
             double velocity_rad_s = 0.0;
             if (i < msg->velocity.size()) velocity_rad_s = msg->velocity[i];
             const double velocity_deg_s = velocity_rad_s * RAD_TO_DEG;
 
-            if (msg->name[i] == "j1") {
-                j1_actual_deg_ = position_deg;
-                j1_velocity_deg_s_ = velocity_deg_s;
-                j1_feedback_received_ = true;
-            } else if (msg->name[i] == "j2") {
-                j2_actual_deg_ = position_deg;
+            if (msg->name[i] == "j2") {
+                j2_actual_deg_ = raw_position_deg + J2_LOGICAL_OFFSET_DEG;
                 j2_velocity_deg_s_ = velocity_deg_s;
                 j2_feedback_received_ = true;
             } else if (msg->name[i] == "j3") {
-                j3_actual_deg_ = position_deg;
+                j3_actual_deg_ = raw_position_deg + J3_LOGICAL_OFFSET_DEG;
                 j3_velocity_deg_s_ = velocity_deg_s;
                 j3_feedback_received_ = true;
             } else if (msg->name[i] == "j4") {
-                j4_actual_deg_ = position_deg;
+                j4_actual_deg_ = raw_position_deg + J4_LOGICAL_OFFSET_DEG;
                 j4_velocity_deg_s_ = velocity_deg_s;
                 j4_feedback_received_ = true;
             } else if (msg->name[i] == "saw_spin_joint") {
@@ -265,13 +275,12 @@ private:
         safe_print("Waiting for ros_gz_bridge command channels...");
 
         while (rclcpp::ok()) {
-            const bool j1_ready = j1_pub_->get_subscription_count() > 0;
             const bool j2_ready = j2_pub_->get_subscription_count() > 0;
             const bool j3_ready = j3_pub_->get_subscription_count() > 0;
             const bool j4_ready = j4_pub_->get_subscription_count() > 0;
             const bool saw_ready = saw_pub_->get_subscription_count() > 0;
 
-            if (j1_ready && j2_ready && j3_ready && j4_ready && saw_ready) {
+            if (j2_ready && j3_ready && j4_ready && saw_ready) {
                 safe_print("All command bridges detected.");
                 return;
             }
@@ -287,12 +296,12 @@ private:
             bool ready = false;
             {
                 std::lock_guard<std::mutex> lock(state_mutex_);
-                ready = j1_feedback_received_ && j2_feedback_received_ && j3_feedback_received_ &&
+                ready = j2_feedback_received_ && j3_feedback_received_ &&
                         j4_feedback_received_ && saw_feedback_received_;
             }
 
             if (ready) {
-                safe_print("Joint state feedback detected: J1/J2/J3/J4/Saw.");
+                safe_print("Joint state feedback detected: J2/J3/J4/Saw.");
                 return;
             }
             std::this_thread::sleep_for(100ms);
@@ -304,10 +313,7 @@ private:
         double min_deg = 0.0;
         double max_deg = 0.0;
 
-        if (joint == "j1") {
-            min_deg = J1_MIN_DEG;
-            max_deg = J1_MAX_DEG;
-        } else if (joint == "j2") {
+        if (joint == "j2") {
             min_deg = J2_MIN_DEG;
             max_deg = J2_MAX_DEG;
         } else if (joint == "j3") {
@@ -334,7 +340,6 @@ private:
     double get_commanded_angle(const std::string & joint)
     {
         std::lock_guard<std::mutex> lock(state_mutex_);
-        if (joint == "j1") return j1_cmd_deg_;
         if (joint == "j2") return j2_cmd_deg_;
         if (joint == "j3") return j3_cmd_deg_;
         if (joint == "j4") return j4_cmd_deg_;
@@ -343,19 +348,22 @@ private:
 
     void publish_joint(const std::string & joint, double angle_deg)
     {
+        double raw_angle_deg = angle_deg;
+        if (joint == "j2") raw_angle_deg = angle_deg - J2_LOGICAL_OFFSET_DEG;
+        else if (joint == "j3") raw_angle_deg = angle_deg - J3_LOGICAL_OFFSET_DEG;
+        else if (joint == "j4") raw_angle_deg = angle_deg - J4_LOGICAL_OFFSET_DEG;
+
         std_msgs::msg::Float64 msg;
-        msg.data = angle_deg * DEG_TO_RAD;
+        msg.data = raw_angle_deg * DEG_TO_RAD;
 
         {
             std::lock_guard<std::mutex> lock(state_mutex_);
-            if (joint == "j1") j1_cmd_deg_ = angle_deg;
-            else if (joint == "j2") j2_cmd_deg_ = angle_deg;
+            if (joint == "j2") j2_cmd_deg_ = angle_deg;
             else if (joint == "j3") j3_cmd_deg_ = angle_deg;
             else if (joint == "j4") j4_cmd_deg_ = angle_deg;
         }
 
-        if (joint == "j1") j1_pub_->publish(msg);
-        else if (joint == "j2") j2_pub_->publish(msg);
+        if (joint == "j2") j2_pub_->publish(msg);
         else if (joint == "j3") j3_pub_->publish(msg);
         else if (joint == "j4") j4_pub_->publish(msg);
     }
@@ -420,12 +428,6 @@ private:
     {
         std::lock_guard<std::mutex> lock(state_mutex_);
 
-        if (joint == "j1") {
-            if (!j1_feedback_received_) return false;
-            actual_deg = j1_actual_deg_;
-            velocity_deg_s = j1_velocity_deg_s_;
-            return true;
-        }
         if (joint == "j2") {
             if (!j2_feedback_received_) return false;
             actual_deg = j2_actual_deg_;
@@ -505,31 +507,27 @@ private:
         const auto start_time = std::chrono::steady_clock::now();
 
         while (rclcpp::ok()) {
-            double j1_actual, j2_actual, j3_actual, j4_actual;
-            double j1_velocity, j2_velocity, j3_velocity, j4_velocity;
+            double j2_actual, j3_actual, j4_actual;
+            double j2_velocity, j3_velocity, j4_velocity;
 
             {
                 std::lock_guard<std::mutex> lock(state_mutex_);
-                j1_actual = j1_actual_deg_;
                 j2_actual = j2_actual_deg_;
                 j3_actual = j3_actual_deg_;
                 j4_actual = j4_actual_deg_;
-                j1_velocity = j1_velocity_deg_s_;
                 j2_velocity = j2_velocity_deg_s_;
                 j3_velocity = j3_velocity_deg_s_;
                 j4_velocity = j4_velocity_deg_s_;
             }
 
-            const bool j1_ok = std::abs(j1_actual) <= POSITION_TOLERANCE_DEG &&
-                               std::abs(j1_velocity) <= VELOCITY_TOLERANCE_DEG_S;
-            const bool j2_ok = std::abs(j2_actual) <= POSITION_TOLERANCE_DEG &&
+            const bool j2_ok = std::abs(HOME_J2_DEG - j2_actual) <= POSITION_TOLERANCE_DEG &&
                                std::abs(j2_velocity) <= VELOCITY_TOLERANCE_DEG_S;
-            const bool j3_ok = std::abs(j3_actual) <= POSITION_TOLERANCE_DEG &&
+            const bool j3_ok = std::abs(HOME_J3_DEG - j3_actual) <= POSITION_TOLERANCE_DEG &&
                                std::abs(j3_velocity) <= VELOCITY_TOLERANCE_DEG_S;
-            const bool j4_ok = std::abs(j4_actual) <= POSITION_TOLERANCE_DEG &&
+            const bool j4_ok = std::abs(HOME_J4_DEG - j4_actual) <= POSITION_TOLERANCE_DEG &&
                                std::abs(j4_velocity) <= VELOCITY_TOLERANCE_DEG_S;
 
-            if (j1_ok && j2_ok && j3_ok && j4_ok) stable_cycles++;
+            if (j2_ok && j3_ok && j4_ok) stable_cycles++;
             else stable_cycles = 0;
 
             if (stable_cycles >= STABLE_CYCLES_REQUIRED) {
@@ -539,14 +537,14 @@ private:
 
             const auto now = std::chrono::steady_clock::now();
             const double elapsed_sec = std::chrono::duration<double>(now - start_time).count();
+
             if (elapsed_sec >= MOTION_TIMEOUT_SEC) {
                 std::ostringstream oss;
                 oss << std::fixed << std::setprecision(2)
                     << "[TIMEOUT] HOME failed.\n"
-                    << "J1 actual = " << j1_actual << " deg\n"
-                    << "J2 actual = " << j2_actual << " deg\n"
-                    << "J3 actual = " << j3_actual << " deg\n"
-                    << "J4 actual = " << j4_actual << " deg";
+                    << "J2 target/actual = " << HOME_J2_DEG << " / " << j2_actual << " deg\n"
+                    << "J3 target/actual = " << HOME_J3_DEG << " / " << j3_actual << " deg\n"
+                    << "J4 target/actual = " << HOME_J4_DEG << " / " << j4_actual << " deg";
                 safe_print(oss.str());
                 return false;
             }
@@ -558,20 +556,18 @@ private:
 
     double get_joint_speed_limit_deg_s(const std::string & joint) const
     {
-        if (joint == "j1") return J1_MAX_CMD_SPEED_DEG_S;
         if (joint == "j2") return J2_MAX_CMD_SPEED_DEG_S;
         if (joint == "j3") return J3_MAX_CMD_SPEED_DEG_S;
         if (joint == "j4") return J4_MAX_CMD_SPEED_DEG_S;
-        return J1_MAX_CMD_SPEED_DEG_S;
+        return J2_MAX_CMD_SPEED_DEG_S;
     }
 
     double get_joint_accel_limit_deg_s2(const std::string & joint) const
     {
-        if (joint == "j1") return J1_MAX_CMD_ACCEL_DEG_S2;
         if (joint == "j2") return J2_MAX_CMD_ACCEL_DEG_S2;
         if (joint == "j3") return J3_MAX_CMD_ACCEL_DEG_S2;
         if (joint == "j4") return J4_MAX_CMD_ACCEL_DEG_S2;
-        return J1_MAX_CMD_ACCEL_DEG_S2;
+        return J2_MAX_CMD_ACCEL_DEG_S2;
     }
 
     TrapProfile make_trapezoid(
@@ -674,40 +670,112 @@ private:
 
     bool publish_home_trapezoid()
     {
-        double q1 = 0.0, q2 = 0.0, q3 = 0.0, q4 = 0.0;
+        double q2 = 0.0, q3 = 0.0, q4 = 0.0;
         double v = 0.0;
-        if (!get_joint_feedback("j1", q1, v) || !get_joint_feedback("j2", q2, v) ||
-            !get_joint_feedback("j3", q3, v) || !get_joint_feedback("j4", q4, v)) {
+        if (!get_joint_feedback("j2", q2, v) || !get_joint_feedback("j3", q3, v) ||
+            !get_joint_feedback("j4", q4, v)) {
             safe_print("[ERROR] Joint feedback unavailable before HOME trajectory.");
             return false;
         }
 
-        const TrapProfile p1 = make_trapezoid(q1, 0.0, J1_MAX_CMD_SPEED_DEG_S, J1_MAX_CMD_ACCEL_DEG_S2);
-        const TrapProfile p2 = make_trapezoid(q2, 0.0, J2_MAX_CMD_SPEED_DEG_S, J2_MAX_CMD_ACCEL_DEG_S2);
-        const TrapProfile p3 = make_trapezoid(q3, 0.0, J3_MAX_CMD_SPEED_DEG_S, J3_MAX_CMD_ACCEL_DEG_S2);
-        const TrapProfile p4 = make_trapezoid(q4, 0.0, J4_MAX_CMD_SPEED_DEG_S, J4_MAX_CMD_ACCEL_DEG_S2);
+        const TrapProfile p2 = make_trapezoid(q2, HOME_J2_DEG, J2_MAX_CMD_SPEED_DEG_S, J2_MAX_CMD_ACCEL_DEG_S2);
+        const TrapProfile p3 = make_trapezoid(q3, HOME_J3_DEG, J3_MAX_CMD_SPEED_DEG_S, J3_MAX_CMD_ACCEL_DEG_S2);
+        const TrapProfile p4 = make_trapezoid(q4, HOME_J4_DEG, J4_MAX_CMD_SPEED_DEG_S, J4_MAX_CMD_ACCEL_DEG_S2);
 
-        const double total_time = std::max(
-            std::max(p1.total_time, p2.total_time),
-            std::max(p3.total_time, p4.total_time));
-
+        const double total_time = std::max(p2.total_time, std::max(p3.total_time, p4.total_time));
         const double dt_sec = static_cast<double>(TRAJECTORY_PERIOD_MS) / 1000.0;
         const int steps = std::max(1, static_cast<int>(std::ceil(total_time / dt_sec)));
 
         for (int i = 1; i <= steps && rclcpp::ok(); ++i) {
             const double t = i * dt_sec;
-            publish_joint("j1", sample_trapezoid(p1, std::min(t, p1.total_time)));
             publish_joint("j2", sample_trapezoid(p2, std::min(t, p2.total_time)));
             publish_joint("j3", sample_trapezoid(p3, std::min(t, p3.total_time)));
             publish_joint("j4", sample_trapezoid(p4, std::min(t, p4.total_time)));
             std::this_thread::sleep_for(std::chrono::milliseconds(TRAJECTORY_PERIOD_MS));
         }
 
-        publish_joint("j1", 0.0);
+        publish_joint("j2", HOME_J2_DEG);
+        publish_joint("j3", HOME_J3_DEG);
+        publish_joint("j4", HOME_J4_DEG);
+        return true;
+    }
+
+    bool publish_zero_trapezoid()
+    {
+        double q2 = 0.0, q3 = 0.0, q4 = 0.0;
+        double v = 0.0;
+        if (!get_joint_feedback("j2", q2, v) || !get_joint_feedback("j3", q3, v) ||
+            !get_joint_feedback("j4", q4, v)) {
+            safe_print("[ERROR] Joint feedback unavailable before ZERO trajectory.");
+            return false;
+        }
+
+        const TrapProfile p2 = make_trapezoid(q2, 0.0, J2_MAX_CMD_SPEED_DEG_S, J2_MAX_CMD_ACCEL_DEG_S2);
+        const TrapProfile p3 = make_trapezoid(q3, 0.0, J3_MAX_CMD_SPEED_DEG_S, J3_MAX_CMD_ACCEL_DEG_S2);
+        const TrapProfile p4 = make_trapezoid(q4, 0.0, J4_MAX_CMD_SPEED_DEG_S, J4_MAX_CMD_ACCEL_DEG_S2);
+
+        const double total_time = std::max(p2.total_time, std::max(p3.total_time, p4.total_time));
+        const double dt_sec = static_cast<double>(TRAJECTORY_PERIOD_MS) / 1000.0;
+        const int steps = std::max(1, static_cast<int>(std::ceil(total_time / dt_sec)));
+
+        for (int i = 1; i <= steps && rclcpp::ok(); ++i) {
+            const double t = i * dt_sec;
+            publish_joint("j2", sample_trapezoid(p2, std::min(t, p2.total_time)));
+            publish_joint("j3", sample_trapezoid(p3, std::min(t, p3.total_time)));
+            publish_joint("j4", sample_trapezoid(p4, std::min(t, p4.total_time)));
+            std::this_thread::sleep_for(std::chrono::milliseconds(TRAJECTORY_PERIOD_MS));
+        }
+
         publish_joint("j2", 0.0);
         publish_joint("j3", 0.0);
         publish_joint("j4", 0.0);
         return true;
+    }
+
+    bool wait_until_zero_reached()
+    {
+        return wait_until_joint_reached("j2", 0.0) &&
+               wait_until_joint_reached("j3", 0.0) &&
+               wait_until_joint_reached("j4", 0.0);
+    }
+
+    bool publish_prework_trapezoid()
+    {
+        double q2 = 0.0, q3 = 0.0, q4 = 0.0;
+        double v = 0.0;
+        if (!get_joint_feedback("j2", q2, v) || !get_joint_feedback("j3", q3, v) ||
+            !get_joint_feedback("j4", q4, v)) {
+            safe_print("[ERROR] Joint feedback unavailable before PREWORK trajectory.");
+            return false;
+        }
+
+        const TrapProfile p2 = make_trapezoid(q2, PREWORK_J2_DEG, J2_MAX_CMD_SPEED_DEG_S, J2_MAX_CMD_ACCEL_DEG_S2);
+        const TrapProfile p3 = make_trapezoid(q3, PREWORK_J3_DEG, J3_MAX_CMD_SPEED_DEG_S, J3_MAX_CMD_ACCEL_DEG_S2);
+        const TrapProfile p4 = make_trapezoid(q4, PREWORK_J4_DEG, J4_MAX_CMD_SPEED_DEG_S, J4_MAX_CMD_ACCEL_DEG_S2);
+
+        const double total_time = std::max(p2.total_time, std::max(p3.total_time, p4.total_time));
+        const double dt_sec = static_cast<double>(TRAJECTORY_PERIOD_MS) / 1000.0;
+        const int steps = std::max(1, static_cast<int>(std::ceil(total_time / dt_sec)));
+
+        for (int i = 1; i <= steps && rclcpp::ok(); ++i) {
+            const double t = i * dt_sec;
+            publish_joint("j2", sample_trapezoid(p2, std::min(t, p2.total_time)));
+            publish_joint("j3", sample_trapezoid(p3, std::min(t, p3.total_time)));
+            publish_joint("j4", sample_trapezoid(p4, std::min(t, p4.total_time)));
+            std::this_thread::sleep_for(std::chrono::milliseconds(TRAJECTORY_PERIOD_MS));
+        }
+
+        publish_joint("j2", PREWORK_J2_DEG);
+        publish_joint("j3", PREWORK_J3_DEG);
+        publish_joint("j4", PREWORK_J4_DEG);
+        return true;
+    }
+
+    bool wait_until_prework_reached()
+    {
+        return wait_until_joint_reached("j2", PREWORK_J2_DEG) &&
+               wait_until_joint_reached("j3", PREWORK_J3_DEG) &&
+               wait_until_joint_reached("j4", PREWORK_J4_DEG);
     }
 
     bool move_joint_sync(const std::string & joint, double target_deg)
@@ -762,64 +830,93 @@ private:
         busy_.store(true);
 
         motion_thread_ = std::thread([this]() {
-            safe_print("[BUSY] Saw OFF, returning J1/J2/J3/J4 to HOME...");
+            safe_print("[BUSY] Saw OFF, moving to TAKEOFF/LANDING HOME pose...");
             const bool reached = home_all_sync();
             safe_print(reached ? "HOME reached. [IDLE]" : "HOME ended with timeout/error. [IDLE]");
             busy_.store(false);
         });
     }
 
-    void start_test_motion()
+    void start_prework_motion()
     {
         if (motion_thread_.joinable()) motion_thread_.join();
         busy_.store(true);
 
         motion_thread_ = std::thread([this]() {
-            safe_print("[TEST] Starting automatic arm sweep. Saw will remain OFF.");
+            safe_print("[BUSY] Saw OFF, moving to PREWORK pose...");
+            publish_saw_rpm(0.0);
+
+            bool reached = false;
+            if (publish_prework_trapezoid()) {
+                reached = wait_until_prework_reached();
+            }
+
+            safe_print(reached ? "PREWORK reached. [IDLE]" : "PREWORK ended with timeout/error. [IDLE]");
+            busy_.store(false);
+        });
+    }
+
+    void start_init_motion()
+    {
+        if (motion_thread_.joinable()) motion_thread_.join();
+        busy_.store(true);
+
+        motion_thread_ = std::thread([this]() {
+            safe_print("[INIT] Joint full-range check starting...");
             publish_saw_rpm(0.0);
 
             bool ok = true;
-            if (ok) ok = move_joint_sync("j2", -60.0);
-            if (ok) ok = move_joint_sync("j1", 180.0);
-            if (ok) ok = move_joint_sync("j1", -180.0);
-            if (ok) ok = move_joint_sync("j1", 0.0);
-            if (ok) ok = move_joint_sync("j3", 90.0);
-            if (ok) ok = move_joint_sync("j3", -90.0);
+
+            // Start from a neutral logical pose so each joint can be checked independently.
+            safe_print("[INIT] Step 0: J2/J3/J4 -> 0 deg / Saw OFF");
+            if (ok) ok = publish_zero_trapezoid();
+            if (ok) ok = wait_until_zero_reached();
+
+            // J2 full logical range: +15 -> -165 -> 0.
+            if (ok) safe_print("[INIT] J2 full range: 0 -> +15 -> -165 -> 0 deg");
+            if (ok) ok = move_joint_sync("j2", J2_MAX_DEG);
+            if (ok) ok = move_joint_sync("j2", J2_MIN_DEG);
+            if (ok) ok = move_joint_sync("j2", 0.0);
+
+            // J3 full logical range: +150 -> -150 -> 0.
+            if (ok) safe_print("[INIT] J3 full range: 0 -> +150 -> -150 -> 0 deg");
+            if (ok) ok = move_joint_sync("j3", J3_MAX_DEG);
+            if (ok) ok = move_joint_sync("j3", J3_MIN_DEG);
             if (ok) ok = move_joint_sync("j3", 0.0);
-            if (ok) ok = move_joint_sync("j4", 180.0);
-            if (ok) ok = move_joint_sync("j4", -180.0);
+
+            // J4 full logical range: +180 -> -180 -> 0.
+            if (ok) safe_print("[INIT] J4 full range: 0 -> +180 -> -180 -> 0 deg");
+            if (ok) ok = move_joint_sync("j4", J4_MAX_DEG);
+            if (ok) ok = move_joint_sync("j4", J4_MIN_DEG);
             if (ok) ok = move_joint_sync("j4", 0.0);
 
-            if (!ok) safe_print("[TEST] A sweep step failed. Attempting HOME anyway...");
-            else safe_print("[TEST] Sweep complete. Returning to HOME...");
+            if (!ok) safe_print("[INIT] A joint-range step failed. Attempting HOME anyway...");
+            else safe_print("[INIT] Joint full-range check complete. Returning to HOME...");
 
             const bool home_ok = home_all_sync();
-            if (ok && home_ok) safe_print("[TEST] PASS - automatic sweep complete, HOME reached. [IDLE]");
-            else if (home_ok) safe_print("[TEST] END - sweep had an error, but HOME was recovered. [IDLE]");
-            else safe_print("[TEST] FAIL - HOME recovery also failed. [IDLE]");
+            if (ok && home_ok) safe_print("[INIT] PASS - all joint ranges checked, HOME reached. [IDLE]");
+            else if (home_ok) safe_print("[INIT] END - a range check had an error, but HOME was recovered. [IDLE]");
+            else safe_print("[INIT] FAIL - HOME recovery also failed. [IDLE]");
             busy_.store(false);
         });
     }
 
     void print_status()
     {
-        double j1_cmd, j2_cmd, j3_cmd, j4_cmd, saw_cmd;
-        double j1_actual, j2_actual, j3_actual, j4_actual, saw_actual;
-        double j1_velocity, j2_velocity, j3_velocity, j4_velocity;
+        double j2_cmd, j3_cmd, j4_cmd, saw_cmd;
+        double j2_actual, j3_actual, j4_actual, saw_actual;
+        double j2_velocity, j3_velocity, j4_velocity;
 
         {
             std::lock_guard<std::mutex> lock(state_mutex_);
-            j1_cmd = j1_cmd_deg_;
             j2_cmd = j2_cmd_deg_;
             j3_cmd = j3_cmd_deg_;
             j4_cmd = j4_cmd_deg_;
             saw_cmd = saw_cmd_rpm_;
-            j1_actual = j1_actual_deg_;
             j2_actual = j2_actual_deg_;
             j3_actual = j3_actual_deg_;
             j4_actual = j4_actual_deg_;
             saw_actual = saw_actual_rpm_;
-            j1_velocity = j1_velocity_deg_s_;
             j2_velocity = j2_velocity_deg_s_;
             j3_velocity = j3_velocity_deg_s_;
             j4_velocity = j4_velocity_deg_s_;
@@ -827,21 +924,19 @@ private:
 
         std::ostringstream oss;
         oss << "\n============================================================================\n"
-            << "                     UAV_lumberjack Arm + Saw State\n"
+            << "                  UAV_lumberjack Front Arm + Saw State\n"
             << "============================================================================\n\n"
             << "Joint   Commanded     Actual       Error       Velocity\n"
             << "----------------------------------------------------------------------------\n"
             << std::fixed << std::setprecision(2);
 
         auto row = [&oss](const std::string & name, double cmd, double actual, double vel) {
-            oss << name << "      "
-                << std::setw(8) << cmd << " deg   "
+            oss << name << "      " << std::setw(8) << cmd << " deg   "
                 << std::setw(8) << actual << " deg   "
                 << std::setw(8) << (cmd - actual) << " deg   "
                 << std::setw(8) << vel << " deg/s\n";
         };
 
-        row("J1", j1_cmd, j1_actual, j1_velocity);
         row("J2", j2_cmd, j2_actual, j2_velocity);
         row("J3", j3_cmd, j3_actual, j3_velocity);
         row("J4", j4_cmd, j4_actual, j4_velocity);
@@ -858,41 +953,40 @@ private:
         std::ostringstream oss;
         oss <<
             "\n===============================================\n"
-            " UAV_lumberjack 4-DOF Arm + Saw Controller\n"
+            " UAV_lumberjack V2 3-DOF Front Arm + Saw Controller\n"
             "===============================================\n\n"
             "Joint Commands:\n"
-            "  j1 <deg>       Base Yaw\n"
             "  j2 <deg>       Shoulder Pitch\n"
             "  j3 <deg>       Elbow Pitch\n"
             "  j4 <deg>       Wrist Roll\n\n"
             "Saw Commands:\n"
             "  saw <rpm>      Saw speed, 0 ~ 1800 rpm\n"
             "  saw off        Stop saw immediately\n\n"
-            "Automatic Test:\n"
-            "  test            J2 -> -60, sweep J1/J3/J4, then HOME\n"
-            "                  J1: +180 -> -180 -> 0\n"
-            "                  J3:  +90 ->  -90 -> 0\n"
+            "Initialization / Range Check:\n"
+            "  init            J2/J3/J4 -> 0, then check each joint independently\n"
+            "                  J2: +15 -> -165 -> 0\n"
+            "                  J3: +150 -> -150 -> 0\n"
             "                  J4: +180 -> -180 -> 0\n"
-            "                  Saw remains OFF during test\n\n"
+            "                  Saw remains OFF, then return HOME\n\n"
             "Other Commands:\n"
-            "  home            Saw OFF, J1/J2/J3/J4 -> 0 deg\n"
+            "  home            Takeoff/Landing: J2=-30, J3=-150, J4=-90 deg\n"
+            "  prework         Pre-work: J2=-60, J3=+60, J4=0 deg\n"
+            "  ready           Alias of prework\n"
             "  status          Show state (allowed while BUSY)\n"
             "  help            Show help (allowed while BUSY)\n"
             "  quit            Saw OFF and exit (IDLE only)\n\n"
             "Joint Limits:\n"
-            "  J1: -180 deg ~ +180 deg\n"
-            "  J2:  -90 deg ~  +90 deg\n"
-            "  J3:  -90 deg ~  +90 deg\n"
+            "  J2: -165 deg ~  +15 deg\n"
+            "  J3: -150 deg ~ +150 deg\n"
             "  J4: -180 deg ~ +180 deg\n\n"
             "Trapezoidal Trajectory Limits:\n"
-            "  J1: vmax 45 deg/s, amax 30 deg/s^2\n"
             "  J2: vmax 30 deg/s, amax 25 deg/s^2\n"
             "  J3: vmax 45 deg/s, amax 35 deg/s^2\n"
             "  J4: vmax 60 deg/s, amax 40 deg/s^2\n"
             "  Command period: 20 ms\n"
             "  Short moves automatically use triangular velocity profiles\n\n"
             "BUSY Policy:\n"
-            "  Joint motion / home / test / saw start / quit -> REJECTED while BUSY\n"
+            "  Joint motion / home / init / saw start / quit -> REJECTED while BUSY\n"
             "  saw off / saw 0 / status / help              -> always allowed\n"
             "===============================================";
         safe_print(oss.str());
