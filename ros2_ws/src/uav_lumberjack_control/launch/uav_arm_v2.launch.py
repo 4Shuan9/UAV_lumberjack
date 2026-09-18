@@ -24,7 +24,7 @@ def launch_setup(context, *args, **kwargs):
     step6_root = os.path.join(
         project_root,
         'sim',
-        'step8_v2_platform'
+        'step9_v2_camera'
     )
 
     world_file = os.path.join(
@@ -40,7 +40,7 @@ def launch_setup(context, *args, **kwargs):
 
     bridge_config = os.path.join(
         step6_root,
-        'bridge_x500_arm_saw.yaml'
+        'bridge_gazebo_ros2.yaml'
     )
 
     px4_binary = os.path.join(
