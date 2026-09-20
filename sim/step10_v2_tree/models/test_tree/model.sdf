@@ -113,7 +113,7 @@
     <!-- ====================================================== -->
 
     <link name="branch_2">
-      <pose>-0.255 0.260 2.450 0 1.02 2.35</pose>
+      <pose>-0.255 0.260 2.350 0 1.02 2.35</pose>
 
       <inertial>
         <mass>2.0</mass>
@@ -154,86 +154,12 @@
 
 
     <!-- ====================================================== -->
-    <!-- Branch 3 / target_branch                              -->
-    <!-- upper target branch, one logical link                 -->
-    <!-- inner half wood / outer half red                      -->
-    <!-- ====================================================== -->
-
-    <link name="target_branch">
-      <pose>-0.305 0.060 2.950 0 1.08 2.961593</pose>
-
-      <inertial>
-        <mass>2.1</mass>
-        <inertia>
-          <ixx>0.20</ixx>
-          <iyy>0.20</iyy>
-          <izz>0.010</izz>
-        </inertia>
-      </inertial>
-
-      <collision name="target_branch_inner_collision">
-        <pose>0 0 -0.20 0 0 0</pose>
-        <geometry>
-          <cylinder>
-            <radius>0.038</radius>
-            <length>0.40</length>
-          </cylinder>
-        </geometry>
-      </collision>
-
-      <visual name="target_branch_inner_visual">
-        <pose>0 0 -0.20 0 0 0</pose>
-        <geometry>
-          <cylinder>
-            <radius>0.038</radius>
-            <length>0.40</length>
-          </cylinder>
-        </geometry>
-        <material>
-          <ambient>0.30 0.15 0.07 1</ambient>
-          <diffuse>0.40 0.20 0.09 1</diffuse>
-        </material>
-      </visual>
-
-      <collision name="target_branch_outer_collision">
-        <pose>0 0 0.15 0 0 0</pose>
-        <geometry>_4
-          <cylinder>
-            <radius>0.038</radius>
-            <length>0.30</length>
-          </cylinder>
-        </geometry>
-      </collision>
-
-      <visual name="target_branch_outer_visual">
-        <pose>0 0 0.15 0 0 0</pose>
-        <geometry>
-          <cylinder>
-            <radius>0.038</radius>
-            <length>0.30</length>
-          </cylinder>
-        </geometry>
-        <material>
-          <ambient>0.70 0.05 0.05 1</ambient>
-          <diffuse>0.95 0.08 0.08 1</diffuse>
-          <specular>0.15 0.15 0.15 1</specular>
-        </material>
-      </visual>
-    </link>
-
-    <joint name="target_branch_joint" type="fixed">
-      <parent>trunk_link</parent>
-      <child>target_branch</child>
-    </joint>
-
-
-    <!-- ====================================================== -->
     <!-- Branch 4                                               -->
     <!-- middle / rear-right                                   -->
     <!-- ====================================================== -->
 
     <link name="branch_4">
-      <pose>-0.220 -0.300 2.650 0 1.04 -2.10</pose>
+      <pose>-0.220 -0.300 2.450 0 1.04 -2.10</pose>
 
       <inertial>
         <mass>1.8</mass>
@@ -363,6 +289,28 @@
       <parent>trunk_link</parent>
       <child>branch_6</child>
     </joint>
+
+
+    <!-- ====================================================== -->
+    <!-- Detachable target branch                               -->
+    <!-- target_branch is now a separate top-level model.       -->
+    <!-- The plugin initially connects it to trunk_link using   -->
+    <!-- a fixed joint, then releases it on /target_branch/detach. -->
+    <!-- ====================================================== -->
+
+    <plugin
+      filename="gz-sim-detachable-joint-system"
+      name="gz::sim::systems::DetachableJoint">
+
+      <parent_link>trunk_link</parent_link>
+      <child_model>target_branch</child_model>
+      <child_link>target_branch_link</child_link>
+
+      <detach_topic>/target_branch/detach</detach_topic>
+      <attach_topic>/target_branch/attach</attach_topic>
+      <output_topic>/target_branch/state</output_topic>
+
+    </plugin>
 
   </model>
 </sdf>

@@ -222,8 +222,22 @@
     <!--                                                       -->
     <!-- Tree is placed 4.5 m in front of the UAV (+X).        -->
     <!-- test_tree itself defines:                              -->
-    <!-- trunk_link / branch_1 / target_branch / branch_3       -->
+    <!-- trunk_link / branch_1 / branch_2 / branch_4 / branch_5 / branch_6       -->
     <!-- ====================================================== -->
+
+    <!-- target_branch is a separate dynamic model so it can be detached -->
+    <!-- Original pose relative to the tree: -0.305 0.060 2.950 0 1.08 2.961593 -->
+    <!-- Tree world pose is +4.5 m in X, so target_branch world X = 4.195 m. -->
+    <include>
+
+      <name>target_branch</name>
+
+      <uri>model://target_branch</uri>
+
+      <pose>4.195 0.060 2.950 0 1.08 2.961593</pose>
+
+    </include>
+
 
     <include>
 
