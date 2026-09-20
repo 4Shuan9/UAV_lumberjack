@@ -370,7 +370,7 @@
     <!-- ====================================================== -->
     <link name="forearm">
       <pose relative_to="upper_arm">
-        0.038038 0 -0.030000 0 2.617994 0
+        0.016388 0 -0.042500 0 2.617994 0
       </pose>
       <inertial>
         <mass>0.05</mass>
@@ -386,7 +386,7 @@
       <visual name="forearm_visual">
         <geometry>
           <box>
-            <size>0.120 0.042 0.030</size>
+            <size>0.170 0.042 0.030</size>
           </box>
         </geometry>
         <material>
@@ -400,7 +400,7 @@
         <geometry>
           <cylinder>
             <radius>0.017</radius>
-            <length>0.12</length>
+            <length>0.17</length>
           </cylinder>
         </geometry>
       </collision>
@@ -410,8 +410,8 @@
     <!-- J4 / Wrist                                             -->
     <!-- ====================================================== -->
     <link name="wrist_link">
-      <!-- J4 cylinder axis is X; its base face touches the shortened forearm tip at x = 0.06 m -->
-      <pose relative_to="forearm">0.085 0 0 -1.570796 0 0</pose>
+      <!-- J4 cylinder axis is X; its base face touches the extended forearm tip at x = 0.085 m -->
+      <pose relative_to="forearm">0.110 0 0 -1.570796 0 0</pose>
       <inertial>
         <mass>0.025</mass>
         <inertia>
@@ -462,58 +462,155 @@
     </link>
 
     <!-- ====================================================== -->
-    <!-- Circular Saw / Top Mounted                             -->
+    <!-- Electric Chainsaw Body                                 -->
+    <!-- Fixed guide-bar body: two round ends + thin plate      -->
+    <!-- The body itself DOES NOT rotate when saw is commanded. -->
     <!-- ====================================================== -->
-    <link name="saw_disc">
-      <!-- J4 = 0: blade is 20 mm farther outward and mounted on the left side of the wrist -->
-      <pose relative_to="wrist_link">0.040 0.030 0 1.5708 0 0</pose>
+    <link name="chainsaw_body">
+      <pose relative_to="wrist_link">0.060 0.030 0 1.5708 0 0</pose>
+
       <inertial>
-        <mass>0.025</mass>
+        <mass>0.040</mass>
         <inertia>
-          <ixx>0.00001566</ixx>
-          <iyy>0.00001566</iyy>
-          <izz>0.00003125</izz>
+          <ixx>0.000035</ixx>
+          <iyy>0.000080</iyy>
+          <izz>0.000080</izz>
           <ixy>0</ixy>
           <ixz>0</ixz>
           <iyz>0</iyz>
         </inertia>
       </inertial>
-      <visual name="saw_disc_visual">
-        <pose>0 0 0 0 0 0</pose>
+
+      <!-- Rear round end: diameter 70 mm, thickness 6 mm -->
+      <visual name="chainsaw_rear_round_visual">
+        <pose>-0.050 0 0 0 0 0</pose>
         <geometry>
           <cylinder>
-            <radius>0.05</radius>
-            <length>0.004</length>
+            <radius>0.035</radius>
+            <length>0.006</length>
           </cylinder>
         </geometry>
         <material>
-          <ambient>0.55 0.55 0.55 1</ambient>
-          <diffuse>0.75 0.75 0.75 1</diffuse>
-          <specular>0.9 0.9 0.9 1</specular>
+          <ambient>0.22 0.23 0.24 1</ambient>
+          <diffuse>0.36 0.38 0.40 1</diffuse>
+          <specular>0.25 0.25 0.25 1</specular>
         </material>
       </visual>
-      <visual name="saw_marker_visual">
-        <!-- Small red marker on one side of the blade so rotation is visible -->
-        <pose>0.030 0 0 0 0 0</pose>
+
+      <!-- Front round end: diameter 70 mm, thickness 6 mm -->
+      <visual name="chainsaw_front_round_visual">
+        <pose>0.050 0 0 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.035</radius>
+            <length>0.006</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.22 0.23 0.24 1</ambient>
+          <diffuse>0.36 0.38 0.40 1</diffuse>
+          <specular>0.25 0.25 0.25 1</specular>
+        </material>
+      </visual>
+
+      <!--
+        Middle plate:
+        length    = 100 mm
+        height    = 70 mm = round-end diameter
+        thickness = 8 mm
+        The x = +/-50 mm plate edges pass through the disc diameters.
+      -->
+      <visual name="chainsaw_bar_visual">
+        <pose>0 0 0 0 0 0</pose>
         <geometry>
           <box>
-            <size>0.022 0.006 0.006</size>
+            <size>0.100 0.070 0.008</size>
           </box>
         </geometry>
         <material>
-          <ambient>0.85 0.05 0.05 1</ambient>
-          <diffuse>1.00 0.08 0.08 1</diffuse>
+          <ambient>0.11 0.12 0.13 1</ambient>
+          <diffuse>0.18 0.20 0.22 1</diffuse>
+          <specular>0.30 0.30 0.30 1</specular>
         </material>
       </visual>
-      <collision name="saw_disc_collision">
-        <pose>0 0 0 0 0 0</pose>
+
+      <collision name="chainsaw_rear_round_collision">
+        <pose>-0.050 0 0 0 0 0</pose>
         <geometry>
           <cylinder>
-            <radius>0.05</radius>
-            <length>0.004</length>
+            <radius>0.035</radius>
+            <length>0.006</length>
           </cylinder>
         </geometry>
       </collision>
+
+      <collision name="chainsaw_front_round_collision">
+        <pose>0.050 0 0 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.035</radius>
+            <length>0.006</length>
+          </cylinder>
+        </geometry>
+      </collision>
+
+      <collision name="chainsaw_bar_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.100 0.070 0.008</size>
+          </box>
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- ====================================================== -->
+    <!-- Chainsaw Drive Sprocket                                -->
+    <!-- Only this small sprocket rotates for saw visualization -->
+    <!-- ====================================================== -->
+    <link name="chain_drive">
+      <pose relative_to="chainsaw_body">-0.050 0 0.000 0 0 0</pose>
+
+      <inertial>
+        <mass>0.005</mass>
+        <inertia>
+          <ixx>0.0000010</ixx>
+          <iyy>0.0000010</iyy>
+          <izz>0.0000018</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+
+      <visual name="chain_drive_visual">
+        <geometry>
+          <cylinder>
+            <radius>0.020</radius>
+            <length>0.014</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.45 0.03 0.03 1</ambient>
+          <diffuse>0.72 0.06 0.06 1</diffuse>
+          <specular>0.30 0.30 0.30 1</specular>
+        </material>
+      </visual>
+
+      <visual name="chain_drive_marker_visual">
+        <!-- Outer face marker: compact, 2 mm proud of the 14 mm sprocket -->
+        <pose>0.012 0 -0.008 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.010 0.005 0.002</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.82 0.82 0.82 1</ambient>
+          <diffuse>0.95 0.95 0.95 1</diffuse>
+          <specular>0.35 0.35 0.35 1</specular>
+        </material>
+      </visual>
     </link>
 
     <!-- ====================================================== -->
@@ -582,8 +679,8 @@
     <!-- J4 / Wrist Roll                                        -->
     <!-- ====================================================== -->
     <joint name="j4" type="revolute">
-      <!-- Shortened forearm tip is x = +0.06 m; J4 rotates about its own cylinder axis -->
-      <pose relative_to="forearm">0.06 0 0 0 0 0</pose>
+      <!-- Extended forearm tip is x = +0.085 m; J4 rotates about its own cylinder axis -->
+      <pose relative_to="forearm">0.085 0 0 0 0 0</pose>
       <parent>forearm</parent>
       <child>wrist_link</child>
       <axis>
@@ -601,13 +698,22 @@
     </joint>
 
     <!-- ====================================================== -->
-    <!-- Saw Spin Joint                                         -->
+    <!-- Chainsaw Mount                                         -->
+    <!-- ====================================================== -->
+    <joint name="chainsaw_mount_joint" type="fixed">
+      <pose relative_to="wrist_link">0.060 0.030 0 1.5708 0 0</pose>
+      <parent>wrist_link</parent>
+      <child>chainsaw_body</child>
+    </joint>
+
+    <!-- ====================================================== -->
+    <!-- Chainsaw Drive Joint                                   -->
+    <!-- saw command rotates only the drive sprocket, not body  -->
     <!-- ====================================================== -->
     <joint name="saw_spin_joint" type="revolute">
-      <!-- Saw is side-mounted; the joint frame is rotated so local Z is the blade spin axis -->
-      <pose relative_to="wrist_link">0.040 0.030 0 1.5708 0 0</pose>
-      <parent>wrist_link</parent>
-      <child>saw_disc</child>
+      <pose relative_to="chainsaw_body">-0.050 0 0.000 0 0 0</pose>
+      <parent>chainsaw_body</parent>
+      <child>chain_drive</child>
       <axis>
         <xyz>0 0 1</xyz>
         <limit>
@@ -628,11 +734,11 @@
       name="gz::sim::systems::JointPositionController">
       <joint_name>j2</joint_name>
             <initial_position>0.000000</initial_position>
-<p_gain>30.0</p_gain>
+<p_gain>36.0</p_gain>
       <i_gain>0.0</i_gain>
       <d_gain>0.0</d_gain>
-      <cmd_max>0.5</cmd_max>
-      <cmd_min>-0.5</cmd_min>
+      <cmd_max>0.60</cmd_max>
+      <cmd_min>-0.60</cmd_min>
     </plugin>
 
     <!-- ====================================================== -->
@@ -643,11 +749,11 @@
       name="gz::sim::systems::JointPositionController">
       <joint_name>j3</joint_name>
             <initial_position>0.000000</initial_position>
-<p_gain>7.5</p_gain>
+<p_gain>15.0</p_gain>
       <i_gain>0.0</i_gain>
       <d_gain>0.0</d_gain>
-      <cmd_max>0.15</cmd_max>
-      <cmd_min>-0.15</cmd_min>
+      <cmd_max>0.24</cmd_max>
+      <cmd_min>-0.24</cmd_min>
     </plugin>
 
     <!-- ====================================================== -->
@@ -658,15 +764,15 @@
       name="gz::sim::systems::JointPositionController">
       <joint_name>j4</joint_name>
             <initial_position>0.000000</initial_position>
-<p_gain>5.0</p_gain>
+<p_gain>6.5</p_gain>
       <i_gain>0.0</i_gain>
       <d_gain>0.0</d_gain>
-      <cmd_max>0.08</cmd_max>
-      <cmd_min>-0.08</cmd_min>
+      <cmd_max>0.10</cmd_max>
+      <cmd_min>-0.10</cmd_min>
     </plugin>
 
     <!-- ====================================================== -->
-    <!-- Saw Velocity Controller                                -->
+    <!-- Chainsaw Drive Velocity Controller                    -->
     <!-- ====================================================== -->
     <plugin
       filename="gz-sim-joint-controller-system"
