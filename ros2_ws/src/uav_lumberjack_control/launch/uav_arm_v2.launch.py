@@ -126,6 +126,23 @@ def launch_setup(context, *args, **kwargs):
     )
 
     # ============================================================
+    # Target branch contact monitor
+    #
+    # Start after the Gazebo <-> ROS bridge is available.
+    # ============================================================
+
+    target_contact_monitor = TimerAction(
+        period=1.5,
+        actions=[
+            Node(
+                package='uav_lumberjack_control',
+                executable='target_contact_monitor',
+                output='screen'
+            )
+        ]
+    )
+
+    # ============================================================
     # PX4 SITL
     #
     # Start 3 seconds after Gazebo starts
@@ -162,6 +179,7 @@ def launch_setup(context, *args, **kwargs):
             on_exit=[
                 gazebo,
                 bridge,
+                target_contact_monitor,
                 px4
             ]
         )

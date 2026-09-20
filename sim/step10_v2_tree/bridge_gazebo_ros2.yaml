@@ -67,3 +67,32 @@
   ros_type_name: "sensor_msgs/msg/CameraInfo"
   gz_type_name: "gz.msgs.CameraInfo"
   direction: GZ_TO_ROS
+
+# ============================================================
+# Chainsaw Cutting Zone Contacts - DART compatible primitives
+# Four Gazebo contact sensors -> four ROS 2 topics
+# ============================================================
+
+- ros_topic_name: "/lumberjack_arm/cutting_zone/top/contacts"
+  gz_topic_name: "/world/x500_lumberjack_world/model/x500_lumberjack/link/chainsaw_body/sensor/cutting_zone_top_contact_sensor/contact"
+  ros_type_name: "ros_gz_interfaces/msg/Contacts"
+  gz_type_name: "gz.msgs.Contacts"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/lumberjack_arm/cutting_zone/bottom/contacts"
+  gz_topic_name: "/world/x500_lumberjack_world/model/x500_lumberjack/link/chainsaw_body/sensor/cutting_zone_bottom_contact_sensor/contact"
+  ros_type_name: "ros_gz_interfaces/msg/Contacts"
+  gz_type_name: "gz.msgs.Contacts"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/lumberjack_arm/cutting_zone/rear/contacts"
+  gz_topic_name: "/world/x500_lumberjack_world/model/x500_lumberjack/link/chainsaw_body/sensor/cutting_zone_rear_contact_sensor/contact"
+  ros_type_name: "ros_gz_interfaces/msg/Contacts"
+  gz_type_name: "gz.msgs.Contacts"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/lumberjack_arm/cutting_zone/front/contacts"
+  gz_topic_name: "/world/x500_lumberjack_world/model/x500_lumberjack/link/chainsaw_body/sensor/cutting_zone_front_contact_sensor/contact"
+  ros_type_name: "ros_gz_interfaces/msg/Contacts"
+  gz_type_name: "gz.msgs.Contacts"
+  direction: GZ_TO_ROS

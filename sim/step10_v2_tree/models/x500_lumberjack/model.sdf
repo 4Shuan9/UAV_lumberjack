@@ -562,6 +562,100 @@
           </box>
         </geometry>
       </collision>
+
+      <!-- ================================================== -->
+      <!-- Cutting Zone - full chain path around guide bar     -->
+      <!-- Visual: thin yellow mesh ring for clear debugging.  -->
+      <!-- Physics: DART-friendly primitive collisions.        -->
+      <!-- Four contact sensors cover top, bottom, front, rear. -->
+      <!-- ================================================== -->
+      <visual name="cutting_zone_visual">
+        <geometry>
+          <mesh>
+            <uri>meshes/cutting_zone_ring.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.95 0.75 0.02 1</ambient>
+          <diffuse>1.00 0.90 0.05 1</diffuse>
+          <specular>0.30 0.30 0.15 1</specular>
+        </material>
+        <transparency>0.25</transparency>
+      </visual>
+
+      <!-- Long upper chain segment: 2.5 mm radial width -->
+      <collision name="cutting_zone_top_collision">
+        <pose>0 0.03625 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.100 0.0025 0.008</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <!-- Long lower chain segment: 2.5 mm radial width -->
+      <collision name="cutting_zone_bottom_collision">
+        <pose>0 -0.03625 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.100 0.0025 0.008</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <!-- Rounded rear end. The slightly larger radius models the chain. -->
+      <collision name="cutting_zone_rear_collision">
+        <pose>-0.050 0 0 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.0375</radius>
+            <length>0.008</length>
+          </cylinder>
+        </geometry>
+      </collision>
+
+      <!-- Rounded front end. -->
+      <collision name="cutting_zone_front_collision">
+        <pose>0.050 0 0 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.0375</radius>
+            <length>0.008</length>
+          </cylinder>
+        </geometry>
+      </collision>
+
+      <sensor name="cutting_zone_top_contact_sensor" type="contact">
+        <always_on>true</always_on>
+        <update_rate>100</update_rate>
+        <contact>
+          <collision>cutting_zone_top_collision</collision>
+        </contact>
+      </sensor>
+
+      <sensor name="cutting_zone_bottom_contact_sensor" type="contact">
+        <always_on>true</always_on>
+        <update_rate>100</update_rate>
+        <contact>
+          <collision>cutting_zone_bottom_collision</collision>
+        </contact>
+      </sensor>
+
+      <sensor name="cutting_zone_rear_contact_sensor" type="contact">
+        <always_on>true</always_on>
+        <update_rate>100</update_rate>
+        <contact>
+          <collision>cutting_zone_rear_collision</collision>
+        </contact>
+      </sensor>
+
+      <sensor name="cutting_zone_front_contact_sensor" type="contact">
+        <always_on>true</always_on>
+        <update_rate>100</update_rate>
+        <contact>
+          <collision>cutting_zone_front_collision</collision>
+        </contact>
+      </sensor>
     </link>
 
     <!-- ====================================================== -->
