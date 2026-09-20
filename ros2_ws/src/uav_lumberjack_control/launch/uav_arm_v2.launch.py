@@ -24,7 +24,7 @@ def launch_setup(context, *args, **kwargs):
     step6_root = os.path.join(
         project_root,
         'sim',
-        'step9_v2_camera'
+        'step10_v2_tree'
     )
 
     world_file = os.path.join(
