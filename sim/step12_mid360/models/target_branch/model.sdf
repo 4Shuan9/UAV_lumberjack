@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sdf version="1.9">
+  <model name="target_branch">
+
+    <!-- Step10 detachable cutting target: RED OUTER SEGMENT ONLY -->
+    <!-- Model frame stays at the cut plane / seam (local z = 0). -->
+    <!-- The red cylinder extends from z = 0 to z = +0.30 m.      -->
+
+    <static>false</static>
+    <self_collide>false</self_collide>
+
+    <link name="target_branch_link">
+
+      <inertial>
+        <pose>0 0 0.15 0 0 0</pose>
+        <mass>0.9</mass>
+        <inertia>
+          <ixx>0.00698</ixx>
+          <iyy>0.00698</iyy>
+          <izz>0.00065</izz>
+        </inertia>
+      </inertial>
+
+      <collision name="target_branch_outer_collision">
+        <pose>0 0 0.15 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.038</radius>
+            <length>0.30</length>
+          </cylinder>
+        </geometry>
+      </collision>
+
+      <visual name="target_branch_outer_visual">
+        <pose>0 0 0.15 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.038</radius>
+            <length>0.30</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.70 0.05 0.05 1</ambient>
+          <diffuse>0.95 0.08 0.08 1</diffuse>
+          <specular>0.15 0.15 0.15 1</specular>
+        </material>
+      </visual>
+
+    </link>
+
+  </model>
+</sdf>
