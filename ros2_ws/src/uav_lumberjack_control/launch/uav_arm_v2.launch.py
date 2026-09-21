@@ -143,6 +143,24 @@ def launch_setup(context, *args, **kwargs):
     )
 
     # ============================================================
+    # Automatic cutting controller
+    #
+    # Uses target-contact state + actual saw RPM.
+    # Publishes ROS /target_branch/detach after 0.8 s effective cut.
+    # ============================================================
+
+    auto_cut_controller = TimerAction(
+        period=1.7,
+        actions=[
+            Node(
+                package='uav_lumberjack_control',
+                executable='auto_cut_controller',
+                output='screen'
+            )
+        ]
+    )
+
+    # ============================================================
     # PX4 SITL
     #
     # Start 3 seconds after Gazebo starts
@@ -180,6 +198,7 @@ def launch_setup(context, *args, **kwargs):
                 gazebo,
                 bridge,
                 target_contact_monitor,
+                auto_cut_controller,
                 px4
             ]
         )

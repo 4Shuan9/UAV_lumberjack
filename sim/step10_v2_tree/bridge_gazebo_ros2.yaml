@@ -96,3 +96,14 @@
   ros_type_name: "ros_gz_interfaces/msg/Contacts"
   gz_type_name: "gz.msgs.Contacts"
   direction: GZ_TO_ROS
+
+# ============================================================
+# Automatic cut detach command
+# ROS2 auto_cut_controller -> Gazebo DetachableJoint
+# ============================================================
+
+- ros_topic_name: "/target_branch/detach"
+  gz_topic_name: "/target_branch/detach"
+  ros_type_name: "std_msgs/msg/Empty"
+  gz_type_name: "gz.msgs.Empty"
+  direction: ROS_TO_GZ
