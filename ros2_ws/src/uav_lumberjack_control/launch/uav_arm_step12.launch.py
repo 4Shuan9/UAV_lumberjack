@@ -160,6 +160,66 @@ def launch_setup(context, *args, **kwargs):
         ]
     )
 
+
+    # ============================================================
+    # MID360 static TF chain
+    #
+    # base_link -> mid360_mount_link -> mid360_link -> lidar frame
+    # These were manually verified in RViz before being frozen here.
+    # ============================================================
+
+    tf_base_to_mid360_mount = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='tf_base_to_mid360_mount',
+        arguments=[
+            '--x', '0.099',
+            '--y', '0',
+            '--z', '0.010',
+            '--roll', '0',
+            '--pitch', '0.349066',
+            '--yaw', '0',
+            '--frame-id', 'base_link',
+            '--child-frame-id', 'mid360_mount_link'
+        ],
+        output='screen'
+    )
+
+    tf_mid360_mount_to_link = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='tf_mid360_mount_to_link',
+        arguments=[
+            '--x', '0',
+            '--y', '0',
+            '--z', '0.033',
+            '--roll', '0',
+            '--pitch', '0',
+            '--yaw', '3.141593',
+            '--frame-id', 'mid360_mount_link',
+            '--child-frame-id', 'mid360_link'
+        ],
+        output='screen'
+    )
+
+    tf_mid360_link_to_sensor = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='tf_mid360_link_to_sensor',
+        arguments=[
+            '--x', '0',
+            '--y', '0',
+            '--z', '0',
+            '--roll', '0',
+            '--pitch', '0',
+            '--yaw', '0',
+            '--frame-id', 'mid360_link',
+            '--child-frame-id',
+            'x500_lumberjack/mid360_link/mid360_gpu_lidar'
+        ],
+        output='screen'
+    )
+
     # ============================================================
     # PX4 SITL
     #
@@ -199,6 +259,9 @@ def launch_setup(context, *args, **kwargs):
                 bridge,
                 target_contact_monitor,
                 auto_cut_controller,
+                tf_base_to_mid360_mount,
+                tf_mid360_mount_to_link,
+                tf_mid360_link_to_sensor,
                 px4
             ]
         )
