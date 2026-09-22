@@ -260,6 +260,7 @@
       <sensor name="imager" type="camera">
         <pose>0 0 0 0 0 0</pose>
         <camera>
+          <visibility_mask>1</visibility_mask>
           <horizontal_fov>1.570796</horizontal_fov>
           <image>
             <width>1280</width>
@@ -340,6 +341,31 @@
         </material>
       </visual>
       <!-- Use a simple primitive for DART collision robustness. -->
+      <!-- ================================================== -->
+      <!-- Step12 MID360 official FOV visualization            -->
+      <!-- Visual aid only: no collision and excluded from     -->
+      <!-- MID360 lidar returns by visibility_flags = 2.       -->
+      <!-- Official CAD uses Y-up; roll +90 deg maps it to     -->
+      <!-- Gazebo / ROS Z-up.                                  -->
+      <!-- ================================================== -->
+      <visual name="mid360_official_fov_visual">
+        <pose>0 0 0 1.570796 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/mid360_fov_official.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.35 0.90 0.55 0.18</ambient>
+          <diffuse>0.35 0.90 0.55 0.18</diffuse>
+          <emissive>0.03 0.15 0.06 1</emissive>
+        </material>
+        <transparency>0.9</transparency>
+        <cast_shadows>false</cast_shadows>
+        <visibility_flags>2</visibility_flags>
+      </visual>
+
       <collision name="mid360_body_collision">
         <geometry><box><size>0.073 0.065 0.060</size></box></geometry>
       </collision>
