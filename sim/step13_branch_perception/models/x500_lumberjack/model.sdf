@@ -1,0 +1,1122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sdf version="1.9">
+  <model name="x500_lumberjack">
+    <self_collide>false</self_collide>
+
+    <!-- ====================================================== -->
+    <!-- PX4 X500 Base                                          -->
+    <!-- ====================================================== -->
+    <include merge="true">
+      <uri>model://x500_base</uri>
+    </include>
+
+    <!-- ====================================================== -->
+    <!-- PX4 Motor 0                                            -->
+    <!-- ====================================================== -->
+    <plugin
+      filename="gz-sim-multicopter-motor-model-system"
+      name="gz::sim::systems::MulticopterMotorModel">
+      <jointName>rotor_0_joint</jointName>
+      <linkName>rotor_0</linkName>
+      <turningDirection>ccw</turningDirection>
+      <timeConstantUp>0.0125</timeConstantUp>
+      <timeConstantDown>0.025</timeConstantDown>
+      <maxRotVelocity>1000.0</maxRotVelocity>
+      <motorConstant>8.54858e-06</motorConstant>
+      <momentConstant>0.016</momentConstant>
+      <commandSubTopic>command/motor_speed</commandSubTopic>
+      <motorNumber>0</motorNumber>
+      <rotorDragCoefficient>8.06428e-05</rotorDragCoefficient>
+      <rollingMomentCoefficient>1e-06</rollingMomentCoefficient>
+      <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
+      <motorType>velocity</motorType>
+    </plugin>
+
+    <!-- ====================================================== -->
+    <!-- PX4 Motor 1                                            -->
+    <!-- ====================================================== -->
+    <plugin
+      filename="gz-sim-multicopter-motor-model-system"
+      name="gz::sim::systems::MulticopterMotorModel">
+      <jointName>rotor_1_joint</jointName>
+      <linkName>rotor_1</linkName>
+      <turningDirection>ccw</turningDirection>
+      <timeConstantUp>0.0125</timeConstantUp>
+      <timeConstantDown>0.025</timeConstantDown>
+      <maxRotVelocity>1000.0</maxRotVelocity>
+      <motorConstant>8.54858e-06</motorConstant>
+      <momentConstant>0.016</momentConstant>
+      <commandSubTopic>command/motor_speed</commandSubTopic>
+      <motorNumber>1</motorNumber>
+      <rotorDragCoefficient>8.06428e-05</rotorDragCoefficient>
+      <rollingMomentCoefficient>1e-06</rollingMomentCoefficient>
+      <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
+      <motorType>velocity</motorType>
+    </plugin>
+
+    <!-- ====================================================== -->
+    <!-- PX4 Motor 2                                            -->
+    <!-- ====================================================== -->
+    <plugin
+      filename="gz-sim-multicopter-motor-model-system"
+      name="gz::sim::systems::MulticopterMotorModel">
+      <jointName>rotor_2_joint</jointName>
+      <linkName>rotor_2</linkName>
+      <turningDirection>cw</turningDirection>
+      <timeConstantUp>0.0125</timeConstantUp>
+      <timeConstantDown>0.025</timeConstantDown>
+      <maxRotVelocity>1000.0</maxRotVelocity>
+      <motorConstant>8.54858e-06</motorConstant>
+      <momentConstant>0.016</momentConstant>
+      <commandSubTopic>command/motor_speed</commandSubTopic>
+      <motorNumber>2</motorNumber>
+      <rotorDragCoefficient>8.06428e-05</rotorDragCoefficient>
+      <rollingMomentCoefficient>1e-06</rollingMomentCoefficient>
+      <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
+      <motorType>velocity</motorType>
+    </plugin>
+
+    <!-- ====================================================== -->
+    <!-- PX4 Motor 3                                            -->
+    <!-- ====================================================== -->
+    <plugin
+      filename="gz-sim-multicopter-motor-model-system"
+      name="gz::sim::systems::MulticopterMotorModel">
+      <jointName>rotor_3_joint</jointName>
+      <linkName>rotor_3</linkName>
+      <turningDirection>cw</turningDirection>
+      <timeConstantUp>0.0125</timeConstantUp>
+      <timeConstantDown>0.025</timeConstantDown>
+      <maxRotVelocity>1000.0</maxRotVelocity>
+      <motorConstant>8.54858e-06</motorConstant>
+      <momentConstant>0.016</momentConstant>
+      <commandSubTopic>command/motor_speed</commandSubTopic>
+      <motorNumber>3</motorNumber>
+      <rotorDragCoefficient>8.06428e-05</rotorDragCoefficient>
+      <rollingMomentCoefficient>1e-06</rollingMomentCoefficient>
+      <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
+      <motorType>velocity</motorType>
+    </plugin>
+
+
+    <!-- ====================================================== -->
+    <!-- Fixed Front-Down Monocular Camera                      -->
+    <!-- Based on PX4 mono_cam; first mounting iteration        -->
+    <!-- ====================================================== -->
+    <link name="camera_link">
+      <!-- X forward, Z up. 25 deg positive pitch points +X downward. -->
+      <pose relative_to="base_link">0.120 0 -0.025 0 0.436332 0</pose>
+      <inertial>
+        <pose>0.03 0.03 0.03 0 0 0</pose>
+        <mass>0.050</mass>
+        <inertia>
+          <ixx>0.00004</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.00004</iyy>
+          <iyz>0</iyz>
+          <izz>0.00004</izz>
+        </inertia>
+      </inertial>
+
+      <visual name="mono_cam/visual/housing">
+        <geometry>
+          <box>
+            <size>0.02 0.04 0.04</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.08 0.08 0.08 1</ambient>
+          <diffuse>0.12 0.12 0.12 1</diffuse>
+          <specular>0.25 0.25 0.25 1</specular>
+        </material>
+      </visual>
+
+      <visual name="mono_cam/visual/lens">
+        <pose>0.015 0 0 0 1.5707 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.008</radius>
+            <length>0.01</length>
+          </cylinder>
+        </geometry>
+      </visual>
+
+      <visual name="mono_cam/visual/lens_glass">
+        <pose>0.014 0 0 0 0 0</pose>
+        <geometry>
+          <sphere>
+            <radius>0.0079</radius>
+          </sphere>
+        </geometry>
+        <material>
+          <ambient>0.4 0.4 0.5 0.95</ambient>
+          <diffuse>0.4 0.4 0.5 0.95</diffuse>
+          <specular>1 1 1 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+
+
+      <!-- ====================================================== -->
+      <!-- Step11 Camera FOV visualization                       -->
+      <!-- Display only: no collision, no influence on sensor.  -->
+      <!-- HFOV = pi/2 rad (90 deg), aspect = 1280 / 720 (16:9).    -->
+      <!-- The drawn range is intentionally limited to 1.0 m.   -->
+      <!-- ====================================================== -->
+      <visual name="camera_fov_ray_left_top">
+        <pose>0.5 0.5 0.28125 0 -0.378563 0.785398</pose>
+        <geometry><box><size>1.521974 0.008 0.008</size></box></geometry>
+        <material>
+          <ambient>0.05 0.65 1.0 1</ambient>
+          <diffuse>0.05 0.65 1.0 1</diffuse>
+          <emissive>0.02 0.25 0.40 1</emissive>
+        </material>
+        <transparency>0.45</transparency>
+        <cast_shadows>false</cast_shadows>
+              <visibility_flags>2</visibility_flags>
+      </visual>
+
+      <visual name="camera_fov_ray_left_bottom">
+        <pose>0.5 0.5 -0.28125 0 0.378563 0.785398</pose>
+        <geometry><box><size>1.521974 0.008 0.008</size></box></geometry>
+        <material>
+          <ambient>0.05 0.65 1.0 1</ambient>
+          <diffuse>0.05 0.65 1.0 1</diffuse>
+          <emissive>0.02 0.25 0.40 1</emissive>
+        </material>
+        <transparency>0.45</transparency>
+        <cast_shadows>false</cast_shadows>
+              <visibility_flags>2</visibility_flags>
+      </visual>
+
+      <visual name="camera_fov_ray_right_top">
+        <pose>0.5 -0.5 0.28125 0 -0.378563 -0.785398</pose>
+        <geometry><box><size>1.521974 0.008 0.008</size></box></geometry>
+        <material>
+          <ambient>0.05 0.65 1.0 1</ambient>
+          <diffuse>0.05 0.65 1.0 1</diffuse>
+          <emissive>0.02 0.25 0.40 1</emissive>
+        </material>
+        <transparency>0.45</transparency>
+        <cast_shadows>false</cast_shadows>
+              <visibility_flags>2</visibility_flags>
+      </visual>
+
+      <visual name="camera_fov_ray_right_bottom">
+        <pose>0.5 -0.5 -0.28125 0 0.378563 -0.785398</pose>
+        <geometry><box><size>1.521974 0.008 0.008</size></box></geometry>
+        <material>
+          <ambient>0.05 0.65 1.0 1</ambient>
+          <diffuse>0.05 0.65 1.0 1</diffuse>
+          <emissive>0.02 0.25 0.40 1</emissive>
+        </material>
+        <transparency>0.45</transparency>
+        <cast_shadows>false</cast_shadows>
+              <visibility_flags>2</visibility_flags>
+      </visual>
+
+      <!-- Far rectangular frame at x = 1.0 m -->
+      <visual name="camera_fov_far_top">
+        <pose>1.0 0 0.5625 0 0 0</pose>
+        <geometry><box><size>0.008 2.0 0.008</size></box></geometry>
+        <material><ambient>0.05 0.65 1.0 1</ambient><diffuse>0.05 0.65 1.0 1</diffuse></material>
+        <transparency>0.45</transparency><cast_shadows>false</cast_shadows>
+              <visibility_flags>2</visibility_flags>
+      </visual>
+
+      <visual name="camera_fov_far_bottom">
+        <pose>1.0 0 -0.5625 0 0 0</pose>
+        <geometry><box><size>0.008 2.0 0.008</size></box></geometry>
+        <material><ambient>0.05 0.65 1.0 1</ambient><diffuse>0.05 0.65 1.0 1</diffuse></material>
+        <transparency>0.45</transparency><cast_shadows>false</cast_shadows>
+              <visibility_flags>2</visibility_flags>
+      </visual>
+
+      <visual name="camera_fov_far_left">
+        <pose>1.0 1.0 0 0 0 0</pose>
+        <geometry><box><size>0.008 0.008 1.125</size></box></geometry>
+        <material><ambient>0.05 0.65 1.0 1</ambient><diffuse>0.05 0.65 1.0 1</diffuse></material>
+        <transparency>0.45</transparency><cast_shadows>false</cast_shadows>
+              <visibility_flags>2</visibility_flags>
+      </visual>
+
+      <visual name="camera_fov_far_right">
+        <pose>1.0 -1.0 0 0 0 0</pose>
+        <geometry><box><size>0.008 0.008 1.125</size></box></geometry>
+        <material><ambient>0.05 0.65 1.0 1</ambient><diffuse>0.05 0.65 1.0 1</diffuse></material>
+        <transparency>0.45</transparency><cast_shadows>false</cast_shadows>
+              <visibility_flags>2</visibility_flags>
+      </visual>
+
+      <visual name="camera_fov_optical_axis">
+        <pose>0.5 0 0 0 0 0</pose>
+        <geometry><box><size>1.0 0.005 0.005</size></box></geometry>
+        <material><ambient>0.3 0.85 1.0 1</ambient><diffuse>0.3 0.85 1.0 1</diffuse></material>
+        <transparency>0.65</transparency><cast_shadows>false</cast_shadows>
+              <visibility_flags>2</visibility_flags>
+      </visual>
+
+      <sensor name="imager" type="camera">
+        <pose>0 0 0 0 0 0</pose>
+        <camera>
+          <visibility_mask>1</visibility_mask>
+          <horizontal_fov>1.570796</horizontal_fov>
+          <image>
+            <width>1280</width>
+            <height>720</height>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>3000</far>
+          </clip>
+        </camera>
+        <always_on>1</always_on>
+        <update_rate>30</update_rate>
+        <visualize>true</visualize>
+      </sensor>
+
+      <gravity>true</gravity>
+      <velocity_decay/>
+    </link>
+
+    <joint name="CameraJoint" type="fixed">
+      <parent>base_link</parent>
+      <child>camera_link</child>
+    </joint>
+
+    <!-- ====================================================== -->
+    <!-- Step12 MID360 mounting prototype                       -->
+    <!-- Body uses the official Livox MID360 CAD converted to   -->
+    <!-- STL. The LiDAR is normally mounted on a 20 deg         -->
+    <!-- front-down tilted plate above the camera.              -->
+    <!-- Step12.1 is appearance / mounting only; sensor comes   -->
+    <!-- in Step12.2 after the pose is visually confirmed.      -->
+    <!-- ====================================================== -->
+    <link name="mid360_mount_link">
+      <!-- Invisible installation reference frame.
+           Positive pitch rotates the local +X direction downward. -->
+      <pose relative_to="base_link">0.099 0 0.010 0 0.349066 0</pose>
+      <inertial>
+        <!-- Keep only a tiny inertial value; the visible base plate is removed. -->
+        <mass>0.001</mass>
+        <inertia>
+          <ixx>1.0e-07</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>1.0e-07</iyy><iyz>0</iyz><izz>1.0e-07</izz>
+        </inertia>
+      </inertial>
+    </link>
+
+    <joint name="Mid360MountJoint" type="fixed">
+      <parent>base_link</parent>
+      <child>mid360_mount_link</child>
+    </joint>
+
+    <link name="mid360_link">
+      <!-- Body sits directly above the invisible mount frame. -->
+      <pose relative_to="mid360_mount_link">0 0 0.033 0 0 3.141593</pose>
+      <inertial>
+        <!-- MID360 nominal mass used for first engineering model. -->
+        <mass>0.265</mass>
+        <inertia>
+          <ixx>0.00018</ixx><ixy>0</ixy><ixz>0</ixz>
+          <iyy>0.00018</iyy><iyz>0</iyz><izz>0.00018</izz>
+        </inertia>
+      </inertial>
+      <visual name="mid360_official_visual">
+        <!-- Official CAD is Y-up, while Gazebo / ROS uses Z-up.
+             Roll +90 deg maps CAD +Y to link +Z, fixing the sideways mounting.
+             Translation recentres the rotated CAD bounding box. -->
+        <pose>-0.003932 0 -0.004131 1.570796 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/mid360_official.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.12 0.13 0.14 1</ambient>
+          <diffuse>0.18 0.20 0.21 1</diffuse>
+          <specular>0.35 0.35 0.35 1</specular>
+        </material>
+      </visual>
+      <!-- Use a simple primitive for DART collision robustness. -->
+      <!-- ================================================== -->
+      <!-- Step12 MID360 official FOV visualization            -->
+      <!-- Visual aid only: no collision and excluded from     -->
+      <!-- MID360 lidar returns by visibility_flags = 2.       -->
+      <!-- Official CAD uses Y-up; roll +90 deg maps it to     -->
+      <!-- Gazebo / ROS Z-up.                                  -->
+      <!-- ================================================== -->
+      <visual name="mid360_official_fov_visual">
+        <pose>0 0 0 1.570796 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>meshes/mid360_fov_official.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.35 0.90 0.55 0.18</ambient>
+          <diffuse>0.35 0.90 0.55 0.18</diffuse>
+          <emissive>0.03 0.15 0.06 1</emissive>
+        </material>
+        <transparency>0.9</transparency>
+        <cast_shadows>false</cast_shadows>
+        <visibility_flags>2</visibility_flags>
+      </visual>
+
+      <collision name="mid360_body_collision">
+        <geometry><box><size>0.073 0.065 0.060</size></box></geometry>
+      </collision>
+
+      <!-- ================================================== -->
+      <!-- Step12.2 MID360-like 3D GPU LiDAR                 -->
+      <!-- Engineering approximation for Gazebo Harmonic.    -->
+      <!-- FOV follows Livox MID360: H 360 deg, V -7..+52.  -->
+      <!-- The real MID360 uses a non-repetitive scan pattern;-->
+      <!-- this first model uses a regular GPU-lidar grid.    -->
+      <!-- ================================================== -->
+      <sensor name="mid360_gpu_lidar" type="gpu_lidar">
+        <pose relative_to="mid360_link">0 0 0 0 0 0</pose>
+        <topic>/mid360/scan</topic>
+        <update_rate>10</update_rate>
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+        <lidar>
+          <visibility_mask>1</visibility_mask>
+          <scan>
+            <horizontal>
+              <samples>360</samples>
+              <resolution>1</resolution>
+              <min_angle>-3.141593</min_angle>
+              <max_angle>3.141593</max_angle>
+            </horizontal>
+            <vertical>
+              <samples>60</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.122173</min_angle>
+              <max_angle>0.907571</max_angle>
+            </vertical>
+          </scan>
+          <range>
+            <min>0.10</min>
+            <max>40.0</max>
+            <resolution>0.01</resolution>
+          </range>
+        </lidar>
+      </sensor>
+    </link>
+
+    <joint name="Mid360Joint" type="fixed">
+      <parent>mid360_mount_link</parent>
+      <child>mid360_link</child>
+    </joint>
+
+    <!-- ====================================================== -->
+    <!-- Arm Base                                               -->
+    <!-- ====================================================== -->
+    <link name="arm_base">
+      <pose relative_to="base_link">
+        0 0 -0.045 0 0 0
+      </pose>
+      <inertial>
+        <mass>0.12</mass>
+        <inertia>
+          <ixx>0.000107</ixx>
+          <iyy>0.000107</iyy>
+          <izz>0.000182</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="arm_base_visual">
+        <geometry>
+          <cylinder>
+            <radius>0.055</radius>
+            <length>0.040</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.10 0.11 0.12 1</ambient>
+          <diffuse>0.16 0.18 0.20 1</diffuse>
+          <specular>0.20 0.20 0.20 1</specular>
+        </material>
+      </visual>
+      <collision name="arm_base_collision">
+        <geometry>
+          <cylinder>
+            <radius>0.055</radius>
+            <length>0.04</length>
+          </cylinder>
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- ====================================================== -->
+    <!-- Fixed Shoulder Mount (legacy yaw_link name kept for now) -->
+    <!-- ====================================================== -->
+    <link name="yaw_link">
+      <pose relative_to="arm_base">
+        0 0 -0.035 0 0 0
+      </pose>
+      <inertial>
+        <mass>0.08</mass>
+        <inertia>
+          <ixx>0.000073</ixx>
+          <iyy>0.000073</iyy>
+          <izz>0.000081</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="yaw_visual">
+        <pose>0 0 0.005 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.063 0.060 0.040</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.11 0.12 0.13 1</ambient>
+          <diffuse>0.18 0.20 0.22 1</diffuse>
+          <specular>0.18 0.18 0.18 1</specular>
+        </material>
+      </visual>
+      <collision name="yaw_collision">
+        <geometry>
+          <cylinder>
+            <radius>0.038</radius>
+            <length>0.07</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <!-- J2 joint cover -->
+      <visual name="j2_joint_cover">
+        <pose>0 0 -0.030 1.5708 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.035</radius>
+            <length>0.068</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.45 0.03 0.03 1</ambient>
+          <diffuse>0.72 0.06 0.06 1</diffuse>
+          <specular>0.22 0.12 0.12 1</specular>
+        </material>
+      </visual>
+      <visual name="j2_joint_hub_white">
+        <pose>0 0 -0.030 1.5708 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.018</radius>
+            <length>0.072</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.82 0.82 0.82 1</ambient>
+          <diffuse>0.95 0.95 0.95 1</diffuse>
+          <specular>0.35 0.35 0.35 1</specular>
+        </material>
+      </visual>
+    </link>
+
+    <!-- ====================================================== -->
+    <!-- J2 / Upper Arm                                         -->
+    <!-- ====================================================== -->
+    <link name="upper_arm">
+      <pose relative_to="yaw_link">
+        0.077942 0 -0.075000 0 0.523599 0
+      </pose>
+      <inertial>
+        <mass>0.08</mass>
+        <inertia>
+          <ixx>0.00001936</ixx>
+          <iyy>0.00022568</iyy>
+          <izz>0.00022568</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="upper_arm_visual">
+        <geometry>
+          <box>
+            <size>0.180 0.044 0.030</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.34 0.36 0.38 1</ambient>
+          <diffuse>0.52 0.55 0.58 1</diffuse>
+          <specular>0.32 0.32 0.32 1</specular>
+        </material>
+      </visual>
+      <collision name="upper_arm_collision">
+        <pose>0 0 0 0 1.5708 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.022</radius>
+            <length>0.18</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <!-- J3 red cover -->
+      <visual name="j3_joint_cover">
+        <pose>0.09 0 0 1.5708 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.025</radius>
+            <length>0.048</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.45 0.03 0.03 1</ambient>
+          <diffuse>0.72 0.06 0.06 1</diffuse>
+          <specular>0.22 0.12 0.12 1</specular>
+        </material>
+      </visual>
+      <visual name="j3_joint_hub_white">
+        <pose>0.09 0 0 1.5708 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.012</radius>
+            <length>0.052</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.82 0.82 0.82 1</ambient>
+          <diffuse>0.95 0.95 0.95 1</diffuse>
+          <specular>0.35 0.35 0.35 1</specular>
+        </material>
+      </visual>
+    </link>
+
+    <!-- ====================================================== -->
+    <!-- J3 / Forearm                                           -->
+    <!-- ====================================================== -->
+    <link name="forearm">
+      <pose relative_to="upper_arm">
+        0.016388 0 -0.042500 0 2.617994 0
+      </pose>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.00000723</ixx>
+          <iyy>0.00006361</iyy>
+          <izz>0.00006361</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="forearm_visual">
+        <geometry>
+          <box>
+            <size>0.170 0.042 0.030</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.28 0.30 0.32 1</ambient>
+          <diffuse>0.44 0.47 0.50 1</diffuse>
+          <specular>0.28 0.28 0.28 1</specular>
+        </material>
+      </visual>
+      <collision name="forearm_collision">
+        <pose>0 0 0 0 1.5708 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.017</radius>
+            <length>0.17</length>
+          </cylinder>
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- ====================================================== -->
+    <!-- J4 / Wrist                                             -->
+    <!-- ====================================================== -->
+    <link name="wrist_link">
+      <!-- J4 cylinder axis is X; its base face touches the extended forearm tip at x = 0.085 m -->
+      <pose relative_to="forearm">0.110 0 0 -1.570796 0 0</pose>
+      <inertial>
+        <mass>0.025</mass>
+        <inertia>
+          <ixx>0.00000781</ixx>
+          <iyy>0.00000911</iyy>
+          <izz>0.00000911</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="wrist_visual">
+        <pose>0 0 0 0 1.5708 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.026</radius>
+            <length>0.052</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.11 0.12 0.13 1</ambient>
+          <diffuse>0.18 0.20 0.22 1</diffuse>
+          <specular>0.30 0.30 0.30 1</specular>
+        </material>
+      </visual>
+      <visual name="wrist_red_ring">
+        <pose>-0.024 0 0 0 1.5708 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.028</radius>
+            <length>0.010</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.45 0.03 0.03 1</ambient>
+          <diffuse>0.72 0.06 0.06 1</diffuse>
+        </material>
+      </visual>
+      <collision name="wrist_collision">
+        <pose>0 0 0 0 1.5708 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.025</radius>
+            <length>0.05</length>
+          </cylinder>
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- ====================================================== -->
+    <!-- Electric Chainsaw Body                                 -->
+    <!-- Fixed guide-bar body: two round ends + thin plate      -->
+    <!-- The body itself DOES NOT rotate when saw is commanded. -->
+    <!-- ====================================================== -->
+    <link name="chainsaw_body">
+      <pose relative_to="wrist_link">0.060 0.030 0 1.5708 0 0</pose>
+
+      <inertial>
+        <mass>0.040</mass>
+        <inertia>
+          <ixx>0.000035</ixx>
+          <iyy>0.000080</iyy>
+          <izz>0.000080</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+
+      <!-- Rear round end: diameter 70 mm, thickness 6 mm -->
+      <visual name="chainsaw_rear_round_visual">
+        <pose>-0.050 0 0 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.035</radius>
+            <length>0.006</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.22 0.23 0.24 1</ambient>
+          <diffuse>0.36 0.38 0.40 1</diffuse>
+          <specular>0.25 0.25 0.25 1</specular>
+        </material>
+      </visual>
+
+      <!-- Front round end: diameter 70 mm, thickness 6 mm -->
+      <visual name="chainsaw_front_round_visual">
+        <pose>0.050 0 0 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.035</radius>
+            <length>0.006</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.22 0.23 0.24 1</ambient>
+          <diffuse>0.36 0.38 0.40 1</diffuse>
+          <specular>0.25 0.25 0.25 1</specular>
+        </material>
+      </visual>
+
+      <!--
+        Middle plate:
+        length    = 100 mm
+        height    = 70 mm = round-end diameter
+        thickness = 8 mm
+        The x = +/-50 mm plate edges pass through the disc diameters.
+      -->
+      <visual name="chainsaw_bar_visual">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.100 0.070 0.008</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.11 0.12 0.13 1</ambient>
+          <diffuse>0.18 0.20 0.22 1</diffuse>
+          <specular>0.30 0.30 0.30 1</specular>
+        </material>
+      </visual>
+
+      <collision name="chainsaw_rear_round_collision">
+        <pose>-0.050 0 0 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.035</radius>
+            <length>0.006</length>
+          </cylinder>
+        </geometry>
+      </collision>
+
+      <collision name="chainsaw_front_round_collision">
+        <pose>0.050 0 0 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.035</radius>
+            <length>0.006</length>
+          </cylinder>
+        </geometry>
+      </collision>
+
+      <collision name="chainsaw_bar_collision">
+        <pose>0 0 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.100 0.070 0.008</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <!-- ================================================== -->
+      <!-- Cutting Zone - full chain path around guide bar     -->
+      <!-- Visual: thin yellow mesh ring for clear debugging.  -->
+      <!-- Physics: DART-friendly primitive collisions.        -->
+      <!-- Four contact sensors cover top, bottom, front, rear. -->
+      <!-- ================================================== -->
+      <visual name="cutting_zone_visual">
+        <geometry>
+          <mesh>
+            <uri>meshes/cutting_zone_ring.stl</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.95 0.75 0.02 1</ambient>
+          <diffuse>1.00 0.90 0.05 1</diffuse>
+          <specular>0.30 0.30 0.15 1</specular>
+        </material>
+        <transparency>0.25</transparency>
+      </visual>
+
+      <!-- Long upper chain segment: 2.5 mm radial width -->
+      <collision name="cutting_zone_top_collision">
+        <pose>0 0.03625 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.100 0.0025 0.008</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <!-- Long lower chain segment: 2.5 mm radial width -->
+      <collision name="cutting_zone_bottom_collision">
+        <pose>0 -0.03625 0 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.100 0.0025 0.008</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <!-- Rounded rear end. The slightly larger radius models the chain. -->
+      <collision name="cutting_zone_rear_collision">
+        <pose>-0.050 0 0 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.0375</radius>
+            <length>0.008</length>
+          </cylinder>
+        </geometry>
+      </collision>
+
+      <!-- Rounded front end. -->
+      <collision name="cutting_zone_front_collision">
+        <pose>0.050 0 0 0 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.0375</radius>
+            <length>0.008</length>
+          </cylinder>
+        </geometry>
+      </collision>
+
+      <sensor name="cutting_zone_top_contact_sensor" type="contact">
+        <always_on>true</always_on>
+        <update_rate>100</update_rate>
+        <contact>
+          <collision>cutting_zone_top_collision</collision>
+        </contact>
+      </sensor>
+
+      <sensor name="cutting_zone_bottom_contact_sensor" type="contact">
+        <always_on>true</always_on>
+        <update_rate>100</update_rate>
+        <contact>
+          <collision>cutting_zone_bottom_collision</collision>
+        </contact>
+      </sensor>
+
+      <sensor name="cutting_zone_rear_contact_sensor" type="contact">
+        <always_on>true</always_on>
+        <update_rate>100</update_rate>
+        <contact>
+          <collision>cutting_zone_rear_collision</collision>
+        </contact>
+      </sensor>
+
+      <sensor name="cutting_zone_front_contact_sensor" type="contact">
+        <always_on>true</always_on>
+        <update_rate>100</update_rate>
+        <contact>
+          <collision>cutting_zone_front_collision</collision>
+        </contact>
+      </sensor>
+    </link>
+
+    <!-- ====================================================== -->
+    <!-- Chainsaw Drive Sprocket                                -->
+    <!-- Only this small sprocket rotates for saw visualization -->
+    <!-- ====================================================== -->
+    <link name="chain_drive">
+      <pose relative_to="chainsaw_body">-0.050 0 0.000 0 0 0</pose>
+
+      <inertial>
+        <mass>0.005</mass>
+        <inertia>
+          <ixx>0.0000010</ixx>
+          <iyy>0.0000010</iyy>
+          <izz>0.0000018</izz>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+        </inertia>
+      </inertial>
+
+      <visual name="chain_drive_visual">
+        <geometry>
+          <cylinder>
+            <radius>0.020</radius>
+            <length>0.014</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <ambient>0.45 0.03 0.03 1</ambient>
+          <diffuse>0.72 0.06 0.06 1</diffuse>
+          <specular>0.30 0.30 0.30 1</specular>
+        </material>
+      </visual>
+
+      <visual name="chain_drive_marker_visual">
+        <!-- Outer face marker: compact, 2 mm proud of the 14 mm sprocket -->
+        <pose>0.012 0 -0.008 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.010 0.005 0.002</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.82 0.82 0.82 1</ambient>
+          <diffuse>0.95 0.95 0.95 1</diffuse>
+          <specular>0.35 0.35 0.35 1</specular>
+        </material>
+      </visual>
+    </link>
+
+    <!-- ====================================================== -->
+    <!-- X500 -> Arm                                            -->
+    <!-- ====================================================== -->
+    <joint name="arm_mount_joint" type="fixed">
+      <parent>base_link</parent>
+      <child>arm_base</child>
+    </joint>
+
+    <!-- ====================================================== -->
+    <!-- Fixed shoulder mount (J1 removed; UAV yaw replaces J1) -->
+    <!-- ====================================================== -->
+    <joint name="shoulder_mount_joint" type="fixed">
+      <parent>arm_base</parent>
+      <child>yaw_link</child>
+    </joint>
+
+    <!-- ====================================================== -->
+    <!-- J2                                                     -->
+    <!-- ====================================================== -->
+    <joint name="j2" type="revolute">
+      <pose relative_to="yaw_link">
+        0 0 -0.030 0 0 0
+      </pose>
+      <parent>yaw_link</parent>
+      <child>upper_arm</child>
+      <axis>
+        <xyz>0 -1 0</xyz>
+        <limit>
+          <lower>-2.356194</lower>
+          <upper>0.785398</upper>
+          <effort>5.0</effort>
+          <velocity>2.0</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.20</damping>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <!-- ====================================================== -->
+    <!-- J3                                                     -->
+    <!-- ====================================================== -->
+    <joint name="j3" type="revolute">
+      <pose relative_to="upper_arm">
+        0.09 0 0 0 0 0
+      </pose>
+      <parent>upper_arm</parent>
+      <child>forearm</child>
+      <axis>
+        <xyz>0 -1 0</xyz>
+        <limit>
+          <lower>0.000000</lower>
+          <upper>5.235988</upper>
+          <effort>3.0</effort>
+          <velocity>2.0</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.05</damping>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <!-- ====================================================== -->
+    <!-- J4 / Wrist Roll                                        -->
+    <!-- ====================================================== -->
+    <joint name="j4" type="revolute">
+      <!-- Extended forearm tip is x = +0.085 m; J4 rotates about its own cylinder axis -->
+      <pose relative_to="forearm">0.085 0 0 0 0 0</pose>
+      <parent>forearm</parent>
+      <child>wrist_link</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>-1.570796</lower>
+          <upper>4.712389</upper>
+          <effort>2.0</effort>
+          <velocity>1.5</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.03</damping>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <!-- ====================================================== -->
+    <!-- Chainsaw Mount                                         -->
+    <!-- ====================================================== -->
+    <joint name="chainsaw_mount_joint" type="fixed">
+      <pose relative_to="wrist_link">0.060 0.030 0 1.5708 0 0</pose>
+      <parent>wrist_link</parent>
+      <child>chainsaw_body</child>
+    </joint>
+
+    <!-- ====================================================== -->
+    <!-- Chainsaw Drive Joint                                   -->
+    <!-- saw command rotates only the drive sprocket, not body  -->
+    <!-- ====================================================== -->
+    <joint name="saw_spin_joint" type="revolute">
+      <pose relative_to="chainsaw_body">-0.050 0 0.000 0 0 0</pose>
+      <parent>chainsaw_body</parent>
+      <child>chain_drive</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <effort>1.0</effort>
+          <velocity>200.0</velocity>
+        </limit>
+        <dynamics>
+          <damping>0.001</damping>
+        </dynamics>
+      </axis>
+    </joint>
+
+    <!-- ====================================================== -->
+    <!-- J2 Controller                                          -->
+    <!-- ====================================================== -->
+    <plugin
+      filename="gz-sim-joint-position-controller-system"
+      name="gz::sim::systems::JointPositionController">
+      <joint_name>j2</joint_name>
+            <initial_position>0.000000</initial_position>
+<p_gain>36.0</p_gain>
+      <i_gain>0.0</i_gain>
+      <d_gain>0.0</d_gain>
+      <cmd_max>0.60</cmd_max>
+      <cmd_min>-0.60</cmd_min>
+    </plugin>
+
+    <!-- ====================================================== -->
+    <!-- J3 Controller                                          -->
+    <!-- ====================================================== -->
+    <plugin
+      filename="gz-sim-joint-position-controller-system"
+      name="gz::sim::systems::JointPositionController">
+      <joint_name>j3</joint_name>
+            <initial_position>0.000000</initial_position>
+<p_gain>15.0</p_gain>
+      <i_gain>0.0</i_gain>
+      <d_gain>0.0</d_gain>
+      <cmd_max>0.24</cmd_max>
+      <cmd_min>-0.24</cmd_min>
+    </plugin>
+
+    <!-- ====================================================== -->
+    <!-- J4 Controller                                          -->
+    <!-- ====================================================== -->
+    <plugin
+      filename="gz-sim-joint-position-controller-system"
+      name="gz::sim::systems::JointPositionController">
+      <joint_name>j4</joint_name>
+            <initial_position>0.000000</initial_position>
+<p_gain>6.5</p_gain>
+      <i_gain>0.0</i_gain>
+      <d_gain>0.0</d_gain>
+      <cmd_max>0.10</cmd_max>
+      <cmd_min>-0.10</cmd_min>
+    </plugin>
+
+    <!-- ====================================================== -->
+    <!-- Chainsaw Drive Velocity Controller                    -->
+    <!-- ====================================================== -->
+    <plugin
+      filename="gz-sim-joint-controller-system"
+      name="gz::sim::systems::JointController">
+      <joint_name>saw_spin_joint</joint_name>
+      <use_force_commands>false</use_force_commands>
+      <topic>/lumberjack_arm/saw/cmd_vel</topic>
+      <initial_velocity>0.0</initial_velocity>
+    </plugin>
+
+    <!-- ====================================================== -->
+    <!-- Joint State Publisher                                  -->
+    <!-- ====================================================== -->
+    <plugin
+      filename="gz-sim-joint-state-publisher-system"
+      name="gz::sim::systems::JointStatePublisher">
+      <topic>/lumberjack_arm/joint_states</topic>
+      <joint_name>j2</joint_name>
+      <joint_name>j3</joint_name>
+      <joint_name>j4</joint_name>
+      <joint_name>saw_spin_joint</joint_name>
+    </plugin>
+  </model>
+</sdf>
