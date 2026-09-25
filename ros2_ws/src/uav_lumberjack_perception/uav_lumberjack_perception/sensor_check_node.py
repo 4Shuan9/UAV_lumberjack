@@ -115,7 +115,6 @@ class SensorCheckNode(Node):
 
 
 def main(args=None):
-
     rclpy.init(args=args)
 
     node = SensorCheckNode()
@@ -126,8 +125,11 @@ def main(args=None):
     except KeyboardInterrupt:
         pass
 
-    node.destroy_node()
-    rclpy.shutdown()
+    finally:
+        node.destroy_node()
+
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == '__main__':
