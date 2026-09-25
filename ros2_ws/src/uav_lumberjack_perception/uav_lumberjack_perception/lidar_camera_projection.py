@@ -1,4 +1,5 @@
 import math
+import time
 
 import cv2
 import numpy as np
@@ -14,23 +15,59 @@ from tf2_ros import Buffer, TransformListener, TransformException
 
 class LidarCameraProjection(Node):
     """
-    Step13.3.1
-    将 MID360 PointCloud2 投影到 Gazebo RGB Camera 图像上。
+    Step13.3.1 - Optimized presentation version
 
-    注意：
-    - 不使用 cv_bridge；
-    - 直接使用 NumPy 解析 sensor_msgs/Image 和 PointCloud2；
-    - 当前 Gazebo Camera 采用 +X forward, +Y left, +Z up；
-      因此像素投影为：
-          u = cx - fx * Y / X
-          v = cy - fy * Z / X
+    Main optimization:
+      1) Camera callback only stores the newest ROS Image message.
+         It does NOT convert 30 FPS images continuously.
+      2) Image conversion happens only when a new LiDAR cloud arrives
+         (~10 Hz), so camera conversion workload is reduced from ~30 Hz
+         to ~10 Hz.
+      3) LiDAR -> Camera static transform is cached after the first lookup.
+      4) PointCloud2 XYZ is read with a NumPy structured view.
+      5) Presentation image is rendered at 0.75 scale (960x540 from
+         1280x720) to reduce display / DDS / rqt bandwidth.
+      6) Output uses sensor-data QoS to avoid old-frame backlog.
+
+    Gazebo camera convention used here:
+        +X forward
+        +Y left
+        +Z up
+
+    Projection:
+        u = cx - fx * Y / X
+        v = cy - fy * Z / X
+
+    cv_bridge is NOT used.
     """
 
     def __init__(self):
         super().__init__('lidar_camera_projection')
 
-        self.latest_bgr = None
-        self.latest_header = None
+        # ========================================================
+        # Presentation parameters
+        # ========================================================
+
+        # 1280x720 -> 960x540.
+        # This affects presentation only, not the underlying 3D geometry.
+        self.display_scale = 0.75
+
+        # Fixed depth range gives stable colors between frames.
+        self.display_depth_min = 0.5
+        self.display_depth_max = 8.0
+
+        # Small clean points for presentation.
+        self.point_radius = 1
+
+        # Drawing workload limit only.
+        self.max_draw_points = 4000
+
+        # ========================================================
+        # Runtime state
+        # ========================================================
+
+        # Camera callback stores only the newest ROS message.
+        self.latest_image_msg = None
 
         self.fx = None
         self.fy = None
@@ -43,6 +80,23 @@ class LidarCameraProjection(Node):
             self.tf_buffer,
             self
         )
+
+        # Cached LiDAR -> Camera transform.
+        # Both sensors are rigidly mounted to the UAV, so their relative
+        # transform is static.
+        self.cached_rotation = None
+        self.cached_translation = None
+        self.cached_lidar_frame = None
+
+        self.frame_count = 0
+        self.smoothed_fps = 0.0
+        self.smoothed_process_ms = 0.0
+        self.last_publish_time = None
+        self.last_tf_warning_time = 0.0
+
+        # ========================================================
+        # ROS interfaces
+        # ========================================================
 
         self.image_sub = self.create_subscription(
             Image,
@@ -68,29 +122,20 @@ class LidarCameraProjection(Node):
         self.projection_pub = self.create_publisher(
             Image,
             '/perception/lidar_projection',
-            10
+            qos_profile_sensor_data
         )
 
-        self.info_received = False
-        self.frame_count = 0
-
-        # 仅用于可视化，限制每帧最多绘制的点数，避免 rqt 太卡。
-        self.max_draw_points = 5000
-
         self.get_logger().info(
-            '=============================================='
+            '===================================================='
         )
         self.get_logger().info(
-            ' Step13.3.1 LiDAR -> Camera projection started'
+            ' Step13.3.1 RGB + LiDAR Projection [OPTIMIZED]'
         )
         self.get_logger().info(
-            ' Input : /camera/image_raw'
+            ' Camera callback: store latest frame only'
         )
         self.get_logger().info(
-            ' Input : /camera/camera_info'
-        )
-        self.get_logger().info(
-            ' Input : /mid360/points'
+            f' Display scale : {self.display_scale:.2f}'
         )
         self.get_logger().info(
             ' Output: /perception/lidar_projection'
@@ -99,11 +144,11 @@ class LidarCameraProjection(Node):
             ' cv_bridge is NOT used'
         )
         self.get_logger().info(
-            '=============================================='
+            '===================================================='
         )
 
     # ============================================================
-    # ROS Image <-> NumPy
+    # ROS Image -> OpenCV BGR
     # ============================================================
 
     def ros_image_to_bgr(self, msg):
@@ -146,6 +191,7 @@ class LidarCameraProjection(Node):
                 msg.height,
                 msg.width
             )
+
             return cv2.cvtColor(
                 image,
                 cv2.COLOR_GRAY2BGR
@@ -179,6 +225,7 @@ class LidarCameraProjection(Node):
 
     def numpy_to_ros_bgr8(self, image, header):
         msg = Image()
+
         msg.header = header
         msg.height = image.shape[0]
         msg.width = image.shape[1]
@@ -186,10 +233,11 @@ class LidarCameraProjection(Node):
         msg.is_bigendian = 0
         msg.step = msg.width * 3
         msg.data = image.tobytes()
+
         return msg
 
     # ============================================================
-    # PointCloud2 parser
+    # Fast PointCloud2 XYZ reader
     # ============================================================
 
     def pointcloud_xyz(self, msg):
@@ -211,69 +259,55 @@ class LidarCameraProjection(Node):
                     f'is not FLOAT32'
                 )
 
-        point_bytes = msg.width * msg.point_step
+        endian = '>' if msg.is_bigendian else '<'
 
-        raw = np.frombuffer(
-            msg.data,
-            dtype=np.uint8
+        dtype = np.dtype({
+            'names': ['x', 'y', 'z'],
+            'formats': [
+                endian + 'f4',
+                endian + 'f4',
+                endian + 'f4'
+            ],
+            'offsets': [
+                fields['x'].offset,
+                fields['y'].offset,
+                fields['z'].offset
+            ],
+            'itemsize': msg.point_step
+        })
+
+        cloud = np.ndarray(
+            shape=(msg.height, msg.width),
+            dtype=dtype,
+            buffer=memoryview(msg.data),
+            strides=(msg.row_step, msg.point_step)
         )
 
-        # 兼容可能存在的 row padding
-        if msg.row_step == point_bytes:
-            packed = raw.reshape(
-                msg.height * msg.width,
-                msg.point_step
-            )
-        else:
-            rows = []
+        x = cloud['x'].reshape(-1)
+        y = cloud['y'].reshape(-1)
+        z = cloud['z'].reshape(-1)
 
-            for row in range(msg.height):
-                start = row * msg.row_step
-                stop = start + point_bytes
-
-                row_data = raw[start:stop].reshape(
-                    msg.width,
-                    msg.point_step
-                )
-
-                rows.append(row_data)
-
-            packed = np.vstack(rows)
-
-        float_dtype = (
-            '>f4'
-            if msg.is_bigendian
-            else '<f4'
+        valid = (
+            np.isfinite(x)
+            & np.isfinite(y)
+            & np.isfinite(z)
         )
-
-        def read_float32(offset):
-            values = packed[
-                :,
-                offset:offset + 4
-            ].copy()
-
-            return np.frombuffer(
-                values.tobytes(),
-                dtype=float_dtype
-            )
-
-        x = read_float32(fields['x'].offset)
-        y = read_float32(fields['y'].offset)
-        z = read_float32(fields['z'].offset)
 
         points = np.column_stack(
-            (x, y, z)
+            (
+                x[valid],
+                y[valid],
+                z[valid]
+            )
         ).astype(
-            np.float64,
+            np.float32,
             copy=False
         )
 
-        valid = np.isfinite(points).all(axis=1)
-
-        return points[valid]
+        return points
 
     # ============================================================
-    # TF quaternion -> rotation matrix
+    # Quaternion -> rotation matrix
     # ============================================================
 
     @staticmethod
@@ -286,7 +320,10 @@ class LidarCameraProjection(Node):
         n = x*x + y*y + z*z + w*w
 
         if n < 1.0e-12:
-            return np.eye(3)
+            return np.eye(
+                3,
+                dtype=np.float32
+            )
 
         s = 2.0 / n
 
@@ -304,26 +341,318 @@ class LidarCameraProjection(Node):
             [1.0 - yy - zz, xy - wz,       xz + wy],
             [xy + wz,       1.0 - xx - zz, yz - wx],
             [xz - wy,       yz + wx,       1.0 - xx - yy]
-        ], dtype=np.float64)
+        ], dtype=np.float32)
 
     # ============================================================
-    # Callbacks
+    # Static TF cache
+    # ============================================================
+
+    def ensure_transform(self, lidar_frame):
+        if (
+            self.cached_rotation is not None
+            and self.cached_translation is not None
+            and self.cached_lidar_frame == lidar_frame
+        ):
+            return True
+
+        try:
+            transform = self.tf_buffer.lookup_transform(
+                self.camera_frame,
+                lidar_frame,
+                Time()
+            )
+
+        except TransformException as exc:
+            now = time.perf_counter()
+
+            if now - self.last_tf_warning_time > 2.0:
+                self.last_tf_warning_time = now
+
+                self.get_logger().warning(
+                    f'TF not ready: {exc}'
+                )
+
+            return False
+
+        t = transform.transform.translation
+        q = transform.transform.rotation
+
+        self.cached_translation = np.array(
+            [t.x, t.y, t.z],
+            dtype=np.float32
+        )
+
+        self.cached_rotation = self.quaternion_to_matrix(
+            q
+        )
+
+        self.cached_lidar_frame = lidar_frame
+
+        self.get_logger().info(
+            '[OK] Cached static LiDAR -> Camera transform'
+        )
+
+        return True
+
+    # ============================================================
+    # Visualization helpers
+    # ============================================================
+
+    def depth_to_colors(self, depth):
+        clipped = np.clip(
+            depth,
+            self.display_depth_min,
+            self.display_depth_max
+        )
+
+        normalized = (
+            clipped - self.display_depth_min
+        ) / (
+            self.display_depth_max
+            - self.display_depth_min
+        )
+
+        # Near = warm, far = cool.
+        color_index = (
+            255.0 * (1.0 - normalized)
+        ).astype(
+            np.uint8
+        )
+
+        color_image = cv2.applyColorMap(
+            color_index.reshape(-1, 1),
+            cv2.COLORMAP_TURBO
+        )
+
+        return color_image.reshape(
+            -1,
+            3
+        )
+
+    def draw_points_vectorized(
+        self,
+        image,
+        u,
+        v,
+        colors
+    ):
+        height, width = image.shape[:2]
+
+        u = u.astype(np.int32)
+        v = v.astype(np.int32)
+
+        radius = max(
+            0,
+            int(self.point_radius)
+        )
+
+        for dy in range(-radius, radius + 1):
+            yy = v + dy
+
+            valid_y = (
+                (yy >= 0)
+                & (yy < height)
+            )
+
+            if not np.any(valid_y):
+                continue
+
+            for dx in range(-radius, radius + 1):
+                if dx*dx + dy*dy > radius*radius:
+                    continue
+
+                xx = u + dx
+
+                valid = (
+                    valid_y
+                    & (xx >= 0)
+                    & (xx < width)
+                )
+
+                if not np.any(valid):
+                    continue
+
+                image[
+                    yy[valid],
+                    xx[valid]
+                ] = colors[valid]
+
+    def draw_info_panel(
+        self,
+        image,
+        cloud_count,
+        projected_count,
+        drawn_count
+    ):
+        overlay = image.copy()
+
+        x1, y1 = 14, 14
+        x2, y2 = 355, 126
+
+        cv2.rectangle(
+            overlay,
+            (x1, y1),
+            (x2, y2),
+            (20, 20, 20),
+            -1
+        )
+
+        cv2.addWeighted(
+            overlay,
+            0.55,
+            image,
+            0.45,
+            0,
+            image
+        )
+
+        cv2.putText(
+            image,
+            'RGB + MID360 DEPTH PROJECTION',
+            (27, 40),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.53,
+            (255, 255, 255),
+            2,
+            cv2.LINE_AA
+        )
+
+        cv2.putText(
+            image,
+            f'FPS       : {self.smoothed_fps:4.1f}',
+            (27, 67),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.46,
+            (235, 235, 235),
+            1,
+            cv2.LINE_AA
+        )
+
+        cv2.putText(
+            image,
+            f'Process   : {self.smoothed_process_ms:4.1f} ms',
+            (27, 89),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.46,
+            (235, 235, 235),
+            1,
+            cv2.LINE_AA
+        )
+
+        cv2.putText(
+            image,
+            f'Cloud/Image: {cloud_count}/{projected_count}',
+            (27, 111),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.46,
+            (235, 235, 235),
+            1,
+            cv2.LINE_AA
+        )
+
+        cv2.circle(
+            image,
+            (334, 37),
+            6,
+            (0, 220, 0),
+            -1,
+            cv2.LINE_AA
+        )
+
+    def draw_depth_legend(self, image):
+        height, width = image.shape[:2]
+
+        bar_h = min(
+            250,
+            height - 95
+        )
+
+        bar_w = 14
+
+        x1 = width - 44
+        y1 = 48
+        x2 = x1 + bar_w
+        y2 = y1 + bar_h
+
+        indices = np.linspace(
+            255,
+            0,
+            bar_h,
+            dtype=np.uint8
+        ).reshape(
+            bar_h,
+            1
+        )
+
+        colorbar = cv2.applyColorMap(
+            indices,
+            cv2.COLORMAP_TURBO
+        )
+
+        colorbar = np.repeat(
+            colorbar,
+            bar_w,
+            axis=1
+        )
+
+        image[
+            y1:y2,
+            x1:x2
+        ] = colorbar
+
+        cv2.rectangle(
+            image,
+            (x1 - 1, y1 - 1),
+            (x2, y2),
+            (255, 255, 255),
+            1
+        )
+
+        cv2.putText(
+            image,
+            'DEPTH',
+            (width - 70, 32),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.38,
+            (255, 255, 255),
+            1,
+            cv2.LINE_AA
+        )
+
+        cv2.putText(
+            image,
+            f'{self.display_depth_min:.1f}m',
+            (width - 82, y1 + 5),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.34,
+            (255, 255, 255),
+            1,
+            cv2.LINE_AA
+        )
+
+        cv2.putText(
+            image,
+            f'{self.display_depth_max:.1f}m',
+            (width - 82, y2),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.34,
+            (255, 255, 255),
+            1,
+            cv2.LINE_AA
+        )
+
+    # ============================================================
+    # ROS callbacks
     # ============================================================
 
     def image_callback(self, msg):
-        try:
-            self.latest_bgr = self.ros_image_to_bgr(
-                msg
-            )
-            self.latest_header = msg.header
-
-        except Exception as exc:
-            self.get_logger().error(
-                f'Image conversion failed: {exc}'
-            )
+        # IMPORTANT:
+        # Do not convert the 30 Hz camera stream here.
+        # Just keep the newest message.
+        self.latest_image_msg = msg
 
     def camera_info_callback(self, msg):
-        if self.info_received:
+        if self.camera_frame is not None:
             return
 
         self.fx = float(msg.k[0])
@@ -331,8 +660,6 @@ class LidarCameraProjection(Node):
         self.cx = float(msg.k[2])
         self.cy = float(msg.k[5])
         self.camera_frame = msg.header.frame_id
-
-        self.info_received = True
 
         self.get_logger().info(
             '[OK] CameraInfo: '
@@ -344,25 +671,51 @@ class LidarCameraProjection(Node):
         )
 
     def cloud_callback(self, msg):
+        start_time = time.perf_counter()
+
         if (
-            self.latest_bgr is None
-            or not self.info_received
+            self.latest_image_msg is None
+            or self.camera_frame is None
         ):
             return
 
+        if not self.ensure_transform(
+            msg.header.frame_id
+        ):
+            return
+
+        # --------------------------------------------------------
+        # Convert only ONE camera frame per LiDAR frame
+        # --------------------------------------------------------
+
+        image_msg = self.latest_image_msg
+
         try:
-            transform = self.tf_buffer.lookup_transform(
-                self.camera_frame,
-                msg.header.frame_id,
-                Time()
+            bgr = self.ros_image_to_bgr(
+                image_msg
             )
 
-        except TransformException as exc:
-            self.get_logger().warning(
-                f'TF not ready: {exc}',
-                throttle_duration_sec=2.0
+        except Exception as exc:
+            self.get_logger().error(
+                f'Image conversion failed: {exc}'
             )
             return
+
+        # Presentation resolution only.
+        if self.display_scale != 1.0:
+            display = cv2.resize(
+                bgr,
+                None,
+                fx=self.display_scale,
+                fy=self.display_scale,
+                interpolation=cv2.INTER_AREA
+            )
+        else:
+            display = bgr.copy()
+
+        # --------------------------------------------------------
+        # PointCloud2 -> XYZ
+        # --------------------------------------------------------
 
         try:
             points_lidar = self.pointcloud_xyz(
@@ -378,40 +731,19 @@ class LidarCameraProjection(Node):
         if points_lidar.shape[0] == 0:
             return
 
-        t = transform.transform.translation
-        q = transform.transform.rotation
+        # --------------------------------------------------------
+        # LiDAR frame -> Camera frame
+        # --------------------------------------------------------
 
-        translation = np.array(
-            [t.x, t.y, t.z],
-            dtype=np.float64
-        )
-
-        rotation = self.quaternion_to_matrix(
-            q
-        )
-
-        # TF 返回的是：
-        # target(camera) <- source(lidar)
-        #
-        # p_camera = R * p_lidar + t
         points_camera = (
-            points_lidar @ rotation.T
-            + translation
+            points_lidar
+            @ self.cached_rotation.T
+            + self.cached_translation
         )
 
-        # Gazebo camera sensor frame:
-        #
-        # +X forward
-        # +Y left
-        # +Z up
-        #
-        # Image:
-        # +u right
-        # +v down
-        #
-        # 因此：
-        # u = cx - fx * Y/X
-        # v = cy - fy * Z/X
+        # --------------------------------------------------------
+        # Camera 3D -> original 1280x720 image coordinates
+        # --------------------------------------------------------
 
         depth = points_camera[:, 0]
 
@@ -442,92 +774,126 @@ class LidarCameraProjection(Node):
             / depth
         )
 
-        height, width = (
-            self.latest_bgr.shape[:2]
-        )
+        original_height = image_msg.height
+        original_width = image_msg.width
 
         inside = (
             (u >= 0)
-            & (u < width)
+            & (u < original_width)
             & (v >= 0)
-            & (v < height)
+            & (v < original_height)
         )
 
         u = u[inside]
         v = v[inside]
         depth = depth[inside]
 
-        if u.size == 0:
+        projected_count = int(
+            u.size
+        )
+
+        if projected_count == 0:
             return
 
-        # 限制调试图上的点数，避免显示卡顿
-        stride = max(
-            1,
-            int(
+        # --------------------------------------------------------
+        # Presentation scaling
+        # --------------------------------------------------------
+
+        u = u * self.display_scale
+        v = v * self.display_scale
+
+        if projected_count > self.max_draw_points:
+            stride = int(
                 math.ceil(
-                    u.size
+                    projected_count
                     / self.max_draw_points
                 )
             )
-        )
+        else:
+            stride = 1
 
-        u_draw = u[::stride].astype(
-            np.int32
-        )
-
-        v_draw = v[::stride].astype(
-            np.int32
-        )
-
+        u_draw = u[::stride]
+        v_draw = v[::stride]
         depth_draw = depth[::stride]
 
-        debug = self.latest_bgr.copy()
-
-        # 用深度简单区分近远：
-        # 近处偏红，远处偏蓝。
-        min_depth = float(
-            np.min(depth_draw)
+        colors = self.depth_to_colors(
+            depth_draw
         )
 
-        max_depth = float(
-            np.max(depth_draw)
-        )
-
-        span = max(
-            max_depth - min_depth,
-            1.0e-6
-        )
-
-        normalized = (
-            (depth_draw - min_depth)
-            / span
-        )
-
-        for px, py, norm_d in zip(
+        self.draw_points_vectorized(
+            display,
             u_draw,
             v_draw,
-            normalized
-        ):
-            red = int(
-                255 * (1.0 - norm_d)
+            colors
+        )
+
+        # --------------------------------------------------------
+        # Performance statistics
+        # --------------------------------------------------------
+
+        now = time.perf_counter()
+
+        if self.last_publish_time is not None:
+            dt = now - self.last_publish_time
+
+            if dt > 1.0e-6:
+                instant_fps = 1.0 / dt
+
+                if self.smoothed_fps <= 0.0:
+                    self.smoothed_fps = instant_fps
+                else:
+                    self.smoothed_fps = (
+                        0.80 * self.smoothed_fps
+                        + 0.20 * instant_fps
+                    )
+
+        self.last_publish_time = now
+
+        process_ms = (
+            time.perf_counter()
+            - start_time
+        ) * 1000.0
+
+        if self.smoothed_process_ms <= 0.0:
+            self.smoothed_process_ms = process_ms
+        else:
+            self.smoothed_process_ms = (
+                0.80 * self.smoothed_process_ms
+                + 0.20 * process_ms
             )
 
-            blue = int(
-                255 * norm_d
-            )
+        # --------------------------------------------------------
+        # Presentation overlay
+        # --------------------------------------------------------
 
-            cv2.circle(
-                debug,
-                (int(px), int(py)),
-                2,
-                (blue, 255, red),
-                -1
-            )
+        self.draw_info_panel(
+            display,
+            int(points_lidar.shape[0]),
+            projected_count,
+            int(u_draw.size)
+        )
+
+        self.draw_depth_legend(
+            display
+        )
+
+        height, _ = display.shape[:2]
+
+        cv2.putText(
+            display,
+            'Camera semantics  +  LiDAR geometry  ->  2D-3D correspondence',
+            (18, height - 16),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.40,
+            (255, 255, 255),
+            1,
+            cv2.LINE_AA
+        )
 
         self.projection_pub.publish(
             self.numpy_to_ros_bgr8(
-                debug,
-                self.latest_header
+                display,
+                image_msg.header
             )
         )
 
@@ -537,8 +903,10 @@ class LidarCameraProjection(Node):
             self.get_logger().info(
                 '[PROJECTION] '
                 f'cloud={points_lidar.shape[0]} pts, '
-                f'in_image={u.size} pts, '
-                f'drawn={u_draw.size} pts'
+                f'in_image={projected_count} pts, '
+                f'drawn={u_draw.size} pts, '
+                f'fps={self.smoothed_fps:.1f}, '
+                f'process={self.smoothed_process_ms:.1f} ms'
             )
 
 
