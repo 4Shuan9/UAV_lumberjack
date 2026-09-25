@@ -65,7 +65,6 @@ def launch_setup(context, *args, **kwargs):
     # ============================================================
     # Cleanup old Gazebo / PX4 processes
     #
-    # Important:
     # "[g]z sim" prevents pkill from matching this cleanup command
     # itself.
     # ============================================================
@@ -127,8 +126,6 @@ def launch_setup(context, *args, **kwargs):
 
     # ============================================================
     # Target branch contact monitor
-    #
-    # Start after the Gazebo <-> ROS bridge is available.
     # ============================================================
 
     target_contact_monitor = TimerAction(
@@ -146,7 +143,7 @@ def launch_setup(context, *args, **kwargs):
     # Automatic cutting controller
     #
     # Uses target-contact state + actual saw RPM.
-    # Publishes ROS /target_branch/detach after 0.8 s effective cut.
+    # Publishes ROS /target_branch/detach after effective cutting.
     # ============================================================
 
     auto_cut_controller = TimerAction(
@@ -160,12 +157,57 @@ def launch_setup(context, *args, **kwargs):
         ]
     )
 
+    # ============================================================
+    # Camera static TF chain
+    #
+    # SDF:
+    # base_link -> camera_link:
+    #   xyz = [0.120, 0, -0.025]
+    #   rpy = [0, 0.436332, 0]   (25 deg pitch)
+    #
+    # The camera sensor "imager" has zero pose relative to
+    # camera_link, so the second transform is identity.
+    # ============================================================
+
+    tf_base_to_camera_link = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='tf_base_to_camera_link',
+        arguments=[
+            '--x', '0.120',
+            '--y', '0',
+            '--z', '-0.025',
+            '--roll', '0',
+            '--pitch', '0.436332',
+            '--yaw', '0',
+            '--frame-id', 'base_link',
+            '--child-frame-id', 'camera_link'
+        ],
+        output='screen'
+    )
+
+    tf_camera_link_to_sensor = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='tf_camera_link_to_sensor',
+        arguments=[
+            '--x', '0',
+            '--y', '0',
+            '--z', '0',
+            '--roll', '0',
+            '--pitch', '0',
+            '--yaw', '0',
+            '--frame-id', 'camera_link',
+            '--child-frame-id',
+            'x500_lumberjack/camera_link/imager'
+        ],
+        output='screen'
+    )
 
     # ============================================================
     # MID360 static TF chain
     #
     # base_link -> mid360_mount_link -> mid360_link -> lidar frame
-    # These were manually verified in RViz before being frozen here.
     # ============================================================
 
     tf_base_to_mid360_mount = Node(
@@ -259,9 +301,14 @@ def launch_setup(context, *args, **kwargs):
                 bridge,
                 target_contact_monitor,
                 auto_cut_controller,
+
+                tf_base_to_camera_link,
+                tf_camera_link_to_sensor,
+
                 tf_base_to_mid360_mount,
                 tf_mid360_mount_to_link,
                 tf_mid360_link_to_sensor,
+
                 px4
             ]
         )
