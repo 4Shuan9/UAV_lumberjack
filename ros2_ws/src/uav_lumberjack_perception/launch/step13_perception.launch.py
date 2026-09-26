@@ -70,10 +70,36 @@ def generate_launch_description():
         parameters=common_parameters
     )
 
+    # ============================================================
+    # Step13.4.4-B Multi-view fused PCA / geometry estimation
+    # ============================================================
+
+    branch_pca_fused = Node(
+        package='uav_lumberjack_perception',
+        executable='branch_pca_fused',
+        name='branch_pca_fused_node',
+        output='screen',
+        parameters=common_parameters
+    )
+
+    # ============================================================
+    # Step13.4.4-A Manual multi-view fusion
+    # ============================================================
+
+    multi_view_fusion = Node(
+        package='uav_lumberjack_perception',
+        executable='multi_view_fusion',
+        name='multi_view_fusion_node',
+        output='screen',
+        parameters=common_parameters
+    )
+
     return LaunchDescription([
         odom_to_tf,
         red_branch_detector,
         target_branch_cloud,
         target_cloud_world,
         branch_pca,
+        branch_pca_fused,
+        multi_view_fusion
     ])

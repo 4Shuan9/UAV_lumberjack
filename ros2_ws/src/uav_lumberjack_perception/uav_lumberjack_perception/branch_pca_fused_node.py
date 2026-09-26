@@ -42,14 +42,14 @@ class BranchPcaNode(Node):
     """
 
     def __init__(self):
-        super().__init__('branch_pca_node')
+        super().__init__('branch_pca_fused_node')
 
-        self.input_topic = '/perception/target_branch_cloud_world'
+        self.input_topic = '/perception/target_branch_cloud_fused'
 
-        self.axis_marker_topic = '/perception/branch_axis_marker'
-        self.center_marker_topic = '/perception/branch_center_marker'
-        self.length_marker_topic = '/perception/branch_length_marker'
-        self.cylinder_marker_topic = '/perception/branch_cylinder_marker'
+        self.axis_marker_topic = '/perception/fused_branch_axis_marker'
+        self.center_marker_topic = '/perception/fused_branch_center_marker'
+        self.length_marker_topic = '/perception/fused_branch_length_marker'
+        self.cylinder_marker_topic = '/perception/fused_branch_cylinder_marker'
 
         self.min_points = 10
 
@@ -100,7 +100,7 @@ class BranchPcaNode(Node):
         self.frame_count = 0
 
         self.get_logger().info('====================================================')
-        self.get_logger().info(' Step13.4.1 + Step13.4.2 Branch Geometry')
+        self.get_logger().info(' Step13.4.4-B Fused Multi-View Branch Geometry')
         self.get_logger().info(f' Input : {self.input_topic}')
         self.get_logger().info(
             f' Axis  : {self.axis_marker_topic}'

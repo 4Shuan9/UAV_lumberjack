@@ -41,8 +41,10 @@ setup(
             'lidar_camera_projection = uav_lumberjack_perception.lidar_camera_projection:main',
             'target_branch_cloud = uav_lumberjack_perception.target_branch_cloud:main',
             'branch_pca = uav_lumberjack_perception.branch_pca_node:main',
+            'branch_pca_fused = uav_lumberjack_perception.branch_pca_fused_node:main',
             'odom_to_tf = uav_lumberjack_perception.odom_to_tf:main',
             'target_cloud_world = uav_lumberjack_perception.target_cloud_world:main',
+            'multi_view_fusion = uav_lumberjack_perception.multi_view_fusion_node:main',
         ],
     },
 )
