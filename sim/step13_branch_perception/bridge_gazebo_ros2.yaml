@@ -113,3 +113,25 @@
   ros_type_name: "sensor_msgs/msg/PointCloud2"
   gz_type_name: "gz.msgs.PointCloudPacked"
   direction: GZ_TO_ROS
+
+# ============================================================
+# UAV World Odometry
+# Gazebo world -> base_link pose for multi-view fusion
+# ============================================================
+
+- ros_topic_name: "/model/x500_lumberjack/base_link_odometry"
+  gz_topic_name: "/model/x500_lumberjack/base_link_odometry"
+  ros_type_name: "nav_msgs/msg/Odometry"
+  gz_type_name: "gz.msgs.Odometry"
+  direction: GZ_TO_ROS
+
+# ============================================================
+# Gazebo Simulation Clock
+# Keep ROS2 / TF / RViz on the same simulation time
+# ============================================================
+
+- ros_topic_name: "/clock"
+  gz_topic_name: "/world/x500_lumberjack_world/clock"
+  ros_type_name: "rosgraph_msgs/msg/Clock"
+  gz_type_name: "gz.msgs.Clock"
+  direction: GZ_TO_ROS

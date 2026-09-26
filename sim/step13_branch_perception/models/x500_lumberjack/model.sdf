@@ -1118,5 +1118,30 @@
       <joint_name>j4</joint_name>
       <joint_name>saw_spin_joint</joint_name>
     </plugin>
+
+    <!-- ====================================================== -->
+    <!-- World -> base_link odometry                            -->
+    <!-- ====================================================== -->
+    <plugin
+      filename="gz-sim-odometry-publisher-system"
+      name="gz::sim::systems::OdometryPublisher">
+
+      <odom_frame>world</odom_frame>
+      <robot_base_frame>base_link</robot_base_frame>
+
+      <!-- Full 3D pose for UAV -->
+      <dimensions>3</dimensions>
+
+      <!-- Target cloud / LiDAR update is around 10 Hz;
+           30 Hz pose is more than sufficient -->
+      <odom_publish_frequency>30</odom_publish_frequency>
+
+      <odom_topic>/model/x500_lumberjack/base_link_odometry</odom_topic>
+
+      <!-- x500_base model frame -> base_link -->
+      <xyz_offset>0 0 0.24</xyz_offset>
+      <rpy_offset>0 0 0</rpy_offset>
+    </plugin>
+
   </model>
 </sdf>

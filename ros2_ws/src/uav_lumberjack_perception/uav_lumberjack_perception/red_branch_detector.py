@@ -9,11 +9,29 @@ from sensor_msgs.msg import Image
 
 
 class RedBranchDetector(Node):
+    """
+    Step13.2.1
+    Robust red-branch Mask under viewpoint / illumination changes.
+
+    Main improvements over Step13.2:
+      1) Narrow HSV red hue to reject brown trunk / branches.
+      2) Keep high saturation but allow lower V for shadowed true-red pixels.
+      3) Small OPEN + stronger CLOSE morphology:
+         remove isolated noise while reconnecting thin broken branch regions.
+      4) Publish ONLY the largest valid target component as /perception/red_mask.
+      5) Lower minimum contour area so oblique / farther views are not rejected
+         too aggressively.
+
+    cv_bridge is NOT used.
+    """
 
     def __init__(self):
         super().__init__('red_branch_detector')
 
-        # 输入图像
+        # ========================================================
+        # ROS interfaces
+        # ========================================================
+
         self.image_sub = self.create_subscription(
             Image,
             '/camera/image_raw',
@@ -21,40 +39,81 @@ class RedBranchDetector(Node):
             qos_profile_sensor_data
         )
 
-        # 红色二值 Mask
+        # Final target-only binary Mask used by RGB-LiDAR fusion.
         self.mask_pub = self.create_publisher(
             Image,
             '/perception/red_mask',
             10
         )
 
-        # 调试图像：轮廓 + 外接框 + 中心点
+        # Optional raw candidate Mask for tuning / comparison.
+        self.raw_mask_pub = self.create_publisher(
+            Image,
+            '/perception/red_mask_raw',
+            10
+        )
+
+        # Debug RGB image.
         self.debug_pub = self.create_publisher(
             Image,
             '/perception/red_debug',
             10
         )
 
+        # ========================================================
+        # Detection parameters
+        # ========================================================
+
         self.frame_count = 0
         self.encoding_printed = False
 
-        # 最小目标面积，过滤零碎红色噪声
-        self.min_area = 300.0
+        # Previous Step13.2 used 300 px.
+        # Lower this so oblique / farther views remain detectable.
+        self.min_area = 80.0
 
-        self.get_logger().info('======================================')
-        self.get_logger().info(' Step13.2 Red Branch Detector started')
+        # HSV red hue ranges.
+        # OpenCV H range is [0, 179].
+        self.hue_low_1 = 0
+        self.hue_high_1 = 8
+
+        self.hue_low_2 = 172
+        self.hue_high_2 = 179
+
+        # Relaxed saturation / brightness gate.
+        # The old detector used S >= 100 and V >= 100.
+        self.min_saturation = 110
+        self.min_value = 30
+
+        # Morphology:
+        # small OPEN preserves a thin branch;
+        # larger CLOSE reconnects small gaps caused by illumination/view angle.
+        self.open_kernel_size = 3
+        self.close_kernel_size = 7
+
+        self.get_logger().info('====================================================')
+        self.get_logger().info(' Step13.2.1 Robust Red Branch Detector')
         self.get_logger().info(' Input : /camera/image_raw')
-        self.get_logger().info(' Output: /perception/red_mask')
-        self.get_logger().info(' Output: /perception/red_debug')
+        self.get_logger().info(' Final : /perception/red_mask')
+        self.get_logger().info(' Raw   : /perception/red_mask_raw')
+        self.get_logger().info(' Debug : /perception/red_debug')
+        self.get_logger().info(
+            f' HSV: H=[{self.hue_low_1},{self.hue_high_1}] or '
+            f'[{self.hue_low_2},{self.hue_high_2}], '
+            f'S>={self.min_saturation}, V>={self.min_value}'
+        )
+        self.get_logger().info(
+            f' min_area={self.min_area:.0f} px, '
+            f'OPEN={self.open_kernel_size}, '
+            f'CLOSE={self.close_kernel_size}'
+        )
         self.get_logger().info(' cv_bridge is NOT used')
-        self.get_logger().info('======================================')
+        self.get_logger().info('====================================================')
+
+    # ============================================================
+    # ROS Image <-> NumPy
+    # ============================================================
 
     def ros_image_to_bgr(self, msg):
-        """
-        不使用 cv_bridge。
-        直接将 sensor_msgs/Image.data 转换为 NumPy/OpenCV 图像。
-        """
-
         encoding = msg.encoding.lower()
 
         if encoding in ['rgb8', 'bgr8']:
@@ -71,10 +130,15 @@ class RedBranchDetector(Node):
                 f'Unsupported image encoding: {msg.encoding}'
             )
 
-        raw = np.frombuffer(msg.data, dtype=np.uint8)
+        raw = np.frombuffer(
+            msg.data,
+            dtype=np.uint8
+        )
 
-        # msg.step 是每一行实际占用的字节数
-        expected_size = msg.height * msg.step
+        expected_size = (
+            msg.height
+            * msg.step
+        )
 
         if raw.size < expected_size:
             raise ValueError(
@@ -82,15 +146,20 @@ class RedBranchDetector(Node):
                 f'{raw.size} < {expected_size}'
             )
 
-        # 先按照真实行步长排列，避免存在 padding 时出错
         rows = raw[:expected_size].reshape(
             msg.height,
             msg.step
         )
 
-        useful_bytes = msg.width * channels
+        useful_bytes = (
+            msg.width
+            * channels
+        )
 
-        image = rows[:, :useful_bytes]
+        image = rows[
+            :,
+            :useful_bytes
+        ]
 
         if channels == 1:
             image = image.reshape(
@@ -98,47 +167,43 @@ class RedBranchDetector(Node):
                 msg.width
             )
 
-            bgr = cv2.cvtColor(
+            return cv2.cvtColor(
                 image,
                 cv2.COLOR_GRAY2BGR
             )
 
-        else:
-            image = image.reshape(
-                msg.height,
-                msg.width,
-                channels
+        image = image.reshape(
+            msg.height,
+            msg.width,
+            channels
+        )
+
+        if encoding == 'rgb8':
+            return cv2.cvtColor(
+                image,
+                cv2.COLOR_RGB2BGR
             )
 
-            if encoding == 'rgb8':
-                bgr = cv2.cvtColor(
-                    image,
-                    cv2.COLOR_RGB2BGR
-                )
+        if encoding == 'bgr8':
+            return image.copy()
 
-            elif encoding == 'bgr8':
-                bgr = image.copy()
+        if encoding == 'rgba8':
+            return cv2.cvtColor(
+                image,
+                cv2.COLOR_RGBA2BGR
+            )
 
-            elif encoding == 'rgba8':
-                bgr = cv2.cvtColor(
-                    image,
-                    cv2.COLOR_RGBA2BGR
-                )
+        return cv2.cvtColor(
+            image,
+            cv2.COLOR_BGRA2BGR
+        )
 
-            elif encoding == 'bgra8':
-                bgr = cv2.cvtColor(
-                    image,
-                    cv2.COLOR_BGRA2BGR
-                )
-
-        return bgr
-
-    def numpy_to_ros_image(self, image, header, encoding):
-        """
-        NumPy/OpenCV 图像 → sensor_msgs/Image
-        同样不依赖 cv_bridge。
-        """
-
+    @staticmethod
+    def numpy_to_ros_image(
+        image,
+        header,
+        encoding
+    ):
         msg = Image()
 
         msg.header = header
@@ -152,13 +217,209 @@ class RedBranchDetector(Node):
         else:
             channels = image.shape[2]
 
-        msg.step = msg.width * channels
-        msg.data = image.tobytes()
+        msg.step = (
+            msg.width
+            * channels
+        )
+
+        msg.data = np.ascontiguousarray(
+            image
+        ).tobytes()
 
         return msg
 
-    def image_callback(self, msg):
+    # ============================================================
+    # Robust red candidate Mask
+    # ============================================================
 
+    def build_raw_red_mask(self, bgr):
+        """
+        Strict HSV-only red candidate mask.
+
+        Design goal:
+          - Reject brown trunk / brown branches.
+          - Keep true saturated red even when it becomes darker in shadow.
+
+        Therefore:
+          - Hue is narrow.
+          - Saturation remains high.
+          - Value threshold is allowed to be low.
+        """
+
+        hsv = cv2.cvtColor(
+            bgr,
+            cv2.COLOR_BGR2HSV
+        )
+
+        h = hsv[:, :, 0]
+        s = hsv[:, :, 1]
+        v = hsv[:, :, 2]
+
+        hue_red = (
+            (
+                (h >= self.hue_low_1)
+                & (h <= self.hue_high_1)
+            )
+            |
+            (
+                (h >= self.hue_low_2)
+                & (h <= self.hue_high_2)
+            )
+        )
+
+        red_mask = (
+            hue_red
+            & (s >= self.min_saturation)
+            & (v >= self.min_value)
+        )
+
+        raw_mask = np.where(
+            red_mask,
+            255,
+            0
+        ).astype(
+            np.uint8
+        )
+
+        return raw_mask
+
+    # ============================================================
+    # Morphology + largest valid component
+    # ============================================================
+
+    def clean_and_select_target(
+        self,
+        raw_mask
+    ):
+        open_kernel = cv2.getStructuringElement(
+            cv2.MORPH_ELLIPSE,
+            (
+                self.open_kernel_size,
+                self.open_kernel_size
+            )
+        )
+
+        close_kernel = cv2.getStructuringElement(
+            cv2.MORPH_ELLIPSE,
+            (
+                self.close_kernel_size,
+                self.close_kernel_size
+            )
+        )
+
+        clean = cv2.morphologyEx(
+            raw_mask,
+            cv2.MORPH_OPEN,
+            open_kernel
+        )
+
+        clean = cv2.morphologyEx(
+            clean,
+            cv2.MORPH_CLOSE,
+            close_kernel
+        )
+
+        contours, _ = cv2.findContours(
+            clean,
+            cv2.RETR_EXTERNAL,
+            cv2.CHAIN_APPROX_SIMPLE
+        )
+
+        target_mask = np.zeros_like(
+            clean
+        )
+
+        result = {
+            'detected': False,
+            'contour': None,
+            'area': 0.0,
+            'bbox': None,
+            'center': (-1, -1),
+            'target_pixels': 0,
+        }
+
+        if not contours:
+            return target_mask, result
+
+        largest = max(
+            contours,
+            key=cv2.contourArea
+        )
+
+        area = float(
+            cv2.contourArea(
+                largest
+            )
+        )
+
+        if area < self.min_area:
+            return target_mask, result
+
+        # IMPORTANT:
+        # The final published Mask contains ONLY the chosen target component.
+        cv2.drawContours(
+            target_mask,
+            [largest],
+            -1,
+            255,
+            thickness=cv2.FILLED
+        )
+
+        x, y, w, h = cv2.boundingRect(
+            largest
+        )
+
+        moments = cv2.moments(
+            largest
+        )
+
+        if moments['m00'] != 0:
+            center_x = int(
+                moments['m10']
+                / moments['m00']
+            )
+
+            center_y = int(
+                moments['m01']
+                / moments['m00']
+            )
+        else:
+            center_x = (
+                x
+                + w // 2
+            )
+
+            center_y = (
+                y
+                + h // 2
+            )
+
+        result.update({
+            'detected': True,
+            'contour': largest,
+            'area': area,
+            'bbox': (x, y, w, h),
+            'center': (
+                center_x,
+                center_y
+            ),
+            'target_pixels': int(
+                cv2.countNonZero(
+                    target_mask
+                )
+            ),
+        })
+
+        return (
+            target_mask,
+            result
+        )
+
+    # ============================================================
+    # Callback
+    # ============================================================
+
+    def image_callback(self, msg):
         self.frame_count += 1
 
         if not self.encoding_printed:
@@ -172,228 +433,186 @@ class RedBranchDetector(Node):
             )
 
         try:
-            bgr = self.ros_image_to_bgr(msg)
+            bgr = self.ros_image_to_bgr(
+                msg
+            )
 
-        except Exception as e:
+        except Exception as exc:
             self.get_logger().error(
-                f'Image conversion failed: {e}'
+                f'Image conversion failed: {exc}'
             )
             return
 
-        # -------------------------------------------------
-        # 1. BGR → HSV
-        # -------------------------------------------------
+        # --------------------------------------------------------
+        # 1) Robust raw red candidate Mask
+        # --------------------------------------------------------
 
-        hsv = cv2.cvtColor(
-            bgr,
-            cv2.COLOR_BGR2HSV
+        raw_mask = self.build_raw_red_mask(
+            bgr
         )
 
-        # -------------------------------------------------
-        # 2. 红色有两个 Hue 区域
-        #
-        # 保留你原来红球识别使用的基本方案
-        # -------------------------------------------------
-
-        lower_red_1 = np.array(
-            [0, 100, 100],
-            dtype=np.uint8
+        raw_pixels = int(
+            cv2.countNonZero(
+                raw_mask
+            )
         )
 
-        upper_red_1 = np.array(
-            [10, 255, 255],
-            dtype=np.uint8
+        # --------------------------------------------------------
+        # 2) Clean + largest valid target component
+        # --------------------------------------------------------
+
+        (
+            target_mask,
+            result
+        ) = self.clean_and_select_target(
+            raw_mask
         )
 
-        lower_red_2 = np.array(
-            [160, 100, 100],
-            dtype=np.uint8
-        )
-
-        upper_red_2 = np.array(
-            [180, 255, 255],
-            dtype=np.uint8
-        )
-
-        mask1 = cv2.inRange(
-            hsv,
-            lower_red_1,
-            upper_red_1
-        )
-
-        mask2 = cv2.inRange(
-            hsv,
-            lower_red_2,
-            upper_red_2
-        )
-
-        mask = cv2.bitwise_or(
-            mask1,
-            mask2
-        )
-
-        # -------------------------------------------------
-        # 3. 简单形态学去噪
-        # -------------------------------------------------
-
-        kernel = np.ones(
-            (5, 5),
-            dtype=np.uint8
-        )
-
-        mask = cv2.morphologyEx(
-            mask,
-            cv2.MORPH_OPEN,
-            kernel
-        )
-
-        mask = cv2.morphologyEx(
-            mask,
-            cv2.MORPH_CLOSE,
-            kernel
-        )
-
-        # -------------------------------------------------
-        # 4. 提取轮廓
-        # -------------------------------------------------
-
-        contours, _ = cv2.findContours(
-            mask,
-            cv2.RETR_EXTERNAL,
-            cv2.CHAIN_APPROX_SIMPLE
-        )
+        # --------------------------------------------------------
+        # 3) Debug visualization
+        # --------------------------------------------------------
 
         debug = bgr.copy()
 
-        detected = False
-        target_area = 0.0
-        center_x = -1
-        center_y = -1
+        if result['detected']:
+            contour = result['contour']
+            area = result['area']
+            x, y, w, h = result['bbox']
+            center_x, center_y = result['center']
+            target_pixels = result['target_pixels']
 
-        if contours:
-
-            # 取最大的红色区域
-            largest = max(
-                contours,
-                key=cv2.contourArea
+            cv2.drawContours(
+                debug,
+                [contour],
+                -1,
+                (0, 255, 0),
+                2
             )
 
-            target_area = cv2.contourArea(
-                largest
+            cv2.rectangle(
+                debug,
+                (x, y),
+                (
+                    x + w,
+                    y + h
+                ),
+                (0, 255, 255),
+                2
             )
 
-            if target_area >= self.min_area:
+            cv2.circle(
+                debug,
+                (
+                    center_x,
+                    center_y
+                ),
+                6,
+                (255, 0, 0),
+                -1
+            )
 
-                detected = True
-
-                x, y, w, h = cv2.boundingRect(
-                    largest
-                )
-
-                moments = cv2.moments(
-                    largest
-                )
-
-                if moments['m00'] != 0:
-                    center_x = int(
-                        moments['m10']
-                        / moments['m00']
+            cv2.putText(
+                debug,
+                'TARGET BRANCH',
+                (
+                    x,
+                    max(
+                        y - 32,
+                        20
                     )
+                ),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.65,
+                (0, 255, 255),
+                2
+            )
 
-                    center_y = int(
-                        moments['m01']
-                        / moments['m00']
+            cv2.putText(
+                debug,
+                (
+                    f'area={area:.0f}px '
+                    f'mask={target_pixels}px'
+                ),
+                (
+                    x,
+                    max(
+                        y - 10,
+                        40
                     )
-                else:
-                    center_x = x + w // 2
-                    center_y = y + h // 2
+                ),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.52,
+                (0, 255, 255),
+                1
+            )
 
-                # 轮廓
-                cv2.drawContours(
-                    debug,
-                    [largest],
-                    -1,
-                    (0, 255, 0),
-                    2
-                )
+        else:
+            cv2.putText(
+                debug,
+                'TARGET NOT VISIBLE',
+                (30, 45),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.8,
+                (0, 0, 255),
+                2
+            )
 
-                # 外接框
-                cv2.rectangle(
-                    debug,
-                    (x, y),
-                    (x + w, y + h),
-                    (0, 255, 255),
-                    2
-                )
-
-                # 中心点
-                cv2.circle(
-                    debug,
-                    (center_x, center_y),
-                    6,
-                    (255, 0, 0),
-                    -1
-                )
-
-                cv2.putText(
-                    debug,
-                    'TARGET BRANCH',
-                    (x, max(y - 10, 20)),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.7,
-                    (0, 255, 255),
-                    2
-                )
-
-        # -------------------------------------------------
-        # 5. 每约 30 帧打印一次状态
-        # -------------------------------------------------
+        # --------------------------------------------------------
+        # 4) Periodic diagnostic log
+        # --------------------------------------------------------
 
         if self.frame_count % 30 == 0:
+            if result['detected']:
+                center_x, center_y = result[
+                    'center'
+                ]
 
-            if detected:
                 self.get_logger().info(
-                    f'[DETECTED] '
-                    f'center=({center_x}, {center_y}), '
-                    f'area={target_area:.0f} px'
+                    '[MASK OK] '
+                    f'center=({center_x},{center_y}), '
+                    f'contour_area={result["area"]:.0f}px, '
+                    f'raw_pixels={raw_pixels}, '
+                    f'target_pixels={result["target_pixels"]}'
                 )
 
             else:
                 self.get_logger().info(
-                    '[NO TARGET] red branch not detected'
+                    '[MASK LOST] '
+                    f'raw_pixels={raw_pixels}, '
+                    f'largest contour < {self.min_area:.0f}px '
+                    'or no red component'
                 )
 
-        # -------------------------------------------------
-        # 6. 发布 Mask
-        # -------------------------------------------------
+        # --------------------------------------------------------
+        # 5) Publish
+        # --------------------------------------------------------
 
-        mask_msg = self.numpy_to_ros_image(
-            mask,
-            msg.header,
-            'mono8'
+        self.raw_mask_pub.publish(
+            self.numpy_to_ros_image(
+                raw_mask,
+                msg.header,
+                'mono8'
+            )
         )
 
         self.mask_pub.publish(
-            mask_msg
-        )
-
-        # -------------------------------------------------
-        # 7. 发布调试图
-        # -------------------------------------------------
-
-        debug_msg = self.numpy_to_ros_image(
-            debug,
-            msg.header,
-            'bgr8'
+            self.numpy_to_ros_image(
+                target_mask,
+                msg.header,
+                'mono8'
+            )
         )
 
         self.debug_pub.publish(
-            debug_msg
+            self.numpy_to_ros_image(
+                debug,
+                msg.header,
+                'bgr8'
+            )
         )
 
 
 def main(args=None):
-
     rclpy.init(args=args)
 
     node = RedBranchDetector()
