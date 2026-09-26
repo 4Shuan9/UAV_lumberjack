@@ -27,6 +27,7 @@ setup(
             'sensor_check = uav_lumberjack_perception.sensor_check_node:main',
             'red_branch_detector = uav_lumberjack_perception.red_branch_detector:main',
             'lidar_camera_projection = uav_lumberjack_perception.lidar_camera_projection:main',
+            'target_branch_cloud = uav_lumberjack_perception.target_branch_cloud:main',
         ],
     },
 )
