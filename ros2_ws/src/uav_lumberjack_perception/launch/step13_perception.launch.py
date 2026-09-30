@@ -10,96 +10,93 @@ def generate_launch_description():
         }
     ]
 
-    # ============================================================
-    # world -> base_link dynamic TF
-    # ============================================================
-
-    odom_to_tf = Node(
-        package='uav_lumberjack_perception',
-        executable='odom_to_tf',
-        name='odom_to_tf',
-        output='screen',
-        parameters=common_parameters
-    )
-
-    # ============================================================
-    # RGB red target segmentation
-    # ============================================================
-
-    red_branch_detector = Node(
-        package='uav_lumberjack_perception',
-        executable='red_branch_detector',
-        name='red_branch_detector',
-        output='screen',
-        parameters=common_parameters
-    )
-
-    # ============================================================
-    # RGB Mask + LiDAR -> target branch cloud @ base_link
-    # ============================================================
-
-    target_branch_cloud = Node(
-        package='uav_lumberjack_perception',
-        executable='target_branch_cloud',
-        name='target_branch_cloud',
-        output='screen',
-        parameters=common_parameters
-    )
-
-    # ============================================================
-    # target cloud: base_link -> world
-    # ============================================================
-
-    target_cloud_world = Node(
-        package='uav_lumberjack_perception',
-        executable='target_cloud_world',
-        name='target_cloud_world',
-        output='screen',
-        parameters=common_parameters
-    )
-
-    # ============================================================
-    # Single-frame PCA / geometry estimation
-    # ============================================================
-
-    branch_pca = Node(
-        package='uav_lumberjack_perception',
-        executable='branch_pca',
-        name='branch_pca_node',
-        output='screen',
-        parameters=common_parameters
-    )
-
-    # ============================================================
-    # Step13.4.4-B Multi-view fused PCA / geometry estimation
-    # ============================================================
-
-    branch_pca_fused = Node(
-        package='uav_lumberjack_perception',
-        executable='branch_pca_fused',
-        name='branch_pca_fused_node',
-        output='screen',
-        parameters=common_parameters
-    )
-
-    # ============================================================
-    # Step13.4.4-A Manual multi-view fusion
-    # ============================================================
-
-    multi_view_fusion = Node(
-        package='uav_lumberjack_perception',
-        executable='multi_view_fusion',
-        name='multi_view_fusion_node',
-        output='screen',
-        parameters=common_parameters
-    )
+    # Remove the duplicate "[INFO] [time] [node]:" portion generated
+    # by rcutils. ros2 launch will still prepend its short process tag,
+    # e.g. [target-3]. The "-3" is launch's automatic process index.
+    clean_env = {
+        'RCUTILS_CONSOLE_OUTPUT_FORMAT': '{message}'
+    }
 
     return LaunchDescription([
-        odom_to_tf,
-        red_branch_detector,
-        target_branch_cloud,
-        target_cloud_world,
-        branch_pca,
-        branch_pca_fused,
-        multi_view_fusion
+        Node(
+            package='uav_lumberjack_perception',
+            executable='tfsrc',
+            name='tfsrc',
+            output='screen',
+            emulate_tty=True,
+            parameters=common_parameters,
+            additional_env=clean_env
+        ),
+
+        Node(
+            package='uav_lumberjack_perception',
+            executable='mask',
+            name='mask',
+            output='screen',
+            emulate_tty=True,
+            parameters=common_parameters,
+            additional_env=clean_env,
+            arguments=[
+                '--ros-args',
+                '--log-level',
+                'warn'
+            ]
+        ),
+
+        Node(
+            package='uav_lumberjack_perception',
+            executable='target',
+            name='target',
+            output='screen',
+            emulate_tty=True,
+            parameters=common_parameters,
+            additional_env=clean_env
+        ),
+
+        Node(
+            package='uav_lumberjack_perception',
+            executable='worldtf',
+            name='worldtf',
+            output='screen',
+            emulate_tty=True,
+            parameters=common_parameters,
+            additional_env=clean_env
+        ),
+
+        # Single-frame geometry remains active for RViz / A-B
+        # comparison, but routine INFO is hidden.
+        Node(
+            package='uav_lumberjack_perception',
+            executable='single',
+            name='single',
+            output='screen',
+            emulate_tty=True,
+            parameters=common_parameters,
+            additional_env=clean_env,
+            arguments=[
+                '--ros-args',
+                '--log-level',
+                'warn'
+            ]
+        ),
+
+        Node(
+            package='uav_lumberjack_perception',
+            executable='fusion',
+            name='fusion',
+            output='screen',
+            emulate_tty=True,
+            parameters=common_parameters,
+            additional_env=clean_env
+        ),
+
+        Node(
+            package='uav_lumberjack_perception',
+            executable='model',
+            name='model',
+            output='screen',
+            emulate_tty=True,
+            parameters=common_parameters,
+            additional_env=clean_env
+        ),
     ])

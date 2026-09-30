@@ -28,7 +28,10 @@ class OdomToTf(Node):
         )
 
         self.get_logger().info(
-            '[TF SOURCE] odometry -> world/base_link'
+            '[TF]\n'
+            '  status          : source ready\n'
+            '  source          : odometry\n'
+            '  transform       : world -> base_link'
         )
 
     def odom_callback(self, msg):

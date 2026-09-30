@@ -8,6 +8,8 @@ from geometry_msgs.msg import Point
 from sensor_msgs.msg import PointCloud2, PointField
 from visualization_msgs.msg import Marker
 
+from uav_lumberjack_interfaces.msg import BranchModel
+
 
 class BranchPcaFusedNode(Node):
     """
@@ -34,6 +36,7 @@ class BranchPcaFusedNode(Node):
         frame_id = world
 
     Outputs:
+        /perception/branch_model
         /perception/fused_branch_axis_marker
         /perception/fused_branch_center_marker
         /perception/fused_branch_length_marker
@@ -46,6 +49,7 @@ class BranchPcaFusedNode(Node):
         super().__init__('branch_pca_fused_node')
 
         self.input_topic = '/perception/target_branch_cloud_fused'
+        self.branch_model_topic = '/perception/branch_model'
 
         self.axis_marker_topic = '/perception/fused_branch_axis_marker'
         self.center_marker_topic = '/perception/fused_branch_center_marker'
@@ -80,6 +84,12 @@ class BranchPcaFusedNode(Node):
             qos_profile_sensor_data
         )
 
+        self.branch_model_pub = self.create_publisher(
+            BranchModel,
+            self.branch_model_topic,
+            10
+        )
+
         self.axis_marker_pub = self.create_publisher(
             Marker,
             self.axis_marker_topic,
@@ -107,28 +117,13 @@ class BranchPcaFusedNode(Node):
         self.frame_count = 0
         self.last_reported_point_count = None
 
-        self.get_logger().info('====================================================')
-        self.get_logger().info(' Step13.4.4-B Fused Multi-View Branch Geometry')
-        self.get_logger().info(f' Input : {self.input_topic}')
         self.get_logger().info(
-            f' Axis  : {self.axis_marker_topic}'
+            '[MODEL]\n'
+            '  status          : ready\n'
+            f'  input           : {self.input_topic}\n'
+            f'  output          : {self.branch_model_topic}\n'
+            '  frame           : world'
         )
-        self.get_logger().info(
-            f' Center: {self.center_marker_topic}'
-        )
-        self.get_logger().info(
-            f' Length: {self.length_marker_topic}'
-        )
-        self.get_logger().info(
-            f' Cylinder: {self.cylinder_marker_topic}'
-        )
-        self.get_logger().info(
-            f' Simulation GT length = '
-            f'{self.simulation_gt_length:.3f} m, '
-            f'GT radius = {self.simulation_gt_radius:.3f} m '
-            '(evaluation only)'
-        )
-        self.get_logger().info('====================================================')
 
     # ============================================================
     # PointCloud2 -> XYZ
@@ -613,6 +608,56 @@ class BranchPcaFusedNode(Node):
         )
 
     # ============================================================
+    # Final branch-model interface
+    # ============================================================
+
+    def publish_branch_model(
+        self,
+        header,
+        p0,
+        direction,
+        length,
+        radius,
+        radius_rms,
+        point_count
+    ):
+        msg = BranchModel()
+
+        msg.header = header
+        msg.valid = True
+
+        msg.center.x = float(p0[0])
+        msg.center.y = float(p0[1])
+        msg.center.z = float(p0[2])
+
+        msg.direction.x = float(direction[0])
+        msg.direction.y = float(direction[1])
+        msg.direction.z = float(direction[2])
+
+        msg.length = float(length)
+        msg.radius = float(radius)
+        msg.fit_rms = float(radius_rms)
+
+        msg.point_count = int(point_count)
+
+        self.branch_model_pub.publish(
+            msg
+        )
+
+    def publish_invalid_branch_model(
+        self,
+        header
+    ):
+        msg = BranchModel()
+
+        msg.header = header
+        msg.valid = False
+
+        self.branch_model_pub.publish(
+            msg
+        )
+
+    # ============================================================
     # Marker helpers
     # ============================================================
 
@@ -863,14 +908,18 @@ class BranchPcaFusedNode(Node):
                 msg.header.frame_id
             )
 
+            self.publish_invalid_branch_model(
+                msg.header
+            )
+
             self.previous_direction = None
             self.last_reported_point_count = None
 
             self.frame_count += 1
 
             if self.frame_count % 10 == 0:
-                self.get_logger().info(
-                    '[GEOMETRY WAIT] '
+                self.get_logger().debug(
+                    '[MODEL] WAIT | '
                     f'points={points.shape[0]} < '
                     f'min_points={self.min_points}; '
                     'markers removed'
@@ -931,10 +980,29 @@ class BranchPcaFusedNode(Node):
             p0 = corrected_p0
 
         except Exception as exc:
+            self.publish_invalid_branch_model(
+                msg.header
+            )
+
             self.get_logger().error(
                 f'Branch geometry failed: {exc}'
             )
             return
+
+        point_count = int(
+            points.shape[0]
+        )
+
+        # Final machine-readable Step13 output.
+        self.publish_branch_model(
+            msg.header,
+            p0,
+            direction,
+            length,
+            radius,
+            radius_rms,
+            point_count
+        )
 
         # Step13.4.1 fixed-length green PCA direction marker.
         self.publish_axis_marker(
@@ -973,8 +1041,6 @@ class BranchPcaFusedNode(Node):
 
         # The fused cloud is republished periodically. Only print when
         # the model point count actually changes.
-        point_count = int(points.shape[0])
-
         if self.last_reported_point_count != point_count:
             self.last_reported_point_count = point_count
 
@@ -1015,14 +1081,16 @@ class BranchPcaFusedNode(Node):
             )
 
             self.get_logger().info(
-                '[FUSED MODEL] '
-                f'n={point_count} | '
-                f'L={length:.4f}m '
-                f'(e={length_error_percent:.1f}%) | '
-                f'r={radius:.4f}m '
-                f'(e={radius_error_percent:.1f}%) | '
-                f'rms={radius_rms:.4f}m | '
-                f'lambda12={ratio12:.1f}'
+                '[MODEL]\n'
+                f'  points          : {point_count}\n'
+                f'  center p0       : '
+                f'[{p0[0]:.3f}, {p0[1]:.3f}, {p0[2]:.3f}]\n'
+                f'  direction d     : '
+                f'[{direction[0]:.3f}, {direction[1]:.3f}, '
+                f'{direction[2]:.3f}]\n'
+                f'  length L        : {length:.4f} m\n'
+                f'  radius r        : {radius:.4f} m\n'
+                f'  fit RMS         : {radius_rms:.4f} m'
             )
 
 

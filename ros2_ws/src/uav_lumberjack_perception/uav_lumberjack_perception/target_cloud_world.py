@@ -74,9 +74,11 @@ class TargetCloudWorld(Node):
         self.drop_log_period_ns = int(2.0e9)
 
         self.get_logger().info(
-            '[WORLD TF] exact-time queue enabled | '
-            f'retry={1000.0*self.tf_retry_period:.0f}ms | '
-            f'max_wait={1000.0*self.tf_max_wait:.0f}ms'
+            '[TF]\n'
+            '  status          : sync ready\n'
+            '  mode            : exact-time queue\n'
+            f'  retry           : {1000.0*self.tf_retry_period:.0f} ms\n'
+            f'  max wait        : {1000.0*self.tf_max_wait:.0f} ms'
         )
 
     @staticmethod
@@ -220,7 +222,7 @@ class TargetCloudWorld(Node):
 
         except Exception as exc:
             self.get_logger().error(
-                '[WORLD TF] PointCloud conversion failed: '
+                '[TF] cloud conversion failed | '
                 f'{exc}'
             )
             return
@@ -304,10 +306,11 @@ class TargetCloudWorld(Node):
         self.last_drop_log_ns = now_ns
 
         self.get_logger().warn(
-            '[TF DROP] '
-            f'waited={waited_ns/1.0e6:.0f}ms | '
-            f'dropped_total={self.dropped_count} | '
-            f'last_error={error_text}'
+            '[TF]\n'
+            '  event           : DROP\n'
+            f'  waited          : {waited_ns/1.0e6:.0f} ms\n'
+            f'  dropped total   : {self.dropped_count}\n'
+            f'  error           : {error_text}'
         )
 
 

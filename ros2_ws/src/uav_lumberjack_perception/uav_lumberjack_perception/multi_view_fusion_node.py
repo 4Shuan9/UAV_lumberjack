@@ -1,4 +1,5 @@
 import math
+import re
 
 import numpy as np
 
@@ -55,9 +56,22 @@ class MultiViewFusionNode(Node):
         # Cylindrical corridor around the reference axis.
         self.declare_parameter('max_axis_radius', 0.08)
 
-        # Bootstrap range from the first valid frame.
+        # Bootstrap range.
         self.declare_parameter('bootstrap_low_percentile', 2.0)
         self.declare_parameter('bootstrap_high_percentile', 98.0)
+
+        # Reference is NOT locked from the first valid frame.
+        # Require several consecutive, geometrically consistent frames.
+        self.declare_parameter('bootstrap_confirm_frames', 3)
+        self.declare_parameter('bootstrap_min_points', 20)
+        self.declare_parameter('bootstrap_min_axis_ratio', 5.0)
+        self.declare_parameter('bootstrap_max_axis_angle_deg', 15.0)
+        self.declare_parameter('bootstrap_max_center_distance', 0.12)
+
+        # Extra startup safeguard: while the model still contains only
+        # the bootstrap observation, repeated gross mismatches trigger
+        # an automatic re-bootstrap instead of requiring manual reset.
+        self.declare_parameter('startup_rebootstrap_rejects', 5)
 
         # Each later frame proposes robust axial endpoints.
         self.declare_parameter('frame_low_percentile', 5.0)
@@ -110,6 +124,26 @@ class MultiViewFusionNode(Node):
         self.bootstrap_high_percentile = float(
             self.get_parameter('bootstrap_high_percentile').value
         )
+
+        self.bootstrap_confirm_frames = int(
+            self.get_parameter('bootstrap_confirm_frames').value
+        )
+        self.bootstrap_min_points = int(
+            self.get_parameter('bootstrap_min_points').value
+        )
+        self.bootstrap_min_axis_ratio = float(
+            self.get_parameter('bootstrap_min_axis_ratio').value
+        )
+        self.bootstrap_max_axis_angle_deg = float(
+            self.get_parameter('bootstrap_max_axis_angle_deg').value
+        )
+        self.bootstrap_max_center_distance = float(
+            self.get_parameter('bootstrap_max_center_distance').value
+        )
+        self.startup_rebootstrap_rejects = int(
+            self.get_parameter('startup_rebootstrap_rejects').value
+        )
+
         self.frame_low_percentile = float(
             self.get_parameter('frame_low_percentile').value
         )
@@ -149,6 +183,24 @@ class MultiViewFusionNode(Node):
             raise ValueError('voxel_size must be > 0')
         if self.min_capture_points < 3:
             raise ValueError('min_capture_points must be >= 3')
+        if self.bootstrap_confirm_frames < 2:
+            raise ValueError('bootstrap_confirm_frames must be >= 2')
+        if self.bootstrap_min_points < 3:
+            raise ValueError('bootstrap_min_points must be >= 3')
+        if self.bootstrap_min_axis_ratio <= 1.0:
+            raise ValueError('bootstrap_min_axis_ratio must be > 1')
+        if self.bootstrap_max_axis_angle_deg <= 0.0:
+            raise ValueError(
+                'bootstrap_max_axis_angle_deg must be > 0'
+            )
+        if self.bootstrap_max_center_distance <= 0.0:
+            raise ValueError(
+                'bootstrap_max_center_distance must be > 0'
+            )
+        if self.startup_rebootstrap_rejects < 2:
+            raise ValueError(
+                'startup_rebootstrap_rejects must be >= 2'
+            )
         if self.endpoint_confirm_frames < 1:
             raise ValueError('endpoint_confirm_frames must be >= 1')
         if self.endpoint_trigger < 0.0:
@@ -188,6 +240,15 @@ class MultiViewFusionNode(Node):
         self.reference_center = None
         self.reference_direction = None
 
+        # Bootstrap consensus state.
+        self.bootstrap_frames = []
+        self.bootstrap_center = None
+        self.bootstrap_direction = None
+        self.bootstrap_count = 0
+
+        # Startup-only self recovery.
+        self.startup_reference_fail_count = 0
+
         # Confirmed axial envelope along the reference axis.
         self.confirmed_s_low = None
         self.confirmed_s_high = None
@@ -206,7 +267,10 @@ class MultiViewFusionNode(Node):
         self.reject_count = 0
 
         self.last_ignore_log_time_ns = None
-        self.ignore_log_period_ns = int(2.0e9)
+        self.ignore_log_period_ns = int(5.0e9)
+
+        self.last_reject_log_time_ns = None
+        self.reject_log_period_ns = int(3.0e9)
 
         # ========================================================
         # ROS interfaces
@@ -243,8 +307,12 @@ class MultiViewFusionNode(Node):
         )
 
         self.get_logger().info(
-            '[FUSION] v1.1 | '
-            'stable axis + confirmed adaptive endpoints'
+            '[FUSION]\n'
+            '  status          : ready\n'
+            '  auto fusion     : ON\n'
+            f'  voxel           : {1000.0*self.voxel_size:.0f} mm\n'
+            f'  bootstrap       : {self.bootstrap_confirm_frames} stable frames\n'
+            f'  endpoint confirm: {self.endpoint_confirm_frames} frames'
         )
 
     # ============================================================
@@ -459,6 +527,308 @@ class MultiViewFusionNode(Node):
             math.acos(dot)
         )
 
+    @staticmethod
+    def pca_axis_ratio(points):
+        center = np.mean(
+            points,
+            axis=0
+        ).astype(np.float64)
+
+        centered = (
+            points.astype(np.float64)
+            - center
+        )
+
+        covariance = (
+            centered.T @ centered
+        ) / float(points.shape[0])
+
+        eigenvalues = np.linalg.eigvalsh(
+            covariance
+        )
+
+        eigenvalues = np.sort(
+            eigenvalues
+        )[::-1]
+
+        if eigenvalues.shape[0] < 2:
+            return 0.0
+
+        lambda2 = float(
+            eigenvalues[1]
+        )
+
+        if lambda2 <= 1.0e-12:
+            return float('inf')
+
+        return float(
+            eigenvalues[0]
+            / lambda2
+        )
+
+    def clear_bootstrap_candidate(self):
+        self.bootstrap_frames = []
+        self.bootstrap_center = None
+        self.bootstrap_direction = None
+        self.bootstrap_count = 0
+
+    def clear_active_model_for_rebootstrap(self):
+        self.fused_points = np.empty(
+            (0, 3),
+            dtype=np.float32
+        )
+
+        self.reference_center = None
+        self.reference_direction = None
+
+        self.confirmed_s_low = None
+        self.confirmed_s_high = None
+
+        self.pending_low_value = None
+        self.pending_low_count = 0
+        self.pending_high_value = None
+        self.pending_high_count = 0
+
+        self.accept_count = 0
+        self.startup_reference_fail_count = 0
+
+        self.clear_bootstrap_candidate()
+
+        # Immediately clear downstream fused geometry / markers.
+        self.publish_fused_cloud()
+
+    def bootstrap_consensus(self, points):
+        """
+        Build the reference only after several consecutive,
+        geometrically consistent target frames.
+
+        This prevents a transient first frame from becoming the
+        permanent reference direction.
+        """
+
+        point_count = int(
+            points.shape[0]
+        )
+
+        if point_count < self.bootstrap_min_points:
+            self.clear_bootstrap_candidate()
+
+            return (
+                'BOOTSTRAP',
+                f'waiting points={point_count}/'
+                f'{self.bootstrap_min_points}'
+            )
+
+        try:
+            center, direction = self.pca_axis(
+                points
+            )
+
+            ratio = self.pca_axis_ratio(
+                points
+            )
+
+        except Exception as exc:
+            self.clear_bootstrap_candidate()
+
+            return (
+                'BOOTSTRAP',
+                f'waiting pca="{exc}"'
+            )
+
+        if ratio < self.bootstrap_min_axis_ratio:
+            self.clear_bootstrap_candidate()
+
+            return (
+                'BOOTSTRAP',
+                f'waiting axis_ratio={ratio:.1f}/'
+                f'{self.bootstrap_min_axis_ratio:.1f}'
+            )
+
+        if self.bootstrap_count == 0:
+            self.bootstrap_frames = [
+                points.copy()
+            ]
+            self.bootstrap_center = center
+            self.bootstrap_direction = direction
+            self.bootstrap_count = 1
+
+            return (
+                'BOOTSTRAP',
+                f'confirm=1/{self.bootstrap_confirm_frames} '
+                f'points={point_count} ratio={ratio:.1f}'
+            )
+
+        angle_deg = self.axis_angle_deg(
+            self.bootstrap_direction,
+            direction
+        )
+
+        center_distance = float(
+            np.linalg.norm(
+                center
+                - self.bootstrap_center
+            )
+        )
+
+        consistent = (
+            angle_deg
+            <= self.bootstrap_max_axis_angle_deg
+            and center_distance
+            <= self.bootstrap_max_center_distance
+        )
+
+        if not consistent:
+            # Do not lock a bad transient. Restart consensus from
+            # the current frame and require the full confirmation
+            # sequence again.
+            self.bootstrap_frames = [
+                points.copy()
+            ]
+            self.bootstrap_center = center
+            self.bootstrap_direction = direction
+            self.bootstrap_count = 1
+
+            return (
+                'BOOTSTRAP',
+                f'restart confirm=1/{self.bootstrap_confirm_frames} '
+                f'angle={angle_deg:.1f}deg '
+                f'center={center_distance:.3f}m '
+                f'ratio={ratio:.1f}'
+            )
+
+        # Align the sign before averaging the temporary direction.
+        if float(
+            np.dot(
+                self.bootstrap_direction,
+                direction
+            )
+        ) < 0.0:
+            direction = -direction
+
+        self.bootstrap_frames.append(
+            points.copy()
+        )
+
+        self.bootstrap_count += 1
+
+        self.bootstrap_center = (
+            (
+                self.bootstrap_center
+                * float(
+                    self.bootstrap_count - 1
+                )
+            )
+            + center
+        ) / float(
+            self.bootstrap_count
+        )
+
+        direction_sum = (
+            self.bootstrap_direction
+            + direction
+        )
+
+        direction_norm = float(
+            np.linalg.norm(
+                direction_sum
+            )
+        )
+
+        if direction_norm > 1.0e-9:
+            self.bootstrap_direction = (
+                direction_sum
+                / direction_norm
+            )
+
+        if (
+            self.bootstrap_count
+            < self.bootstrap_confirm_frames
+        ):
+            return (
+                'BOOTSTRAP',
+                f'confirm={self.bootstrap_count}/'
+                f'{self.bootstrap_confirm_frames} '
+                f'points={point_count} '
+                f'angle={angle_deg:.1f}deg '
+                f'ratio={ratio:.1f}'
+            )
+
+        combined = np.concatenate(
+            self.bootstrap_frames[
+                -self.bootstrap_confirm_frames:
+            ],
+            axis=0
+        )
+
+        combined = self.voxel_downsample(
+            combined
+        )
+
+        self.initialize_reference(
+            combined
+        )
+
+        self.fused_points = combined.copy()
+        self.accept_count += 1
+        self.startup_reference_fail_count = 0
+
+        self.clear_bootstrap_candidate()
+
+        self.publish_fused_cloud()
+
+        ref_length = (
+            self.confirmed_s_high
+            - self.confirmed_s_low
+        )
+
+        return (
+            'ACCEPT',
+            f'bootstrap model={combined.shape[0]} '
+            f'refL={ref_length:.3f}m'
+        )
+
+    def startup_reference_failure(
+        self,
+        reason
+    ):
+        """
+        If the only accepted model is still the bootstrap and several
+        consecutive frames strongly disagree with it, recover
+        automatically instead of requiring /reset.
+        """
+
+        self.reject_count += 1
+
+        if self.accept_count != 1:
+            return (
+                'REJECT',
+                reason
+            )
+
+        self.startup_reference_fail_count += 1
+
+        if (
+            self.startup_reference_fail_count
+            < self.startup_rebootstrap_rejects
+        ):
+            return (
+                'REJECT',
+                reason
+            )
+
+        fail_count = (
+            self.startup_reference_fail_count
+        )
+
+        self.clear_active_model_for_rebootstrap()
+
+        return (
+            'BOOTSTRAP',
+            f'auto_rebootstrap after={fail_count} '
+            f'reason={reason}'
+        )
+
     def initialize_reference(self, points):
         center, direction = self.pca_axis(
             points
@@ -651,8 +1021,9 @@ class MultiViewFusionNode(Node):
             )
 
             self.get_logger().info(
-                '[AXIS RANGE] '
-                f'confirmed_L={confirmed_length:.3f}m'
+                '[FUSION]\n'
+                '  event           : AXIS RANGE UPDATE\n'
+                f'  confirmed L     : {confirmed_length:.3f} m'
             )
 
         return (
@@ -774,31 +1145,11 @@ class MultiViewFusionNode(Node):
                 f'too_few_points n={input_count}'
             )
 
-        # Bootstrap.
+        # Robust bootstrap: several consecutive stable frames,
+        # not the very first usable frame.
         if self.reference_center is None:
-            try:
-                self.initialize_reference(points)
-
-            except Exception as exc:
-                self.reject_count += 1
-                return (
-                    'REJECT',
-                    f'bootstrap_failed "{exc}"'
-                )
-
-            self.fused_points = points.copy()
-            self.accept_count += 1
-            self.publish_fused_cloud()
-
-            ref_length = (
-                self.confirmed_s_high
-                - self.confirmed_s_low
-            )
-
-            return (
-                'ACCEPT',
-                f'bootstrap model={input_count} '
-                f'refL={ref_length:.3f}m'
+            return self.bootstrap_consensus(
+                points
             )
 
         # Frame-level same-branch gate.
@@ -820,9 +1171,7 @@ class MultiViewFusionNode(Node):
         )
 
         if angle_deg > self.max_axis_angle_deg:
-            self.reject_count += 1
-            return (
-                'REJECT',
+            return self.startup_reference_failure(
                 f'axis_mismatch angle={angle_deg:.1f}deg'
             )
 
@@ -851,16 +1200,12 @@ class MultiViewFusionNode(Node):
         )
 
         if center_perp > self.max_center_perp_distance:
-            self.reject_count += 1
-            return (
-                'REJECT',
+            return self.startup_reference_failure(
                 f'center_off_axis perp={center_perp:.3f}m'
             )
 
         if abs(center_axial) > self.max_center_axial_shift:
-            self.reject_count += 1
-            return (
-                'REJECT',
+            return self.startup_reference_failure(
                 f'center_shift axial={center_axial:.3f}m'
             )
 
@@ -898,12 +1243,13 @@ class MultiViewFusionNode(Node):
         ]
 
         if radial_points.shape[0] < self.min_capture_points:
-            self.reject_count += 1
-            return (
-                'REJECT',
+            return self.startup_reference_failure(
                 f'radial_gate kept='
                 f'{radial_points.shape[0]}/{input_count}'
             )
+
+        # Reference is consistent with the current target.
+        self.startup_reference_fail_count = 0
 
         # Let repeated frame evidence expand the endpoint envelope.
         self.update_endpoint_consensus(
@@ -1012,6 +1358,141 @@ class MultiViewFusionNode(Node):
     # Logging
     # ============================================================
 
+    @staticmethod
+    def format_decision_block(decision, message):
+        match = re.match(
+            r'novel=(\d+)/(\d+) '
+            r'\(([0-9.]+)%\) '
+            r'model=(\d+)(?:->(\d+))?$',
+            message
+        )
+
+        if match is not None:
+            model_after = match.group(5)
+
+            model_text = (
+                f'{match.group(4)} pts'
+                if model_after is None
+                else (
+                    f'{match.group(4)} -> '
+                    f'{model_after} pts'
+                )
+            )
+
+            return (
+                '[FUSION]\n'
+                f'  decision        : {decision}\n'
+                f'  novel points    : '
+                f'{match.group(1)} / {match.group(2)}\n'
+                f'  novelty         : {match.group(3)} %\n'
+                f'  model           : {model_text}'
+            )
+
+        match = re.match(
+            r'bootstrap model=(\d+) '
+            r'refL=([0-9.]+)m$',
+            message
+        )
+
+        if match is not None:
+            return (
+                '[FUSION]\n'
+                '  event           : BOOTSTRAP LOCKED\n'
+                f'  model           : {match.group(1)} pts\n'
+                f'  reference L     : {match.group(2)} m'
+            )
+
+        match = re.match(
+            r'confirm=(\d+)/(\d+) '
+            r'points=(\d+)'
+            r'(?: angle=([0-9.]+)deg)? '
+            r'ratio=([0-9.]+)$',
+            message
+        )
+
+        if match is not None:
+            lines = [
+                '\n[FUSION]',
+                '  event           : BOOTSTRAP',
+                f'  confirm         : '
+                f'{match.group(1)} / {match.group(2)}',
+                f'  points          : {match.group(3)}',
+                f'  axis ratio      : {match.group(5)}'
+            ]
+
+            if match.group(4) is not None:
+                lines.append(
+                    f'  axis change     : '
+                    f'{match.group(4)} deg'
+                )
+
+            return '\n'.join(lines)
+
+        match = re.match(
+            r'restart confirm=(\d+)/(\d+) '
+            r'angle=([0-9.]+)deg '
+            r'center=([0-9.]+)m '
+            r'ratio=([0-9.]+)$',
+            message
+        )
+
+        if match is not None:
+            return (
+                '[FUSION]\n'
+                '  event           : BOOTSTRAP RESTART\n'
+                f'  confirm         : '
+                f'{match.group(1)} / {match.group(2)}\n'
+                f'  axis change     : {match.group(3)} deg\n'
+                f'  center change   : {match.group(4)} m\n'
+                f'  axis ratio      : {match.group(5)}'
+            )
+
+        match = re.match(
+            r'auto_rebootstrap after=(\d+) '
+            r'reason=(.+)$',
+            message
+        )
+
+        if match is not None:
+            return (
+                '[FUSION]\n'
+                '  event           : AUTO REBOOTSTRAP\n'
+                f'  reject streak   : {match.group(1)}\n'
+                f'  reason          : {match.group(2)}'
+            )
+
+        match = re.match(
+            r'waiting points=(\d+)/(\d+)$',
+            message
+        )
+
+        if match is not None:
+            return (
+                '[FUSION]\n'
+                '  event           : BOOTSTRAP WAIT\n'
+                f'  points          : '
+                f'{match.group(1)} / {match.group(2)}'
+            )
+
+        match = re.match(
+            r'waiting axis_ratio=([0-9.]+)/([0-9.]+)$',
+            message
+        )
+
+        if match is not None:
+            return (
+                '[FUSION]\n'
+                '  event           : BOOTSTRAP WAIT\n'
+                f'  axis ratio      : '
+                f'{match.group(1)} / {match.group(2)}'
+            )
+
+        return (
+            '[FUSION]\n'
+            f'  decision        : {decision}\n'
+            f'  reason          : {message}'
+        )
+
     def log_decision(
         self,
         decision,
@@ -1021,18 +1502,29 @@ class MultiViewFusionNode(Node):
             self.get_clock().now().nanoseconds
         )
 
-        if decision == 'ACCEPT':
-            self.get_logger().info(
-                '[FUSION ACCEPT] '
-                + message
-            )
+        block = self.format_decision_block(
+            decision,
+            message
+        )
+
+        if decision in (
+            'ACCEPT',
+            'BOOTSTRAP'
+        ):
+            self.get_logger().info(block)
             return
 
         if decision == 'REJECT':
-            self.get_logger().warn(
-                '[FUSION REJECT] '
-                + message
-            )
+            if (
+                self.last_reject_log_time_ns is None
+                or now_ns < self.last_reject_log_time_ns
+                or (
+                    now_ns
+                    - self.last_reject_log_time_ns
+                ) >= self.reject_log_period_ns
+            ):
+                self.last_reject_log_time_ns = now_ns
+                self.get_logger().info(block)
             return
 
         if (
@@ -1044,11 +1536,7 @@ class MultiViewFusionNode(Node):
             ) >= self.ignore_log_period_ns
         ):
             self.last_ignore_log_time_ns = now_ns
-
-            self.get_logger().info(
-                '[FUSION IGNORE] '
-                + message
-            )
+            self.get_logger().info(block)
 
     # ============================================================
     # Subscription / services
@@ -1057,7 +1545,7 @@ class MultiViewFusionNode(Node):
     def cloud_callback(self, msg):
         if msg.header.frame_id != self.world_frame:
             self.get_logger().warn(
-                '[FUSION REJECT] '
+                '[FUSION] ERROR | '
                 f'wrong_frame="{msg.header.frame_id}"',
                 throttle_duration_sec=2.0
             )
@@ -1070,7 +1558,7 @@ class MultiViewFusionNode(Node):
 
         except Exception as exc:
             self.get_logger().error(
-                '[FUSION REJECT] '
+                '[FUSION] ERROR | '
                 f'parse_failed "{exc}"'
             )
             return
@@ -1155,6 +1643,9 @@ class MultiViewFusionNode(Node):
         self.reference_center = None
         self.reference_direction = None
 
+        self.clear_bootstrap_candidate()
+        self.startup_reference_fail_count = 0
+
         self.confirmed_s_low = None
         self.confirmed_s_high = None
 
@@ -1169,6 +1660,7 @@ class MultiViewFusionNode(Node):
 
         self.last_evaluation_time_ns = None
         self.last_ignore_log_time_ns = None
+        self.last_reject_log_time_ns = None
 
         response.success = True
         response.message = (
@@ -1179,8 +1671,9 @@ class MultiViewFusionNode(Node):
         )
 
         self.get_logger().info(
-            '[FUSION RESET] '
-            + response.message
+            '[FUSION]\n'
+            '  event           : RESET\n'
+            f'  result          : {response.message}'
         )
 
         self.publish_fused_cloud()

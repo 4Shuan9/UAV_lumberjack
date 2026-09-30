@@ -27,8 +27,8 @@ setup(
     zip_safe=True,
     maintainer='ashuang',
     maintainer_email='ashuang1999@qq.com',
-    description='TODO: Package description',
-    license='TODO: License declaration',
+    description='RGB-LiDAR branch perception and online multi-view geometry for UAV lumberjack simulation.',
+    license='Apache-2.0',
     extras_require={
         'test': [
             'pytest',
@@ -45,6 +45,16 @@ setup(
             'odom_to_tf = uav_lumberjack_perception.odom_to_tf:main',
             'target_cloud_world = uav_lumberjack_perception.target_cloud_world:main',
             'multi_view_fusion = uav_lumberjack_perception.multi_view_fusion_node:main',
+
+            # Short aliases used by the Step13 launch so the console
+            # prefix stays readable.
+            'tfsrc = uav_lumberjack_perception.odom_to_tf:main',
+            'mask = uav_lumberjack_perception.red_branch_detector:main',
+            'target = uav_lumberjack_perception.target_branch_cloud:main',
+            'worldtf = uav_lumberjack_perception.target_cloud_world:main',
+            'single = uav_lumberjack_perception.branch_pca_node:main',
+            'fusion = uav_lumberjack_perception.multi_view_fusion_node:main',
+            'model = uav_lumberjack_perception.branch_pca_fused_node:main',
         ],
     },
 )

@@ -54,13 +54,21 @@ class TargetBranchCloud(Node):
         self.max_centroid_jump = 0.75
 
         # Step13.3.4.1: tracking-loss hysteresis.
-        # Do not declare LOST because of only one or two bad frames.
-        # MID360 is ~10 Hz, so 3 consecutive misses are about 0.3 s.
-        self.tracking_missing_required_frames = 3
+        # MID360 is ~10 Hz. Require about 0.5 s of continuous misses
+        # before declaring LOST. During the grace period we still
+        # publish an EMPTY cloud, so stale geometry is never reused.
+        self.tracking_missing_required_frames = 5
         self.tracking_missing_count = 0
 
-        # Lost target must be consistently seen for 3 frames before reuse.
+        # Lost target must still be consistently seen for 3 valid
+        # frames before reuse.
         self.reacquire_required_frames = 3
+
+        # While REACQUIRING, tolerate one isolated missing frame.
+        # Only 2 consecutive misses send the state back to LOST.
+        self.reacquire_missing_required_frames = 2
+        self.reacquire_missing_count = 0
+
         self.reacquire_max_depth_jump = 0.60
         self.reacquire_max_centroid_jump = 0.75
 
@@ -127,23 +135,14 @@ class TargetBranchCloud(Node):
             qos_profile_sensor_data
         )
 
-        self.get_logger().info('====================================================')
-        self.get_logger().info(' Step13.3.4 Target Tracking State Machine')
-        self.get_logger().info(' States: LOST -> REACQUIRING -> TRACKING')
         self.get_logger().info(
-            f' Tracking loss confirmation: '
-            f'{self.tracking_missing_required_frames} consecutive missing frames'
+            '[TARGET]\n'
+            '  status          : ready\n'
+            '  state           : LOST\n'
+            f'  loss confirm    : {self.tracking_missing_required_frames} frames\n'
+            f'  reacquire       : {self.reacquire_required_frames} frames\n'
+            f'  reacq miss      : {self.reacquire_missing_required_frames} frames'
         )
-        self.get_logger().info(
-            f' Reacquire confirmation: '
-            f'{self.reacquire_required_frames} consecutive frames'
-        )
-        self.get_logger().info(
-            f' Valid target depth: '
-            f'{self.min_target_depth:.2f} ~ {self.max_target_depth:.2f} m'
-        )
-        self.get_logger().info(' Output: /perception/target_branch_cloud')
-        self.get_logger().info('====================================================')
 
     # ============================================================
     # State helpers
@@ -158,11 +157,14 @@ class TargetBranchCloud(Node):
 
         if reason:
             self.get_logger().info(
-                f'[STATE] {old_state} -> {new_state}, reason={reason}'
+                '[TARGET]\n'
+                f'  state           : {old_state} -> {new_state}\n'
+                f'  event           : {reason}'
             )
         else:
             self.get_logger().info(
-                f'[STATE] {old_state} -> {new_state}'
+                '[TARGET]\n'
+                f'  state           : {old_state} -> {new_state}'
             )
 
     def reset_tracking_missing(self):
@@ -170,6 +172,7 @@ class TargetBranchCloud(Node):
 
     def reset_reacquire(self):
         self.reacquire_count = 0
+        self.reacquire_missing_count = 0
         self.reacquire_depth = None
         self.reacquire_centroid = None
 
@@ -400,8 +403,8 @@ class TargetBranchCloud(Node):
                 self.cam_R = self.quaternion_to_matrix(q)
                 self.cam_lidar_frame = lidar_frame
 
-                self.get_logger().info(
-                    '[OK] Cached LiDAR -> Camera transform'
+                self.get_logger().debug(
+                    '[TARGET] cached LiDAR -> Camera TF'
                 )
 
             if need_base:
@@ -422,8 +425,8 @@ class TargetBranchCloud(Node):
                 self.base_R = self.quaternion_to_matrix(q)
                 self.base_lidar_frame = lidar_frame
 
-                self.get_logger().info(
-                    '[OK] Cached LiDAR -> base_link transform'
+                self.get_logger().debug(
+                    '[TARGET] cached LiDAR -> base_link TF'
                 )
 
         except TransformException as exc:
@@ -639,8 +642,8 @@ class TargetBranchCloud(Node):
 
         self.camera_frame = msg.header.frame_id
 
-        self.get_logger().info(
-            '[OK] CameraInfo: '
+        self.get_logger().debug(
+            '[TARGET] CameraInfo: '
             f'{self.image_width}x{self.image_height}, '
             f'fx={self.fx:.3f}, fy={self.fy:.3f}, '
             f'cx={self.cx:.3f}, cy={self.cy:.3f}, '
@@ -831,6 +834,7 @@ class TargetBranchCloud(Node):
 
             if cluster is not None:
                 self.reacquire_count = 1
+                self.reacquire_missing_count = 0
                 self.reacquire_depth = cluster['median_depth']
                 self.reacquire_centroid = cluster['centroid'].copy()
 
@@ -853,21 +857,51 @@ class TargetBranchCloud(Node):
 
             if cluster is None:
                 if len(clusters) == 0:
-                    self.reset_reacquire()
+                    # One isolated empty LiDAR frame is allowed while
+                    # reacquiring. Keep the previous candidate/history
+                    # and continue confirmation when the target returns.
+                    self.reacquire_missing_count += 1
 
-                    self.set_state(
-                        self.LOST,
-                        reason=reason
-                    )
+                    if (
+                        self.reacquire_missing_count
+                        < self.reacquire_missing_required_frames
+                    ):
+                        event_reason = (
+                            'reacquire_missing_'
+                            f'{self.reacquire_missing_count}/'
+                            f'{self.reacquire_missing_required_frames}'
+                        )
 
-                    event_reason = reason
+                    else:
+                        miss_reason = (
+                            f'{reason}; '
+                            f'reacquire_missing_confirmed_'
+                            f'{self.reacquire_missing_required_frames}/'
+                            f'{self.reacquire_missing_required_frames}'
+                        )
+
+                        self.reset_reacquire()
+
+                        self.set_state(
+                            self.LOST,
+                            reason=miss_reason
+                        )
+
+                        event_reason = (
+                            'reacquire_loss_confirmed'
+                        )
 
                 else:
+                    # A candidate exists but is discontinuous with the
+                    # previous reacquire candidate. Restart confirmation
+                    # from the current largest candidate instead of
+                    # declaring LOST.
                     cluster = self.largest_cluster(
                         clusters
                     )
 
                     self.reacquire_count = 1
+                    self.reacquire_missing_count = 0
                     self.reacquire_depth = cluster['median_depth']
                     self.reacquire_centroid = cluster['centroid'].copy()
 
@@ -877,6 +911,7 @@ class TargetBranchCloud(Node):
                     )
 
             else:
+                self.reacquire_missing_count = 0
                 self.reacquire_count += 1
                 self.reacquire_depth = cluster['median_depth']
                 self.reacquire_centroid = cluster['centroid'].copy()
@@ -942,60 +977,39 @@ class TargetBranchCloud(Node):
         self.last_publish_time = now
         self.frame_count += 1
 
-        if self.frame_count % 10 == 0:
-            self.get_logger().info(
-                '[TARGET CLOUD] '
-                f'state={self.state}, '
-                f'cloud={points_lidar.shape[0]}, '
-                f'in_image={points_lidar_image.shape[0]}, '
-                f'candidate={candidate_lidar.shape[0]}, '
-                f'clusters={len(clusters)}, '
-                f'output={output_base.shape[0]}, '
-                f'fps={self.smoothed_fps:.1f}, '
-                f'event={event_reason}'
-            )
-
+        if self.frame_count % 20 == 0:
             if (
                 output_cluster is not None
                 and output_base.shape[0] > 0
             ):
-                c = output_cluster['centroid']
-
-                self.get_logger().info(
-                    '[VALID TARGET] '
-                    f'depth=['
-                    f'{float(np.min(output_cluster["depth"])):.3f}, '
-                    f'{float(np.max(output_cluster["depth"])):.3f}] m, '
-                    f'median={output_cluster["median_depth"]:.3f} m, '
-                    f'centroid_base=['
-                    f'{c[0]:.3f}, '
-                    f'{c[1]:.3f}, '
-                    f'{c[2]:.3f}]'
+                self.get_logger().debug(
+                    '[TARGET]\n'
+                    '  state           : TRACKING\n'
+                    f'  points          : {output_base.shape[0]}\n'
+                    f'  depth           : {output_cluster["median_depth"]:.3f} m\n'
+                    f'  fps             : {self.smoothed_fps:.1f} Hz'
                 )
 
             elif (
                 self.state == self.TRACKING
                 and self.tracking_missing_count > 0
             ):
-                self.get_logger().info(
-                    '[TRACKING GRACE] '
-                    f'missing='
-                    f'{self.tracking_missing_count}/'
-                    f'{self.tracking_missing_required_frames}, '
-                    'target cloud output is empty'
+                self.get_logger().debug(
+                    '[TARGET] GRACE | '
+                    f'missing={self.tracking_missing_count}/'
+                    f'{self.tracking_missing_required_frames}'
                 )
 
             elif self.state == self.REACQUIRING:
-                self.get_logger().info(
-                    '[REACQUIRING] '
-                    f'confirmation='
-                    f'{self.reacquire_count}/'
+                self.get_logger().debug(
+                    '[TARGET] REACQUIRING | '
+                    f'confirm={self.reacquire_count}/'
                     f'{self.reacquire_required_frames}'
                 )
 
             elif self.state == self.LOST:
-                self.get_logger().info(
-                    '[LOST] target cloud output is empty'
+                self.get_logger().debug(
+                    '[TARGET] LOST'
                 )
 
     # ============================================================
