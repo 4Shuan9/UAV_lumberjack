@@ -21,25 +21,24 @@ def launch_setup(context, *args, **kwargs):
     # Current Gazebo simulation paths
     # ============================================================
 
-    gazebo_root = os.path.join(
+    sim_root = os.path.join(
         project_root,
         'sim',
-        'gazebo'
     )
 
     world_file = os.path.join(
-        gazebo_root,
+        sim_root,
         'worlds',
         'x500_lumberjack_world.sdf'
     )
 
     model_path = os.path.join(
-        gazebo_root,
+        sim_root,
         'models'
     )
 
     bridge_config = os.path.join(
-        gazebo_root,
+        sim_root,
         'bridge_gazebo_ros2.yaml'
     )
 
@@ -95,7 +94,7 @@ def launch_setup(context, *args, **kwargs):
             '-r',
             world_file
         ],
-        cwd=gazebo_root,
+        cwd=sim_root,
         additional_env={
             'GZ_SIM_RESOURCE_PATH': gz_resource_path
         },
