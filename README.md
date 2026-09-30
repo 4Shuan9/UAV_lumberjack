@@ -10,7 +10,7 @@ UAV_lumberjack/
 │   ├── uav_lumberjack_control/
 │   ├── uav_lumberjack_interfaces/
 │   └── uav_lumberjack_perception/
-└── sim/gazebo/                   
+└── sim/                 
 ```
 
 历史说明文档保留在 `docs/archive/legacy_steps/`。
