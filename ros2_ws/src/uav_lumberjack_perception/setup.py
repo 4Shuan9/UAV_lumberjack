@@ -46,7 +46,7 @@ setup(
             'target_cloud_world = uav_lumberjack_perception.target_cloud_world:main',
             'multi_view_fusion = uav_lumberjack_perception.multi_view_fusion_node:main',
 
-            # Short aliases used by the Step13 launch so the console
+            # Short aliases used by the perception launch so the console
             # prefix stays readable.
             'tfsrc = uav_lumberjack_perception.odom_to_tf:main',
             'mask = uav_lumberjack_perception.red_branch_detector:main',

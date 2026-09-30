@@ -10,15 +10,10 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(rclpy REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(ros_gz_interfaces REQUIRED)
 
-add_executable(
-  arm_j1_test
-  src/arm_j1_test.cpp
-)
 
 add_executable(
   arm_controller
@@ -35,11 +30,6 @@ add_executable(
   src/auto_cut_controller.cpp
 )
 
-ament_target_dependencies(
-  arm_j1_test
-  rclcpp
-  std_msgs
-)
 
 ament_target_dependencies(
   arm_controller
@@ -64,7 +54,6 @@ ament_target_dependencies(
 
 install(
   TARGETS
-    arm_j1_test
     arm_controller
     target_contact_monitor
     auto_cut_controller
