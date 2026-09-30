@@ -88,7 +88,7 @@ Step13 最终希望完成的是：
 cd ~/UAV_lumberjack/ros2_ws
 source /opt/ros/humble/setup.bash
 source install/setup.bash
-ros2 launch uav_lumberjack_control uav_arm_step13.launch.py
+ros2 launch uav_lumberjack_control uav_lumberjack_sim.launch.py
 ```
 
 终端 2：启动 Step13 感知
@@ -97,7 +97,7 @@ ros2 launch uav_lumberjack_control uav_arm_step13.launch.py
 cd ~/UAV_lumberjack/ros2_ws
 source /opt/ros/humble/setup.bash
 source install/setup.bash
-ros2 launch uav_lumberjack_perception step13_perception.launch.py
+ros2 launch uav_lumberjack_perception perception.launch.py
 ```
 
 终端 3：启动 RViz
@@ -1201,7 +1201,7 @@ model = 162
 
 Step13 目前剩余的主要工作已经转为工程收尾：
 
-- 整理 `step13_perception.launch.py`；
+- 整理 `perception.launch.py`；
 - 整理各节点终端日志，只保留真正有用的 `[TARGET] / [FUSION] / [MODEL] / [TF]` 信息；
 - 整理 RViz 最终展示；
 - 统一对后续规划提供 \(\{\mathbf p_0,\mathbf d,L,r\}\)；

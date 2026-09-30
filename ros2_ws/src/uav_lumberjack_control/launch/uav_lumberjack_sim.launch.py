@@ -18,28 +18,28 @@ def launch_setup(context, *args, **kwargs):
     px4_root = LaunchConfiguration('px4_root').perform(context)
 
     # ============================================================
-    # Step13 branch perception paths
+    # Current Gazebo simulation paths
     # ============================================================
 
-    step13_root = os.path.join(
+    gazebo_root = os.path.join(
         project_root,
         'sim',
         'gazebo'
     )
 
     world_file = os.path.join(
-        step13_root,
+        gazebo_root,
         'worlds',
         'x500_lumberjack_world.sdf'
     )
 
     model_path = os.path.join(
-        step13_root,
+        gazebo_root,
         'models'
     )
 
     bridge_config = os.path.join(
-        step13_root,
+        gazebo_root,
         'bridge_gazebo_ros2.yaml'
     )
 
@@ -95,7 +95,7 @@ def launch_setup(context, *args, **kwargs):
             '-r',
             world_file
         ],
-        cwd=step13_root,
+        cwd=gazebo_root,
         additional_env={
             'GZ_SIM_RESOURCE_PATH': gz_resource_path
         },
