@@ -9,7 +9,7 @@ from sensor_msgs.msg import PointCloud2, PointField
 from visualization_msgs.msg import Marker
 
 
-class BranchPcaNode(Node):
+class BranchPcaFusedNode(Node):
     """
     Step13.4.1 + Step13.4.2 + Step13.4.3
 
@@ -30,13 +30,14 @@ class BranchPcaNode(Node):
         -> estimated radius r
 
     Input:
-        /perception/target_branch_cloud
-        frame_id = base_link
+        /perception/target_branch_cloud_fused
+        frame_id = world
 
     Outputs:
-        /perception/branch_axis_marker
-        /perception/branch_center_marker
-        /perception/branch_length_marker
+        /perception/fused_branch_axis_marker
+        /perception/fused_branch_center_marker
+        /perception/fused_branch_length_marker
+        /perception/fused_branch_cylinder_marker
 
     cv_bridge is not used.
     """
@@ -52,6 +53,12 @@ class BranchPcaNode(Node):
         self.cylinder_marker_topic = '/perception/fused_branch_cylinder_marker'
 
         self.min_points = 10
+
+        # Fused clouds contain points accumulated from multiple views.
+        # Absolute min/max are too sensitive to a few axial outliers.
+        # Use very mild robust trimming only for fused length estimation.
+        self.axial_low_percentile = 1.0
+        self.axial_high_percentile = 99.0
 
         # Step13.4.1 visualization only.
         # This fixed arrow length is NOT the estimated branch length.
@@ -98,6 +105,7 @@ class BranchPcaNode(Node):
         )
 
         self.frame_count = 0
+        self.last_reported_point_count = None
 
         self.get_logger().info('====================================================')
         self.get_logger().info(' Step13.4.4-B Fused Multi-View Branch Geometry')
@@ -291,8 +299,8 @@ class BranchPcaNode(Node):
     # Step13.4.2 p0 + L
     # ============================================================
 
-    @staticmethod
     def compute_axis_geometry(
+        self,
         points,
         mean_center,
         direction
@@ -313,12 +321,22 @@ class BranchPcaNode(Node):
 
         s = centered @ direction
 
+        # Robust fused-cloud endpoints:
+        # trim only the outermost 1% on each side. This suppresses
+        # sparse accumulated axial outliers while preserving almost
+        # the full observed branch extent.
         s_min = float(
-            np.min(s)
+            np.percentile(
+                s,
+                self.axial_low_percentile
+            )
         )
 
         s_max = float(
-            np.max(s)
+            np.percentile(
+                s,
+                self.axial_high_percentile
+            )
         )
 
         length = (
@@ -846,6 +864,7 @@ class BranchPcaNode(Node):
             )
 
             self.previous_direction = None
+            self.last_reported_point_count = None
 
             self.frame_count += 1
 
@@ -952,17 +971,19 @@ class BranchPcaNode(Node):
 
         self.frame_count += 1
 
-        if self.frame_count % 10 == 0:
+        # The fused cloud is republished periodically. Only print when
+        # the model point count actually changes.
+        point_count = int(points.shape[0])
+
+        if self.last_reported_point_count != point_count:
+            self.last_reported_point_count = point_count
+
             lambda1 = float(
                 eigenvalues[0]
             )
 
             lambda2 = float(
                 eigenvalues[1]
-            )
-
-            lambda3 = float(
-                eigenvalues[2]
             )
 
             ratio12 = (
@@ -982,29 +1003,6 @@ class BranchPcaNode(Node):
                 / self.simulation_gt_length
             )
 
-            self.get_logger().info(
-                '[PCA] '
-                f'n={points.shape[0]}, '
-                f'd=['
-                f'{direction[0]:.4f}, '
-                f'{direction[1]:.4f}, '
-                f'{direction[2]:.4f}], '
-                f'lambda1/lambda2={ratio12:.2f}'
-            )
-
-            self.get_logger().info(
-                '[GEOMETRY] '
-                f'p0=['
-                f'{p0[0]:.3f}, '
-                f'{p0[1]:.3f}, '
-                f'{p0[2]:.3f}], '
-                f'L={length:.4f} m, '
-                f's=[{s_min:.4f}, {s_max:.4f}] m, '
-                f'GT={self.simulation_gt_length:.3f} m, '
-                f'|e_L|={length_error:.4f} m '
-                f'({length_error_percent:.2f}%)'
-            )
-
             radius_error = abs(
                 radius
                 - self.simulation_gt_radius
@@ -1017,22 +1015,21 @@ class BranchPcaNode(Node):
             )
 
             self.get_logger().info(
-                '[RADIUS] '
-                f'r={radius:.4f} m, '
-                f'GT={self.simulation_gt_radius:.3f} m, '
-                f'|e_r|={radius_error:.4f} m '
-                f'({radius_error_percent:.2f}%), '
-                f'fit_rms={radius_rms:.4f} m, '
-                f'circle_center_2d=['
-                f'{circle_center_2d[0]:.4f}, '
-                f'{circle_center_2d[1]:.4f}]'
+                '[FUSED MODEL] '
+                f'n={point_count} | '
+                f'L={length:.4f}m '
+                f'(e={length_error_percent:.1f}%) | '
+                f'r={radius:.4f}m '
+                f'(e={radius_error_percent:.1f}%) | '
+                f'rms={radius_rms:.4f}m | '
+                f'lambda12={ratio12:.1f}'
             )
 
 
 def main(args=None):
     rclpy.init(args=args)
 
-    node = BranchPcaNode()
+    node = BranchPcaFusedNode()
 
     try:
         rclpy.spin(node)

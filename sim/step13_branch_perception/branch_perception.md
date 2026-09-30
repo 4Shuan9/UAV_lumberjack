@@ -105,7 +105,7 @@ source /opt/ros/humble/setup.bash
 source install/setup.bash
 rviz2 --ros-args -p use_sim_time:=true
 ```
-终端 4/5/6：查看图像输出
+终端 4/5：查看图像输出
 ```bash
 ros2 run rqt_image_view rqt_image_view 
 ```
@@ -137,16 +137,6 @@ ros2 service call /perception/multiview/capture std_srvs/srv/Trigger "{}"
 - 水平视场角：约 90°；
 - 图像话题：`/camera/image_raw`；
 - CameraInfo：`/camera/camera_info`。
-
-相机内参近似为：
-
-\[
-f_x=f_y\approx640,
-\qquad
-c_x=640,
-\qquad
-c_y=360
-\]
 
 TF 链：
 
@@ -437,8 +427,10 @@ frame_id = base_link
 对目标点：
 
 \[
-\mathbf p_i,
-\qquad
+\mathbf p_i=[x_i,y_i,z_i]^T
+\]
+
+\[
 i=1,\ldots,N
 \]
 
@@ -463,6 +455,17 @@ i=1,\ldots,N
 (\mathbf p_i-\bar{\mathbf p})^T
 \]
 
+其中：
+
+\[
+\mathbf C=
+\begin{bmatrix}
+C_{xx} & C_{xy} & C_{xz}\\
+C_{yx} & C_{yy} & C_{yz}\\
+C_{zx} & C_{zy} & C_{zz}
+\end{bmatrix}
+\]
+
 特征分解：
 
 \[
@@ -482,8 +485,6 @@ i=1,\ldots,N
 直观理解就是：
 
 > **PCA 把“一堆三维点”变成“一根最能代表这堆点延伸方向的轴”。**
-
-工程实现中还加入了方向一致性判断和平滑，避免 \(\mathbf d\) 与 \(-\mathbf d\) 在相邻帧随机翻转。
 
 ### 6.2 计算中心 \(\mathbf p_0\) 和长度 \(L\)
 
@@ -755,7 +756,7 @@ voxel_total = 105
 | 融合点数 $n$ | 105 | — | — |
 | 长度 $L$ | 0.3088 m | 0.300 m | 2.94% |
 | 半径 $r$ | 0.0374 m | 0.038 m | **1.70%** |
-| 拟合残差 `fit_rms` | 0.0043 m | — | — |
+| 拟合残差 | 0.0043 m | — | — |
 
 <!-- 图片建议：这里插入第一组三视角融合后的 RViz 截图，例如 images/multiview_group1.png -->
 
@@ -781,7 +782,7 @@ voxel_total = 114
 | 融合点数 $n$ | 114 | — | — |
 | 长度 $L$ | 0.3018 m | 0.300 m | **0.60%** |
 | 半径 $r$ | 0.0352～0.0353 m | 0.038 m | 约 7.2% |
-| 拟合残差 `fit_rms` | 0.0076 m | — | — |
+| 拟合残差 | 0.0076 m | — | — |
 
 <!-- 图片建议：这里插入第二组三视角融合后的 RViz 截图，例如 images/multiview_group2.png -->
 
@@ -790,8 +791,8 @@ voxel_total = 114
 | 方法 | 长度误差 | 半径误差 |
 |:---|:---:|:---:|
 | 单视角典型结果 |  2.6%～5.2% |  31%～50% |
-| 三视角融合，第1组 | 2.94% | **1.70%** |
-| 三视角融合，第2组 | **0.60%** | **7.2%** |
+| 三视角融合① | 2.94% | **1.70%** |
+| 三视角融合② | **0.60%** | **7.2%** |
 
 **结果：**
 
