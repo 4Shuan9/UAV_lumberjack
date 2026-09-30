@@ -24,7 +24,7 @@ def launch_setup(context, *args, **kwargs):
     step13_root = os.path.join(
         project_root,
         'sim',
-        'step13_branch_perception'
+        'gazebo'
     )
 
     world_file = os.path.join(
