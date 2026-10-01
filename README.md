@@ -13,7 +13,7 @@ UAV_lumberjack/
 └── sim/                 
 ```
 
-历史说明文档保留在 `docs/archive/legacy_steps/`。
+> 历史说明文档保留在 `docs/archive/legacy/`
 
 ## 环境
 
@@ -57,7 +57,7 @@ ros2 launch uav_lumberjack_perception perception.launch.py
 ros2 topic echo /perception/branch_model --once
 ```
 
-消息：`uav_lumberjack_interfaces/msg/BranchModel`
+> 消息：`uav_lumberjack_interfaces/msg/BranchModel`
 
-主要字段：`valid`, `center`, `direction`, `length`, `radius`, `fit_rms`, `point_count`
+> 主要字段：`valid`, `center`, `direction`, `length`, `radius`, `fit_rms`, `point_count`
 
