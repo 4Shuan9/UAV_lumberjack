@@ -79,6 +79,7 @@ add_executable(
   offboard_cutting_demo
   src/offboard_cutting_demo.cpp
 )
+target_link_libraries(offboard_cutting_demo arm_kinematics)
 ament_target_dependencies(
   offboard_cutting_demo
   rclcpp

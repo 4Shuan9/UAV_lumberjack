@@ -34,7 +34,6 @@
 #include "uav_lumberjack_interfaces/msg/arm_status.hpp"
 #include "uav_lumberjack_interfaces/msg/branch_model.hpp"
 #include "uav_lumberjack_interfaces/srv/set_saw.hpp"
-#include "uav_lumberjack_control/arm_kinematics.hpp"
 
 using namespace std::chrono_literals;
 
@@ -45,7 +44,6 @@ constexpr double kTwoPi = 2.0 * kPi;
 constexpr double kControlDt = 0.02;  // 50 Hz
 constexpr std::uint8_t kArmModeHome = 0;
 constexpr std::uint8_t kArmModePrework = 1;
-constexpr std::uint8_t kArmModeJoint = 2;
 
 struct Vec3
 {
@@ -84,38 +82,6 @@ double norm2d(double x, double y)
 double norm3d(const Vec3 & v)
 {
   return std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-}
-
-double dot3(const Vec3 & a, const Vec3 & b)
-{
-  return a.x*b.x + a.y*b.y + a.z*b.z;
-}
-
-Vec3 cross3(const Vec3 & a, const Vec3 & b)
-{
-  return {
-    a.y*b.z - a.z*b.y,
-    a.z*b.x - a.x*b.z,
-    a.x*b.y - a.y*b.x};
-}
-
-Vec3 normalize3(const Vec3 & v)
-{
-  const double n = norm3d(v);
-  if (n < 1.0e-9) {
-    return {0.0, 0.0, 0.0};
-  }
-  return {v.x/n, v.y/n, v.z/n};
-}
-
-Vec3 rotate_z(const Vec3 & v, double yaw)
-{
-  const double c = std::cos(yaw);
-  const double ss = std::sin(yaw);
-  return {
-    c*v.x - ss*v.y,
-    ss*v.x + c*v.y,
-    v.z};
 }
 
 Vec3 operator+(const Vec3 & a, const Vec3 & b)
@@ -283,18 +249,6 @@ private:
     declare_parameter("cut_in_penetration", 0.04);
     declare_parameter("cut_in_max_distance", 0.30);
 
-    // Branch-aligned cutting pose.
-    // chainsaw_body local +Y is the long-edge cutting side.
-    declare_parameter("cutting_zone_local_y", 0.03625);
-
-    // Keep the automatically aligned arm near the known safe working region.
-    declare_parameter("cut_pose_reference_tcp_x", 0.155885);
-    declare_parameter("cut_pose_reference_tcp_y", 0.030000);
-    declare_parameter("cut_pose_reference_tcp_z", -0.455000);
-    declare_parameter("cut_pose_q2_step_deg", 0.5);
-    declare_parameter("cut_pose_max_tcp_reference_error", 0.10);
-    declare_parameter("cut_pose_max_tcp_z", -0.20);
-
     declare_parameter("takeoff_speed", 0.50);
     declare_parameter("observe_speed", 0.45);
     declare_parameter("far_speed", 0.55);
@@ -306,7 +260,6 @@ private:
 
     declare_parameter("position_tolerance", 0.08);
     declare_parameter("near_position_tolerance", 0.04);
-    declare_parameter("retreat_position_tolerance", 0.08);
     declare_parameter("yaw_tolerance_deg", 5.0);
 
     declare_parameter("saw_command_rpm", 1000.0);
@@ -361,20 +314,6 @@ private:
     cut_in_penetration_ = get_parameter("cut_in_penetration").as_double();
     cut_in_max_distance_ = get_parameter("cut_in_max_distance").as_double();
 
-    cutting_zone_local_y_ = get_parameter("cutting_zone_local_y").as_double();
-    cut_pose_reference_tcp_x_ =
-      get_parameter("cut_pose_reference_tcp_x").as_double();
-    cut_pose_reference_tcp_y_ =
-      get_parameter("cut_pose_reference_tcp_y").as_double();
-    cut_pose_reference_tcp_z_ =
-      get_parameter("cut_pose_reference_tcp_z").as_double();
-    cut_pose_q2_step_deg_ =
-      get_parameter("cut_pose_q2_step_deg").as_double();
-    cut_pose_max_tcp_reference_error_ =
-      get_parameter("cut_pose_max_tcp_reference_error").as_double();
-    cut_pose_max_tcp_z_ =
-      get_parameter("cut_pose_max_tcp_z").as_double();
-
     takeoff_speed_ = get_parameter("takeoff_speed").as_double();
     observe_speed_ = get_parameter("observe_speed").as_double();
     far_speed_ = get_parameter("far_speed").as_double();
@@ -386,8 +325,6 @@ private:
 
     position_tolerance_ = get_parameter("position_tolerance").as_double();
     near_position_tolerance_ = get_parameter("near_position_tolerance").as_double();
-    retreat_position_tolerance_ =
-      get_parameter("retreat_position_tolerance").as_double();
     yaw_tolerance_rad_ = deg2rad(get_parameter("yaw_tolerance_deg").as_double());
 
     saw_command_rpm_ = get_parameter("saw_command_rpm").as_double();
@@ -762,13 +699,8 @@ private:
       return;
     }
     if (cmd == "land") {
+      manual_land_request_ = true;
       start_manual_phase(Phase::ARM_HOME_POST, Phase::LANDING);
-
-      // start_manual_phase() clears old manual flags by design.
-      // Set the landing request AFTER a successful phase transition.
-      if (phase_ == Phase::ARM_HOME_POST) {
-        manual_land_request_ = true;
-      }
       return;
     }
     if (cmd == "quit" || cmd == "exit") {
@@ -1177,21 +1109,7 @@ private:
 
       case Phase::ARM_PREWORK:
         request_saw(0.0);
-
-        if (!geometry_valid_ && !compute_cut_geometry(true)) {
-          fail_to_hold("Cannot compute branch-aligned cutting geometry.");
-          return;
-        }
-
-        if (!cut_pose_valid_) {
-          fail_to_hold("No valid branch-aligned arm pose.");
-          return;
-        }
-
-        send_arm_goal(
-          kArmModeJoint,
-          "branch-aligned cross-section CUT pose",
-          cut_joint_target_deg_);
+        send_arm_goal(kArmModePrework, "PREWORK = CUT pose");
         break;
 
       case Phase::NEAR_APPROACH:
@@ -1215,6 +1133,7 @@ private:
         const double requested = near_standoff_ + cut_in_penetration_;
         const double travel = std::min(requested, cut_in_max_distance_);
         cut_in_target_ = near_approach_ + insertion_direction_ * travel;
+        cut_in_target_.z = contact_base_.z;
         set_motion_target(
           cut_in_target_, insertion_yaw_, cut_in_speed_, near_position_tolerance_);
         break;
@@ -1342,19 +1261,7 @@ private:
 
   void update_motion_phase()
   {
-    bool reached = false;
-
-    if (phase_ == Phase::RETREAT_NEAR ||
-        phase_ == Phase::RETREAT_FAR)
-    {
-      reached = position_target_reached(retreat_position_tolerance_);
-    } else if (phase_ == Phase::RETURN_HOME) {
-      reached = position_target_reached(position_tolerance_);
-    } else {
-      reached = target_reached();
-    }
-
-    if (!reached) {
+    if (!target_reached()) {
       return;
     }
 
@@ -1519,7 +1426,6 @@ private:
   {
     if (cut_success_) {
       request_saw(0.0);
-      clear_perception_after_cut();
       transition_to(Phase::RETREAT_NEAR, "CUT SUCCESS during insertion");
       return;
     }
@@ -1541,7 +1447,6 @@ private:
     if (cut_success_) {
       request_saw(0.0);
       safe_print("[CUT] SUCCESS (auto_cut_controller detached the branch)");
-      clear_perception_after_cut();
       transition_to(Phase::RETREAT_NEAR, "detach/cut_success received");
       return;
     }
@@ -1750,273 +1655,40 @@ private:
       return false;
     }
 
-    // ----------------------------------------------------------
-    // Correct cutting geometry
-    //
-    // chainsaw_body:
-    //   local X/Y = guide-bar plane
-    //   local Z   = guide-bar plane normal
-    //
-    // For a branch cylinder:
-    //   tool local Z must be parallel to the branch axis.
-    // Therefore the guide-bar plane is the branch cross-section plane.
-    //
-    // The insertion direction is chosen inside that cross-section
-    // plane, toward the branch from the current UAV side.
-    // ----------------------------------------------------------
+    Vec3 from = use_current_side ? world_position_ : observe_center_;
+    double dx = locked_target_.center.x - from.x;
+    double dy = locked_target_.center.y - from.y;
+    double n = norm2d(dx, dy);
 
-    Vec3 branch_axis = normalize3(locked_target_.direction);
-    if (norm3d(branch_axis) < 1.0e-6) {
+    if (n < 0.15) {
+      dx = locked_target_.center.x - observe_center_.x;
+      dy = locked_target_.center.y - observe_center_.y;
+      n = norm2d(dx, dy);
+    }
+    if (n < 1e-6) {
       return false;
     }
 
-    const Vec3 from =
-      use_current_side ? world_position_ : observe_center_;
+    insertion_direction_ = {dx / n, dy / n, 0.0};
+    insertion_yaw_ = std::atan2(insertion_direction_.y, insertion_direction_.x);
 
-    const Vec3 to_target =
-      locked_target_.center - from;
+    contact_base_ = {
+      locked_target_.center.x - insertion_direction_.x * tool_forward_offset_,
+      locked_target_.center.y - insertion_direction_.y * tool_forward_offset_,
+      locked_target_.center.z + cut_z_offset_};
 
-    struct CutCandidate
-    {
-      bool valid{false};
-      double score{std::numeric_limits<double>::infinity()};
-      double yaw{0.0};
-      Vec3 insertion;
-      Vec3 axis;
-      std::array<double, 3> joints{{0.0, 0.0, 0.0}};
-      uav_lumberjack_control::Pose3 arm_pose;
-    };
-
-    auto evaluate_axis =
-      [&](const Vec3 & axis_in) -> CutCandidate
-      {
-        CutCandidate best;
-
-        const Vec3 axis = normalize3(axis_in);
-
-        // Project current->target into the branch cross-section plane.
-        Vec3 insertion =
-          to_target - axis * dot3(to_target, axis);
-
-        if (norm3d(insertion) < 0.05) {
-          // Degenerate viewpoint: choose a generic vector in the plane.
-          Vec3 seed{0.0, 0.0, 1.0};
-          insertion = seed - axis * dot3(seed, axis);
-
-          if (norm3d(insertion) < 0.05) {
-            seed = {1.0, 0.0, 0.0};
-            insertion = seed - axis * dot3(seed, axis);
-          }
-        }
-
-        insertion = normalize3(insertion);
-        if (norm3d(insertion) < 1.0e-6) {
-          return best;
-        }
-
-        // Tool frame in world:
-        //   +Y = insertion direction
-        //   +Z = branch axis = cutting-plane normal
-        //   +X = long guide-bar direction
-        const Vec3 y_tool_world = insertion;
-        const Vec3 z_tool_world = axis;
-        const Vec3 x_tool_world =
-          normalize3(cross3(y_tool_world, z_tool_world));
-
-        if (norm3d(x_tool_world) < 1.0e-6) {
-          return best;
-        }
-
-        // Desired world rotation:
-        // R_world_tool = Rz(UAV_yaw) * Ry(a) * Rx(b)
-        //
-        // ArmKinematics uses:
-        //   a = -(q2+q3)
-        //   b = q4 + 90deg
-        const double pitch =
-          std::asin(clamp(-x_tool_world.z, -1.0, 1.0));
-
-        if (std::abs(std::cos(pitch)) < 1.0e-4) {
-          return best;
-        }
-
-        const double uav_yaw =
-          std::atan2(x_tool_world.y, x_tool_world.x);
-
-        const double tool_roll =
-          std::atan2(y_tool_world.z, z_tool_world.z);
-
-        const double q23 = -pitch;
-        const double q4 =
-          wrap_pi(tool_roll - kPi / 2.0);
-
-        const double q2_min_deg =
-          rad2deg(uav_lumberjack_control::ArmKinematics::J2_MIN);
-        const double q2_max_deg =
-          rad2deg(uav_lumberjack_control::ArmKinematics::J2_MAX);
-
-        const double step =
-          std::max(0.1, cut_pose_q2_step_deg_);
-
-        for (double q2_deg = q2_min_deg;
-             q2_deg <= q2_max_deg + 1.0e-9;
-             q2_deg += step)
-        {
-          const double q3_deg =
-            rad2deg(q23) - q2_deg;
-          const double q4_deg =
-            rad2deg(q4);
-
-          const auto q =
-            uav_lumberjack_control::ArmKinematics::
-              degreesToRadians(q2_deg, q3_deg, q4_deg);
-
-          if (!uav_lumberjack_control::ArmKinematics::
-                withinJointLimits(q))
-          {
-            continue;
-          }
-
-          const auto pose =
-            uav_lumberjack_control::ArmKinematics::forward(q);
-
-          // Keep the saw safely below the UAV body.
-          if (pose.position.z > cut_pose_max_tcp_z_) {
-            continue;
-          }
-
-          const double ex =
-            pose.position.x - cut_pose_reference_tcp_x_;
-          const double ey =
-            pose.position.y - cut_pose_reference_tcp_y_;
-          const double ez =
-            pose.position.z - cut_pose_reference_tcp_z_;
-
-          const double reference_error =
-            std::sqrt(ex*ex + ey*ey + ez*ez);
-
-          if (reference_error >
-              cut_pose_max_tcp_reference_error_)
-          {
-            continue;
-          }
-
-          if (reference_error < best.score) {
-            best.valid = true;
-            best.score = reference_error;
-            best.yaw = wrap_pi(uav_yaw);
-            best.insertion = insertion;
-            best.axis = axis;
-            best.joints = {
-              q2_deg,
-              q3_deg,
-              q4_deg};
-            best.arm_pose = pose;
-          }
-        }
-
-        return best;
-      };
-
-    // PCA direction has +/- ambiguity. Both normals define the same
-    // physical cross-section plane; pick the safer arm solution.
-    const CutCandidate c1 =
-      evaluate_axis(branch_axis);
-
-    const CutCandidate c2 =
-      evaluate_axis(branch_axis * -1.0);
-
-    CutCandidate best;
-
-    if (c1.valid && c2.valid) {
-      best = (c1.score <= c2.score) ? c1 : c2;
-    } else if (c1.valid) {
-      best = c1;
-    } else if (c2.valid) {
-      best = c2;
-    } else {
-      return false;
-    }
-
-    cut_joint_target_deg_ = best.joints;
-    cut_pose_valid_ = true;
-
-    insertion_direction_ =
-      normalize3(best.insertion);
-    insertion_yaw_ =
-      best.yaw;
-
-    // Use the middle of the long cutting edge:
-    // chainsaw_body local [0, +Yedge, 0].
-    //
-    // First calculate that point relative to base_link.
-    const auto & R =
-      best.arm_pose.rotation;
-
-    Vec3 cutting_point_base{
-      best.arm_pose.position.x +
-        R(0, 1) * cutting_zone_local_y_,
-      best.arm_pose.position.y +
-        R(1, 1) * cutting_zone_local_y_,
-      best.arm_pose.position.z +
-        R(2, 1) * cutting_zone_local_y_};
-
-    // Then rotate base_link-relative geometry by UAV yaw into world.
-    const Vec3 cutting_point_world_from_base =
-      rotate_z(cutting_point_base, insertion_yaw_);
-
-    // UAV base pose at exact saw/branch contact.
-    contact_base_ =
-      locked_target_.center -
-      cutting_point_world_from_base;
-
-    // Approach and retreat strictly along the cross-section insertion axis.
-    near_approach_ =
-      contact_base_ -
-      insertion_direction_ * near_standoff_;
-
-    far_approach_ =
-      contact_base_ -
-      insertion_direction_ * far_standoff_;
-
+    near_approach_ = contact_base_ - insertion_direction_ * near_standoff_;
+    far_approach_ = contact_base_ - insertion_direction_ * far_standoff_;
     geometry_valid_ = true;
 
-    const double plane_normal_alignment =
-      std::abs(
-        dot3(
-          normalize3(best.axis),
-          normalize3(locked_target_.direction)));
-
     std::ostringstream oss;
-    oss
-      << "[CUT GEOMETRY]\n"
-      << "  branch axis     : "
-      << fmt_vec(normalize3(locked_target_.direction)) << "\n"
-      << "  cut-plane normal: "
-      << fmt_vec(best.axis) << "\n"
-      << "  normal alignment: "
-      << std::fixed << std::setprecision(4)
-      << plane_normal_alignment << "\n"
-      << "  insertion dir   : "
-      << fmt_vec(insertion_direction_) << "\n"
-      << "  UAV yaw         : "
-      << std::setprecision(1)
-      << rad2deg(insertion_yaw_) << " deg\n"
-      << "  arm CUT joints  : ["
-      << std::setprecision(1)
-      << cut_joint_target_deg_[0] << ", "
-      << cut_joint_target_deg_[1] << ", "
-      << cut_joint_target_deg_[2] << "] deg\n"
-      << "  TCP ref error   : "
-      << std::setprecision(3)
-      << best.score << " m\n"
-      << "  FAR             : "
-      << fmt_vec(far_approach_) << "\n"
-      << "  NEAR            : "
-      << fmt_vec(near_approach_) << "\n"
-      << "  contact base    : "
-      << fmt_vec(contact_base_);
-
+    oss << "[CUT GEOMETRY]\n"
+        << "  insertion yaw : " << std::fixed << std::setprecision(1)
+        << rad2deg(insertion_yaw_) << " deg\n"
+        << "  FAR            : " << fmt_vec(far_approach_) << "\n"
+        << "  NEAR           : " << fmt_vec(near_approach_) << "\n"
+        << "  contact base   : " << fmt_vec(contact_base_) << "\n"
+        << "  cut Z offset   : +" << std::setprecision(3) << cut_z_offset_ << " m";
     safe_print(oss.str());
     return true;
   }
@@ -2096,18 +1768,6 @@ private:
     return pos_error <= motion_tolerance_ && yaw_error <= yaw_tolerance_rad_;
   }
 
-  bool position_target_reached(double tolerance) const
-  {
-    if (!world_odom_received_ || !motion_target_valid_) {
-      return false;
-    }
-
-    const double pos_error =
-      norm3d(motion_target_world_ - world_position_);
-
-    return pos_error <= tolerance;
-  }
-
   Vec3 world_to_ned(const Vec3 & world) const
   {
     return {
@@ -2176,11 +1836,7 @@ private:
   // Arm / saw / perception service helpers
   // ============================================================
 
-  void send_arm_goal(
-    std::uint8_t mode,
-    const std::string & description,
-    const std::array<double, 3> & joint_target_deg =
-      std::array<double, 3>{{0.0, 0.0, 0.0}})
+  void send_arm_goal(std::uint8_t mode, const std::string & description)
   {
     arm_action_done_ = false;
     arm_action_failed_ = false;
@@ -2194,7 +1850,7 @@ private:
 
     ArmMotion::Goal goal{};
     goal.mode = mode;
-    goal.joint_target_deg = joint_target_deg;
+    goal.joint_target_deg = {0.0, 0.0, 0.0};
     goal.tcp_target.x = 0.0;
     goal.tcp_target.y = 0.0;
     goal.tcp_target.z = 0.0;
@@ -2274,19 +1930,6 @@ private:
           safe_print("[SAW] Request rejected: " + response->message);
         }
       });
-  }
-
-  void clear_perception_after_cut()
-  {
-    // Do NOT clear locked_target_ or FAR/NEAR geometry here.
-    // They are still required for safe retreat.
-    live_branch_valid_ = false;
-    branch_samples_.clear();
-
-    safe_print(
-      "[PERCEPTION] Physical target detached; clearing fused geometry.");
-
-    request_perception_reset();
   }
 
   void request_perception_reset()
@@ -2369,7 +2012,6 @@ private:
     locked_target_ = LockedTarget{};
     branch_samples_.clear();
     geometry_valid_ = false;
-    cut_pose_valid_ = false;
     cut_success_ = false;
     cut_progress_ = 0.0;
     target_contact_ = false;
@@ -2429,7 +2071,7 @@ private:
       << "\n+----------------------------------------------------------------+\n"
       << "| UAV_lumberjack | Offboard Cutting Demo                         |\n"
       << "+----------------------------------------------------------------+\n"
-      << "| Pipeline : perception -> UAV/arm alignment -> cross-section cut |\n"
+      << "| V1 concept : perception -> UAV XYZ+Yaw -> fixed PREWORK saw    |\n"
       << "| Cut point  : BranchModel.center (world)                        |\n"
       << "| Cut motion : UAV slow forward insertion                        |\n"
       << "| Recovery   : pause -> QGC -> resume / recompute current stage  |\n"
@@ -2460,7 +2102,7 @@ private:
       << "   takeoff -> observe -> scan -> lock -> far -> prework -> near -> cut\n"
       << "   retreat -> armhome -> land\n"
       << "\n Notes\n"
-      << "   prework moves the arm to the branch-aligned cross-section CUT pose.\n"
+      << "   PREWORK is the fixed CUT pose in V1.\n"
       << "   After TARGET_LOCK, perception is allowed to disappear.\n"
       << "   CUT has both timeout and maximum forward-distance limits.\n"
       << "=======================================================\n"
@@ -2648,14 +2290,6 @@ private:
   double cut_in_penetration_{0.04};
   double cut_in_max_distance_{0.30};
 
-  double cutting_zone_local_y_{0.03625};
-  double cut_pose_reference_tcp_x_{0.155885};
-  double cut_pose_reference_tcp_y_{0.030000};
-  double cut_pose_reference_tcp_z_{-0.455000};
-  double cut_pose_q2_step_deg_{0.5};
-  double cut_pose_max_tcp_reference_error_{0.10};
-  double cut_pose_max_tcp_z_{-0.20};
-
   double takeoff_speed_{0.50};
   double observe_speed_{0.45};
   double far_speed_{0.55};
@@ -2666,7 +2300,6 @@ private:
   double yaw_rate_rad_s_{deg2rad(35.0)};
   double position_tolerance_{0.08};
   double near_position_tolerance_{0.04};
-  double retreat_position_tolerance_{0.08};
   double yaw_tolerance_rad_{deg2rad(5.0)};
 
   double saw_command_rpm_{1000.0};
@@ -2773,8 +2406,6 @@ private:
   rclcpp::Time target_lock_last_attempt_{0, 0, RCL_ROS_TIME};
 
   bool geometry_valid_{false};
-  bool cut_pose_valid_{false};
-  std::array<double, 3> cut_joint_target_deg_{{-30.0, -60.0, 0.0}};
   Vec3 insertion_direction_;
   double insertion_yaw_{0.0};
   Vec3 contact_base_;

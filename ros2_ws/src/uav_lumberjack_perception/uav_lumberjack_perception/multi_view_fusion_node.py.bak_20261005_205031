@@ -98,14 +98,14 @@ class MultiViewFusionNode(Node):
         # Self-correcting rolling fusion.
         # The fused model is rebuilt from recent valid observations instead
         # of being a permanent append-only point set.
-        self.declare_parameter('fusion_window_frames', 1000)
+        self.declare_parameter('fusion_window_frames', 12)
         self.declare_parameter('fusion_support_distance', 0.018)
-        self.declare_parameter('fusion_min_frame_support', 1)
+        self.declare_parameter('fusion_min_frame_support', 2)
         self.declare_parameter('fusion_support_activation_frames', 4)
         self.declare_parameter('fusion_recent_grace_frames', 2)
 
         # Robust radial pruning around an iteratively re-estimated PCA axis.
-        self.declare_parameter('robust_filter_enabled', False)
+        self.declare_parameter('robust_filter_enabled', True)
         self.declare_parameter('robust_filter_iterations', 3)
         self.declare_parameter('robust_radial_mad_scale', 3.0)
         self.declare_parameter('robust_radial_floor', 0.015)

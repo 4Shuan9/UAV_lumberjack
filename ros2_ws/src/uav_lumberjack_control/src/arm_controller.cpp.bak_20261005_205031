@@ -1780,7 +1780,7 @@ private:
             "        saw rpm | saw off | help | quit\n"
             "        \n"
             " ROS2 : action /motion | service /set_saw | topic /status\n"
-            " Note : checks joint limits only; no collision checking.";
+            " Note : V1 checks joint limits only; no collision checking.";
         safe_print(oss.str());
     }
 
@@ -1835,7 +1835,7 @@ private:
             << std::setprecision(6)
             << "TCP [m]   : [" << pose.position.x << ", "
             << pose.position.y << ", " << pose.position.z << "]\n"
-            << "TCP model : chainsaw_body origin\n"
+            << "TCP model : chainsaw_body origin (V1)\n"
             << "ROS API   : /lumberjack_arm/motion | /set_saw | /status\n"
             << "================================================";
         safe_print(oss.str());
@@ -1878,7 +1878,7 @@ private:
             "|   Allowed : status | fk | ik | help | saw off            |\n"
             "|   Rejected: new arm motion | saw start | quit            |\n"
             "+----------------------------------------------------------+\n"
-            "| Safety: joint limits only; NO collision checking.     |\n"
+            "| Safety V1: joint limits only; NO collision checking.     |\n"
             "+----------------------------------------------------------+";
         safe_print(oss.str());
     }

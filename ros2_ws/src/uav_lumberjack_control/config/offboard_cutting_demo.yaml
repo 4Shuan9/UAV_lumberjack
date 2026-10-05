@@ -10,8 +10,12 @@ offboard_cutting_demo:
     takeoff_height: 3.0
     observe_distance: 1.4
     observe_bearing_offset_deg: 17.0
-    arc_half_angle_deg: 25.0
-    arc_settle_sec: 1.0
+    # Continuous multi-view scan. Existing OBSERVE fusion is preserved.
+    scan_half_angle_deg: 60.0
+    scan_angular_speed_deg_s: 4.0
+    scan_start_hold_sec: 2.0
+    scan_endpoint_hold_sec: 1.5
+    scan_return_center: true
 
     # ------------------------------------------------------------
     # Perception acceptance for TARGET_LOCK
@@ -26,7 +30,7 @@ offboard_cutting_demo:
     # chainsaw_body center in PREWORK is about [0.156, 0.03, -0.455]
     # from base_link. The outer cutting side is ~0.036 m farther
     # forward, hence ~0.19 m total forward offset.
-    # These are V1 tunable offsets, not final tool calibration.
+    # Legacy offsets retained for compatibility; branch-aligned geometry is used.
     # ------------------------------------------------------------
     cut_z_offset: 0.455
     tool_forward_offset: 0.19
@@ -34,6 +38,18 @@ offboard_cutting_demo:
     far_standoff: 0.75
     cut_in_penetration: 0.04
     cut_in_max_distance: 0.30
+
+    # Branch-aligned cross-section cutting.
+    # +Y is the middle of one long cutting edge on chainsaw_body.
+    cutting_zone_local_y: 0.03625
+
+    # Automatic arm-pose search stays close to the known safe working TCP.
+    cut_pose_reference_tcp_x: 0.155885
+    cut_pose_reference_tcp_y: 0.030000
+    cut_pose_reference_tcp_z: -0.455000
+    cut_pose_q2_step_deg: 0.5
+    cut_pose_max_tcp_reference_error: 0.10
+    cut_pose_max_tcp_z: -0.20
 
     # ------------------------------------------------------------
     # Motion shaping (world-frame setpoint rate limiting)
@@ -49,6 +65,7 @@ offboard_cutting_demo:
 
     position_tolerance: 0.08
     near_position_tolerance: 0.04
+    retreat_position_tolerance: 0.08
     yaw_tolerance_deg: 5.0
 
     # ------------------------------------------------------------
@@ -64,7 +81,9 @@ offboard_cutting_demo:
     # ------------------------------------------------------------
     offboard_prestream_cycles: 20
     auto_land_after_cut: true
-    reset_perception_before_scan: true
+    # false: SCAN continues accumulating the current fused model.
+    # Set true only when you explicitly want a fresh scan experiment.
+    reset_perception_before_scan: false
 
     # ------------------------------------------------------------
     # Topic names kept as parameters for later replacement/upgrades
