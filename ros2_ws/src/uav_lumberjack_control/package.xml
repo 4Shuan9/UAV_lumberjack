@@ -3,16 +3,19 @@
 <package format="3">
   <name>uav_lumberjack_control</name>
   <version>0.0.0</version>
-  <description>UAV lumberjack arm and cutting control.</description>
+  <description>UAV lumberjack arm, saw and cutting control.</description>
   <maintainer email="ashuang1999@qq.com">ashuang</maintainer>
   <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>rclcpp</depend>
+  <depend>rclcpp_action</depend>
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
   <depend>ros_gz_interfaces</depend>
+  <depend>uav_lumberjack_interfaces</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

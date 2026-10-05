@@ -1,0 +1,9 @@
+std_msgs/Header header
+bool busy
+string task
+float64[3] joint_command_deg
+float64[3] joint_actual_deg
+float64[3] joint_velocity_deg_s
+float64 saw_command_rpm
+float64 saw_actual_rpm
+geometry_msgs/Point tcp_position

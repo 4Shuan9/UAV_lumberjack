@@ -1,0 +1,25 @@
+# Arm motion modes
+uint8 HOME=0
+uint8 PREWORK=1
+uint8 JOINT=2
+uint8 TCP=3
+
+# Goal
+uint8 mode
+float64[3] joint_target_deg
+geometry_msgs/Point tcp_target
+---
+# Result
+bool success
+string message
+float64[3] final_joint_deg
+geometry_msgs/Point final_tcp
+float64 final_tcp_error_m
+---
+# Feedback
+string state
+float32 progress
+float64[3] actual_joint_deg
+geometry_msgs/Point actual_tcp
+float64 max_joint_error_deg
+float64 tcp_error_m

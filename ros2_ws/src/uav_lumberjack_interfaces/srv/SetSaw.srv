@@ -1,0 +1,5 @@
+float64 rpm
+---
+bool accepted
+string message
+float64 commanded_rpm
