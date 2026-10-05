@@ -14,6 +14,9 @@ find_package(rclcpp_action REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
+find_package(px4_msgs REQUIRED)
 find_package(ros_gz_interfaces REQUIRED)
 find_package(uav_lumberjack_interfaces REQUIRED)
 
@@ -72,6 +75,22 @@ ament_target_dependencies(
   sensor_msgs
 )
 
+add_executable(
+  offboard_cutting_demo
+  src/offboard_cutting_demo.cpp
+)
+ament_target_dependencies(
+  offboard_cutting_demo
+  rclcpp
+  rclcpp_action
+  px4_msgs
+  nav_msgs
+  geometry_msgs
+  std_msgs
+  std_srvs
+  uav_lumberjack_interfaces
+)
+
 install(
   TARGETS
     arm_kinematics
@@ -79,6 +98,7 @@ install(
     arm_controller
     target_contact_monitor
     auto_cut_controller
+    offboard_cutting_demo
   EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
@@ -94,7 +114,7 @@ ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_include_directories(include)
 
 install(
-  DIRECTORY launch
+  DIRECTORY launch config
   DESTINATION share/${PROJECT_NAME}
 )
 

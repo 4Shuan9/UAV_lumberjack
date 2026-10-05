@@ -16,6 +16,8 @@ from launch_ros.actions import Node
 def launch_setup(context, *args, **kwargs):
     project_root = LaunchConfiguration('project_root').perform(context)
     px4_root = LaunchConfiguration('px4_root').perform(context)
+    start_dds_agent = LaunchConfiguration('start_dds_agent').perform(context).lower() in ('1', 'true', 'yes', 'on')
+    dds_agent_port = LaunchConfiguration('dds_agent_port').perform(context)
 
     # ============================================================
     # Current Gazebo simulation paths
@@ -68,16 +70,20 @@ def launch_setup(context, *args, **kwargs):
     # itself.
     # ============================================================
 
+    cleanup_cmd = (
+        'echo "[LAUNCH] Cleaning old Gazebo / PX4 processes..."; '
+        'pkill -f "[g]z sim" 2>/dev/null || true; '
+        'pkill -x px4 2>/dev/null || true; '
+    )
+    if start_dds_agent:
+        cleanup_cmd += 'pkill -x MicroXRCEAgent 2>/dev/null || true; '
+    cleanup_cmd += (
+        'sleep 0.5; '
+        'echo "[LAUNCH] Cleanup complete."'
+    )
+
     cleanup = ExecuteProcess(
-        cmd=[
-            'bash',
-            '-c',
-            'echo "[LAUNCH] Cleaning old Gazebo / PX4 processes..."; '
-            'pkill -f "[g]z sim" 2>/dev/null || true; '
-            'pkill -x px4 2>/dev/null || true; '
-            'sleep 0.5; '
-            'echo "[LAUNCH] Cleanup complete."'
-        ],
+        cmd=['bash', '-c', cleanup_cmd],
         output='screen'
     )
 
@@ -262,6 +268,25 @@ def launch_setup(context, *args, **kwargs):
     )
 
     # ============================================================
+    # Micro XRCE-DDS Agent
+    #
+    # Enabled by default for SITL. Disable with:
+    #   start_dds_agent:=false
+    # when an external Agent is already running or when the launch
+    # is reused in a different DDS setup.
+    # ============================================================
+
+    dds_agent = ExecuteProcess(
+        cmd=[
+            'MicroXRCEAgent',
+            'udp4',
+            '-p',
+            dds_agent_port
+        ],
+        output='screen'
+    )
+
+    # ============================================================
     # PX4 SITL
     #
     # Start 3 seconds after Gazebo starts
@@ -292,24 +317,29 @@ def launch_setup(context, *args, **kwargs):
     # Event handler must be registered before cleanup starts.
     # ============================================================
 
+    post_cleanup_actions = [
+        gazebo,
+        bridge,
+        target_contact_monitor,
+        auto_cut_controller,
+
+        tf_base_to_camera_link,
+        tf_camera_link_to_sensor,
+
+        tf_base_to_mid360_mount,
+        tf_mid360_mount_to_link,
+        tf_mid360_link_to_sensor,
+    ]
+
+    if start_dds_agent:
+        post_cleanup_actions.append(dds_agent)
+
+    post_cleanup_actions.append(px4)
+
     start_after_cleanup = RegisterEventHandler(
         OnProcessExit(
             target_action=cleanup,
-            on_exit=[
-                gazebo,
-                bridge,
-                target_contact_monitor,
-                auto_cut_controller,
-
-                tf_base_to_camera_link,
-                tf_camera_link_to_sensor,
-
-                tf_base_to_mid360_mount,
-                tf_mid360_mount_to_link,
-                tf_mid360_link_to_sensor,
-
-                px4
-            ]
+            on_exit=post_cleanup_actions
         )
     )
 
@@ -331,6 +361,18 @@ def generate_launch_description():
             'px4_root',
             default_value=os.path.expanduser('~/PX4-Autopilot'),
             description='PX4-Autopilot root'
+        ),
+
+        DeclareLaunchArgument(
+            'start_dds_agent',
+            default_value='true',
+            description='Start MicroXRCEAgent automatically for PX4 SITL'
+        ),
+
+        DeclareLaunchArgument(
+            'dds_agent_port',
+            default_value='8888',
+            description='Micro XRCE-DDS Agent UDP port'
         ),
 
         OpaqueFunction(

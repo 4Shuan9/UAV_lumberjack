@@ -151,7 +151,7 @@ Visualization Manager:
       Enabled: true
       Name: Branch_axis
       Namespaces:
-        branch_pca: true
+        {}
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -164,7 +164,7 @@ Visualization Manager:
       Enabled: true
       Name: Branch_center
       Namespaces:
-        branch_geometry: true
+        {}
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -177,7 +177,7 @@ Visualization Manager:
       Enabled: true
       Name: Branch_length
       Namespaces:
-        branch_geometry: true
+        {}
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -190,7 +190,7 @@ Visualization Manager:
       Enabled: true
       Name: Branch_cylinder
       Namespaces:
-        branch_geometry: true
+        {}
       Topic:
         Depth: 5
         Durability Policy: Volatile

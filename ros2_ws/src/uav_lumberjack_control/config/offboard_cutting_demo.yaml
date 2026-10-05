@@ -1,0 +1,89 @@
+offboard_cutting_demo:
+  ros__parameters:
+    # ------------------------------------------------------------
+    # Scene hint / observation
+    # tree_hint is deliberately coarse. Precise branch geometry must
+    # come from /perception/branch_model.
+    # ------------------------------------------------------------
+    tree_hint_x: 4.0
+    tree_hint_y: 0.1
+    takeoff_height: 3.0
+    observe_distance: 1.4
+    observe_bearing_offset_deg: 17.0
+    arc_half_angle_deg: 25.0
+    arc_settle_sec: 1.0
+
+    # ------------------------------------------------------------
+    # Perception acceptance for TARGET_LOCK
+    # ------------------------------------------------------------
+    perception_min_points: 60
+    perception_max_fit_rms: 0.03
+    perception_stable_samples: 5
+    perception_center_spread_max: 0.05
+
+    # ------------------------------------------------------------
+    # Fixed PREWORK-as-CUT geometry (current demo)
+    # chainsaw_body center in PREWORK is about [0.156, 0.03, -0.455]
+    # from base_link. The outer cutting side is ~0.036 m farther
+    # forward, hence ~0.19 m total forward offset.
+    # These are V1 tunable offsets, not final tool calibration.
+    # ------------------------------------------------------------
+    cut_z_offset: 0.455
+    tool_forward_offset: 0.19
+    near_standoff: 0.20
+    far_standoff: 0.75
+    cut_in_penetration: 0.04
+    cut_in_max_distance: 0.30
+
+    # ------------------------------------------------------------
+    # Motion shaping (world-frame setpoint rate limiting)
+    # ------------------------------------------------------------
+    takeoff_speed: 0.50
+    observe_speed: 0.45
+    far_speed: 0.55
+    near_speed: 0.18
+    cut_in_speed: 0.04
+    retreat_speed: 0.12
+    return_speed: 0.60
+    yaw_rate_deg_s: 35.0
+
+    position_tolerance: 0.08
+    near_position_tolerance: 0.04
+    yaw_tolerance_deg: 5.0
+
+    # ------------------------------------------------------------
+    # Cutting safety / timeout
+    # ------------------------------------------------------------
+    saw_command_rpm: 1000.0
+    saw_ready_rpm: 850.0
+    saw_ready_hold_sec: 0.40
+    cut_timeout_sec: 4.0
+
+    # ------------------------------------------------------------
+    # Offboard handshake / task behavior
+    # ------------------------------------------------------------
+    offboard_prestream_cycles: 20
+    auto_land_after_cut: true
+    reset_perception_before_scan: true
+
+    # ------------------------------------------------------------
+    # Topic names kept as parameters for later replacement/upgrades
+    # ------------------------------------------------------------
+    gazebo_odom_topic: /model/x500_lumberjack/base_link_odometry
+
+    # PX4 1.16.x compatibility. The node subscribes to all status topics
+    # below and automatically uses whichever one is actually publishing.
+    # Add/remove names here if a future PX4 message version changes again.
+    px4_vehicle_odometry_topic: /fmu/out/vehicle_odometry
+    px4_vehicle_status_topics:
+      - /fmu/out/vehicle_status_v1
+      - /fmu/out/vehicle_status
+    px4_offboard_control_mode_topic: /fmu/in/offboard_control_mode
+    px4_trajectory_setpoint_topic: /fmu/in/trajectory_setpoint
+    px4_vehicle_command_topic: /fmu/in/vehicle_command
+
+    branch_model_topic: /perception/branch_model
+    arm_status_topic: /lumberjack_arm/status
+    cut_progress_topic: /lumberjack_arm/cut_progress
+    cut_success_topic: /lumberjack_arm/cut_success
+    target_contact_topic: /lumberjack_arm/target_contact
