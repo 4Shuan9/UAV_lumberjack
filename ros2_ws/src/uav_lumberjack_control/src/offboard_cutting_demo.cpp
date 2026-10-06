@@ -76,10 +76,7 @@ double rad2deg(double rad)
   return rad * 180.0 / kPi;
 }
 
-double norm2d(double x, double y)
-{
-  return std::hypot(x, y);
-}
+
 
 double norm3d(const Vec3 & v)
 {
@@ -205,12 +202,14 @@ private:
     TARGET_LOCK,
     FAR_APPROACH,
     ARM_PREWORK,
+    ARM_CUT_ALIGN,
     NEAR_APPROACH,
     SAW_SPINUP,
     CUT_IN,
     CUT_WAIT,
     RETREAT_NEAR,
     RETREAT_FAR,
+    ARM_PREWORK_POST,
     ARM_HOME_POST,
     RETURN_HOME,
     LANDING,
@@ -731,6 +730,14 @@ private:
       start_manual_phase(Phase::ARM_PREWORK, Phase::ARM_PREWORK);
       return;
     }
+    if (cmd == "cutalign") {
+      if (!locked_target_.valid) {
+        safe_print("[REJECT] No locked target.");
+        return;
+      }
+      start_manual_phase(Phase::ARM_CUT_ALIGN, Phase::ARM_CUT_ALIGN);
+      return;
+    }
     if (cmd == "near") {
       if (!locked_target_.valid) {
         safe_print("[REJECT] No locked target.");
@@ -1081,6 +1088,8 @@ private:
     switch (phase_) {
       case Phase::ARM_HOME_PREP:
       case Phase::ARM_PREWORK:
+      case Phase::ARM_CUT_ALIGN:
+      case Phase::ARM_PREWORK_POST:
       case Phase::ARM_HOME_POST:
         update_arm_phase();
         break;
@@ -1177,6 +1186,13 @@ private:
 
       case Phase::ARM_PREWORK:
         request_saw(0.0);
+        send_arm_goal(
+          kArmModePrework,
+          "PREWORK (safe transition before CUT_ALIGN)");
+        break;
+
+      case Phase::ARM_CUT_ALIGN:
+        request_saw(0.0);
 
         if (!geometry_valid_ && !compute_cut_geometry(true)) {
           fail_to_hold("Cannot compute branch-aligned cutting geometry.");
@@ -1184,14 +1200,21 @@ private:
         }
 
         if (!cut_pose_valid_) {
-          fail_to_hold("No valid branch-aligned arm pose.");
+          fail_to_hold("No valid branch-aligned CUT_ALIGN pose.");
           return;
         }
 
         send_arm_goal(
           kArmModeJoint,
-          "branch-aligned cross-section CUT pose",
+          "CUT_ALIGN (branch cross-section pose)",
           cut_joint_target_deg_);
+        break;
+
+      case Phase::ARM_PREWORK_POST:
+        request_saw(0.0);
+        send_arm_goal(
+          kArmModePrework,
+          "PREWORK (safe transition after retreat)");
         break;
 
       case Phase::NEAR_APPROACH:
@@ -1287,7 +1310,27 @@ private:
     }
 
     if (phase_ == Phase::ARM_PREWORK) {
+      if (!auto_chain_ && manual_stop_after_ &&
+          *manual_stop_after_ == Phase::ARM_PREWORK)
+      {
+        finish_manual_or_continue(Phase::HOLD);
+      } else {
+        transition_to(
+          Phase::ARM_CUT_ALIGN,
+          "PREWORK reached; align saw with branch cross-section");
+      }
+      return;
+    }
+
+    if (phase_ == Phase::ARM_CUT_ALIGN) {
       finish_manual_or_continue(Phase::NEAR_APPROACH);
+      return;
+    }
+
+    if (phase_ == Phase::ARM_PREWORK_POST) {
+      transition_to(
+        Phase::ARM_HOME_POST,
+        "post-cut PREWORK reached; fold arm HOME");
       return;
     }
 
@@ -1383,7 +1426,9 @@ private:
         }
         break;
       case Phase::RETREAT_FAR:
-        transition_to(Phase::ARM_HOME_POST, "safe FAR retreat reached");
+        transition_to(
+          Phase::ARM_PREWORK_POST,
+          "safe FAR retreat reached; return arm through PREWORK");
         break;
       case Phase::RETURN_HOME:
         transition_to(Phase::LANDING, "home overhead reached");
@@ -2435,7 +2480,7 @@ private:
       << "| Recovery   : pause -> QGC -> resume / recompute current stage  |\n"
       << "+----------------------------------------------------------------+\n"
       << " Quick: status | start | pause | resume | help\n"
-      << " Debug: takeoff observe scan lock far prework near cut retreat\n"
+      << " Debug: takeoff observe scan lock far prework cutalign near cut retreat\n"
       << "        armhome land retry reset reset_target sethome abort params\n\n"
       << "[CUT-DEMO:IDLE] > " << std::flush;
   }
@@ -2457,10 +2502,10 @@ private:
       << "   sethome      : sample current world pose as mission home\n"
       << "   abort        : Saw OFF + controlled retreat + arm HOME\n"
       << "\n Step-by-step debug\n"
-      << "   takeoff -> observe -> scan -> lock -> far -> prework -> near -> cut\n"
+      << "   takeoff -> observe -> scan -> lock -> far -> prework -> cutalign -> near -> cut\n"
       << "   retreat -> armhome -> land\n"
       << "\n Notes\n"
-      << "   prework moves the arm to the branch-aligned cross-section CUT pose.\n"
+      << "   PREWORK is the safe transition pose; CUT_ALIGN follows BranchModel.direction.\n"
       << "   After TARGET_LOCK, perception is allowed to disappear.\n"
       << "   CUT has both timeout and maximum forward-distance limits.\n"
       << "=======================================================\n"
@@ -2579,12 +2624,14 @@ private:
       case Phase::TARGET_LOCK: return "TARGET_LOCK";
       case Phase::FAR_APPROACH: return "FAR_APPROACH";
       case Phase::ARM_PREWORK: return "ARM_PREWORK";
+      case Phase::ARM_CUT_ALIGN: return "ARM_CUT_ALIGN";
       case Phase::NEAR_APPROACH: return "NEAR_APPROACH";
       case Phase::SAW_SPINUP: return "SAW_SPINUP";
       case Phase::CUT_IN: return "CUT_IN";
       case Phase::CUT_WAIT: return "CUT_WAIT";
       case Phase::RETREAT_NEAR: return "RETREAT_NEAR";
       case Phase::RETREAT_FAR: return "RETREAT_FAR";
+      case Phase::ARM_PREWORK_POST: return "ARM_PREWORK_POST";
       case Phase::ARM_HOME_POST: return "ARM_HOME_POST";
       case Phase::RETURN_HOME: return "RETURN_HOME";
       case Phase::LANDING: return "LANDING";

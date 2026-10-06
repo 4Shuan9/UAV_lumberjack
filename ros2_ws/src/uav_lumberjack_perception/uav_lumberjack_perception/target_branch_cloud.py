@@ -43,11 +43,11 @@ class TargetBranchCloud(Node):
         self.mask_dilate_px = 0
 
         # Step13.3.3: depth clustering
-        self.depth_cluster_gap = 0.20
+        self.depth_cluster_gap = 0.10
         self.min_depth_cluster_points = 5
         self.min_target_depth = 0.20
         self.max_target_depth = 5.00
-        self.max_cluster_span = 0.60
+        self.max_cluster_span = 0.35
 
         # Step13.3.4: temporal continuity
         self.max_depth_jump = 0.60
