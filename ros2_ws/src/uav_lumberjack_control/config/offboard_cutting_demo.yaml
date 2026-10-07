@@ -64,7 +64,7 @@ offboard_cutting_demo:
     yaw_rate_deg_s: 35.0
 
     position_tolerance: 0.08
-    near_position_tolerance: 0.04
+    near_position_tolerance: 0.12
     retreat_position_tolerance: 0.08
     yaw_tolerance_deg: 5.0
 
