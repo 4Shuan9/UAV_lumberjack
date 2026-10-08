@@ -64,7 +64,10 @@ offboard_cutting_demo:
     yaw_rate_deg_s: 35.0
 
     position_tolerance: 0.08
+    # NEAR is only a staging/ready position, so it may use a looser tolerance.
     near_position_tolerance: 0.12
+    # CUT_IN is the actual blade insertion and must remain precise.
+    cut_in_position_tolerance: 0.02
     retreat_position_tolerance: 0.08
     yaw_tolerance_deg: 5.0
 

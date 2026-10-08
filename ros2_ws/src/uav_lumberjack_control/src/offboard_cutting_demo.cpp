@@ -305,6 +305,7 @@ private:
 
     declare_parameter("position_tolerance", 0.08);
     declare_parameter("near_position_tolerance", 0.04);
+    declare_parameter("cut_in_position_tolerance", 0.02);
     declare_parameter("retreat_position_tolerance", 0.08);
     declare_parameter("yaw_tolerance_deg", 5.0);
 
@@ -385,6 +386,8 @@ private:
 
     position_tolerance_ = get_parameter("position_tolerance").as_double();
     near_position_tolerance_ = get_parameter("near_position_tolerance").as_double();
+    cut_in_position_tolerance_ =
+      get_parameter("cut_in_position_tolerance").as_double();
     retreat_position_tolerance_ =
       get_parameter("retreat_position_tolerance").as_double();
     yaw_tolerance_rad_ = deg2rad(get_parameter("yaw_tolerance_deg").as_double());
@@ -1239,7 +1242,7 @@ private:
         const double travel = std::min(requested, cut_in_max_distance_);
         cut_in_target_ = near_approach_ + insertion_direction_ * travel;
         set_motion_target(
-          cut_in_target_, insertion_yaw_, cut_in_speed_, near_position_tolerance_);
+          cut_in_target_, insertion_yaw_, cut_in_speed_, cut_in_position_tolerance_);
         break;
       }
 
@@ -2579,7 +2582,7 @@ private:
   void print_params() const
   {
     std::lock_guard<std::mutex> lock(print_mutex_);
-    std::cout
+    std::cout << std::fixed << std::setprecision(2)
       << "\n================ OFFBOARD CUTTING / KEY PARAMETERS ============\n"
       << "tree_hint             : [" << tree_hint_x_ << ", " << tree_hint_y_ << "] world\n"
       << "takeoff_height        : " << takeoff_height_ << " m above sampled home\n"
@@ -2593,10 +2596,13 @@ private:
       << "cut_z_offset          : +" << cut_z_offset_ << " m\n"
       << "tool_forward_offset   : " << tool_forward_offset_ << " m\n"
       << "far / near standoff   : " << far_standoff_ << " / " << near_standoff_ << " m\n"
+      << "near / cut-in tol     : " << near_position_tolerance_ << " / "
+      << cut_in_position_tolerance_ << " m\n"
       << "cut speed / max dist  : " << cut_in_speed_ << " m/s / "
       << cut_in_max_distance_ << " m\n"
       << "saw cmd / ready       : " << saw_command_rpm_ << " / " << saw_ready_rpm_ << " rpm\n"
       << "=======================================================\n"
+      << std::defaultfloat << std::setprecision(6)
       << "[CUT-DEMO:" << phase_name(phase_) << "] > " << std::flush;
   }
 
@@ -2713,6 +2719,7 @@ private:
   double yaw_rate_rad_s_{deg2rad(35.0)};
   double position_tolerance_{0.08};
   double near_position_tolerance_{0.04};
+  double cut_in_position_tolerance_{0.02};
   double retreat_position_tolerance_{0.08};
   double yaw_tolerance_rad_{deg2rad(5.0)};
 
