@@ -10,7 +10,7 @@ Stage D 表面上是一个 Offboard 自动切割 Demo，但实际主要探索五
 1. **根据枝条方向构造合理的切割平面**
 2. **初步确定 UAV yaw 与机械臂姿态的联合关系**
 3. **建立链锯有效切割区域与目标枝条之间的几何关系**
-4. **确定 UAV 接近目标的方向及 FAR / NEAR / CUT_IN 作业位置**
+4. **确定 UAV 接近目标的方向及 FAR / NEAR / CUT_IN 作业轨迹**
 5. **搭建可分段执行、恢复、一键执行的作业架构**
 
 本阶段先验证：
@@ -137,7 +137,7 @@ TAKEOFF
 其中 \(\mathbf p\) 表示平面上的任意一点,它们的点积为 0（即垂直）。
 
 <p align="center">
-  <img src="/media/images/cutting/cutting_plane.png" width="85%">
+  <img src="/media/images/cutting/cutting_plane.png" width="100%">
 </p>
 
 这样首先确定了“**链锯应该落在哪个切割平面上**”。下一步再考虑如何通过 UAV 与机械臂，把链锯导板真正摆到这个平面。
@@ -201,7 +201,7 @@ R_{\mathrm{world}}^{\mathrm{tool}}
 
 当 \(\eta_{\mathrm{align}}\) 越接近 1，说明链锯导板与目标切割平面越一致。
 
-## 只调整 UAV yaw 不够！！！
+## 仅调整 UAV yaw 无法完成三维切割姿态对齐
 
 UAV yaw 只能改变无人机在**水平面内**的朝向。
 
@@ -315,15 +315,35 @@ CONTACT 不是提前写死的，而是由：
 
 ---
 
-# 5. 问题四：确定 UAV 接近目标的方向及 FAR / NEAR / CUT_IN 作业位置
+# 5. 问题四：确定 UAV 接近目标的方向及 FAR / NEAR / CUT_IN 作业轨迹
 
 CONTACT 确定后，下一步要解决：
 
 > **无人机应该从哪个方向靠近 CONTACT，并怎样逐级进入切割区域？**
 
-如果直接让 UAV 朝目标飞，运动方向中可能带有沿枝条主轴的分量，不一定是在横向切入。
+假设 UAV 原本朝 CONTACT 的沿着最短欧式距离的运动方向是：
 
-因此，希望切入方向位于前面确定的切割平面内，即：
+\[
+\mathbf t
+\]
+
+如果直接让 UAV 朝目标飞，运动方向中可能带有沿枝条主轴的分量，不一定是在横向切入，它可以分解成两部分：
+
+\[
+\boxed{
+\mathbf t
+=
+\mathbf t_{\perp}
++
+\mathbf t_{\parallel}
+}
+\]
+
+<p align="center">
+  <img src="/media/images/cutting/cutting_t.png" width="75%">
+</p>
+
+希望切入方向一定位于前面确定的切割平面内（\(\mathbf d\)  是单位向量）：
 
 \[
 \boxed{
@@ -333,7 +353,7 @@ CONTACT 确定后，下一步要解决：
 }
 \]
 
-设 UAV 指向目标切割区域的方向为 \(\mathbf t\)，去掉其中沿枝条主轴的分量：
+去掉 \(\mathbf t\) 中沿枝条主轴的分量得：
 
 \[
 \boxed{
@@ -341,6 +361,16 @@ CONTACT 确定后，下一步要解决：
 =
 \mathbf t
 -
+\mathbf t_{\parallel}
+}
+\]
+
+其中：
+
+\[
+\boxed{
+\mathbf t_{\parallel}
+=
 \mathbf d
 \left(
 \mathbf t^T\mathbf d
@@ -359,11 +389,11 @@ CONTACT 确定后，下一步要解决：
 }
 \]
 
-可以简单理解为：
+可以理解为：
 
-> UAV 原本朝向树枝的方向里，可能混有“顺着树枝”的分量；把这一部分去掉，只保留横向分量，就得到位于枝条横截面内的切入方向。
+> UAV 原本朝向树枝的方向里，可能混有“顺着树枝”的分量，去除这一部分，只保留横向分量，得位于枝条横截面内的切入方向。
 
-有了 CONTACT 和切入方向后，再沿 \(\mathbf u_{\mathrm{insert}}\) 向后布置 NEAR 与 FAR：
+有了 CONTACT 和切入方向后，再沿 \(\mathbf u_{\mathrm{insert}}\) 向后设置 NEAR 与 FAR两个工作位置：
 
 \[
 \boxed{
@@ -396,16 +426,12 @@ d_{\mathrm{near}}
 >0
 \]
 
-于是形成：
-
-```text
-FAR
-→ PREWORK
-→ CUT_ALIGN
-→ NEAR
-→ CUT_IN
-→ CONTACT
-```
+\[
+\boxed{
+d_{\mathrm{far}},\ d_{\mathrm{near}}
+\text{ 为预设的距离参数}
+}
+\]
 
 这里各位置的作用可以简单理解为：
 
@@ -423,11 +449,11 @@ FAR
 
 ```text
 切哪个平面
-↓
+  ↓
 链锯怎么摆
-↓
+  ↓
 有效切割区域要落在哪里
-↓
+  ↓
 UAV 从哪里、怎么接近
 ```
 
@@ -668,27 +694,25 @@ TAKEOFF
 
 ---
 
----
-
 # 9. Stage D 阶段总结
 
 Stage D 表面上完成的是一个 Offboard 自动切割 Demo，但核心是把下面这条任务几何链第一次完整连了起来：
 
 ```text
 BranchModel.direction
-↓
+    ↓
 切割平面
-↓
+    ↓
 UAV yaw + CUT_ALIGN
-↓
+    ↓
 链锯有效切割位置
-↓
+    ↓
 CONTACT base
-↓
+    ↓
 切入方向
-↓
+    ↓
 FAR / NEAR / CUT_IN
-↓
+    ↓
 自动切割与安全恢复
 ```
 
@@ -716,15 +740,11 @@ FAR / NEAR / CUT_IN
 }
 \]
 
-这一最小自主切割闭环。
-
-当前重点不是把每个模块都做到最优，而是先建立一个完整、可重复验证的系统基线，便于后续对单个模块进行升级和对比。
+最小自主切割闭环。
 
 ---
 
 # 附录 A：完整启动与测试指令
-
-下面保留当前完整启动方式，后续可以直接复制执行。
 
 ## A.1 编译
 
@@ -770,18 +790,6 @@ source ~/ws_ros2/install/setup.bash
 source install/setup.bash
 
 ros2 run uav_lumberjack_control arm_controller
-```
-
-可先检查：
-
-```text
-status
-```
-
-如有需要可手动回到：
-
-```text
-home
 ```
 
 ---
@@ -840,26 +848,6 @@ ros2 run uav_lumberjack_control offboard_cutting_demo \
 status
 sethome
 start
-```
-
-之后正常情况下无需再手动推进，系统应自行运行：
-
-```text
-TAKEOFF
-→ OBSERVE
-→ ARC_SCAN
-→ TARGET_LOCK
-→ FAR
-→ PREWORK
-→ CUT_ALIGN
-→ NEAR
-→ CUT
-→ RETREAT
-→ PREWORK
-→ HOME
-→ RETURN_HOME
-→ LANDING
-→ DONE
 ```
 
 ---
