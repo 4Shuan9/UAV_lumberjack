@@ -8,9 +8,9 @@
 Stage D 表面上是一个 Offboard 自动切割 Demo，但实际主要探索五个问题：
 
 1. **根据枝条方向构造合理的切割平面**
-2. **确定无人机接近目标的方向**
-3. **初步确定 UAV yaw 与机械臂姿态的联合关系**
-4. **建立链锯有效切割区域与目标枝条之间的几何关系**
+2. **初步确定 UAV yaw 与机械臂姿态的联合关系**
+3. **建立链锯有效切割区域与目标枝条之间的几何关系**
+4. **确定 UAV 接近目标的方向及 FAR / NEAR / CUT_IN 作业位置**
 5. **搭建可分段执行、恢复、一键执行的作业架构**
 
 本阶段先验证：
@@ -46,20 +46,6 @@ Stage D 表面上是一个 Offboard 自动切割 Demo，但实际主要探索五
 - \(\mathbf d\)：枝条单位主轴方向；
 - \(L\)：枝条有效长度；
 - \(r\)：枝条半径。
-
-Stage D 将这些参数继续转化为：
-
-```text
-切割平面
-↓
-切入方向
-↓
-UAV yaw + CUT_ALIGN
-↓
-CONTACT / NEAR / FAR
-↓
-切割与撤退
-```
 
 任务主流程为：
 
@@ -111,6 +97,7 @@ TAKEOFF
 \]
 
 等价于：
+
 \[
 \boxed{
 \text{切割平面法向量}
@@ -147,17 +134,192 @@ TAKEOFF
 }
 \]
 
-其中 \(\mathbf p\) 表示平面上的任意一点。
+其中 \(\mathbf p\) 表示平面上的任意一点,它们的点积为 0（即垂直）。
 
-这样就先确定了“**链锯应该在哪个平面内完成切割**”，下一步再在这个平面内确定切入方向。
+<p align="center">
+  <img src="/media/images/cutting/cutting_plane.png" width="85%">
+</p>
+
+这样首先确定了“**链锯应该落在哪个切割平面上**”。下一步再考虑如何通过 UAV 与机械臂，把链锯导板真正摆到这个平面。
 
 ---
 
-# 3. 问题二：确定 UAV 接近目标的方向
+# 3. 问题二：初步确定 UAV yaw 与机械臂姿态的联合关系
 
-切割平面确定后，还要解决：
+切割平面确定后，下一步要解决：
 
-> **无人机应该从哪个方向把链锯送进树枝？**
+> **怎样让链锯导板真正转到这个切割平面上？**
+
+当前链锯导板主要位于 `chainsaw_body` 的局部 \(XY\) 平面，其局部法向为：
+
+\[
+\mathbf e_z=
+\begin{bmatrix}
+0\\
+0\\
+1
+\end{bmatrix}
+\]
+
+若工具在 world 中的旋转矩阵为 \(R_{\mathrm{world}}^{\mathrm{tool}}\)，则导板法向为：
+
+\[
+\boxed{
+\mathbf n_{\mathrm{saw}}
+=
+R_{\mathrm{world}}^{\mathrm{tool}}
+\mathbf e_z
+}
+\]
+
+前文已确定切割平面的法向为 \(\pm\mathbf d\)，因此希望：
+
+\[
+\boxed{
+\mathbf n_{\mathrm{saw}}
+\parallel
+\mathbf d
+}
+\]
+
+> 即链锯导板平面与枝条主轴垂直
+
+为了评价对齐程度，定义：
+
+\[
+\boxed{
+\eta_{\mathrm{align}}
+=
+\left|
+\mathbf n_{\mathrm{saw}}^T
+\mathbf d
+\right|
+}
+\]
+
+> 两个平行的非零单位向量的点积的绝对值为 1
+
+当 \(\eta_{\mathrm{align}}\) 越接近 1，说明链锯导板与目标切割平面越一致。
+
+## 只调整 UAV yaw 不够！！！
+
+UAV yaw 只能改变无人机在**水平面内**的朝向。
+
+<p align="center">
+  <img src="/media/images/cutting/cutting_plane_n_saw.png" width="75%">
+</p>
+
+**枝条在三维空间中向上或向下斜着生长**，仅靠 yaw 无法让链锯导板平面与枝条横截面完全对齐，因此需要：
+
+- **UAV yaw**：调整水平朝向；
+- **J2/J3**：调整链锯位置和整体俯仰；
+- **J4**：调整导板滚转方向。
+
+因此最终由：
+
+\[
+\boxed{
+\text{UAV yaw}
++
+\text{J2 / J3 / J4}
+\rightarrow
+\text{CUT\_ALIGN}
+}
+\]
+
+共同确定切割姿态。
+
+机械臂末端姿态关系为：
+
+\[
+\boxed{
+R_{\mathrm{world}}^{\mathrm{tool}}
+=
+R_z(\psi_{\mathrm{UAV}})
+R_y(-(q_2+q_3))
+R_x\left(q_4+\frac{\pi}{2}\right)
+}
+\]
+
+所以程序需找到合适的：
+
+\[
+\left(
+\psi_{\mathrm{UAV}},q_2,q_3,q_4
+\right)
+\]
+
+使导板法向**尽量**满足（同时满足关节限位）：
+
+\[
+R_{\mathrm{world}}^{\mathrm{tool}}
+\mathbf e_z
+\approx
+\pm\mathbf d
+\]
+
+> 实际代码在确定最终 CUT_ALIGN 时，还会结合后面计算的切入方向，用它进一步固定切割平面内剩余的姿态自由度。
+
+---
+
+# 4. 问题三：建立链锯有效切割区域与目标枝条的几何关系
+
+> 不能直接将机械臂 TCP 作为实际切割点，若强行要求 TCP 与枝条切割点重合，可能导致链锯实际接触位置不合理，并产生较大的接触力矩和 UAV 姿态扰动。
+
+<p align="center">
+  <img src="/media/images/cutting/cutting_point.png" width="75%">
+</p>
+
+真正参与锯切的是链锯导板上的有效切割区域，链锯有效切割区域中的代表点在 UAV base 坐标系中的位置为：
+
+\[
+\mathbf p_{\mathrm{cutting,base}}
+\]
+
+目标枝条切割点在 world 坐标系中的位置为：
+
+\[
+\mathbf p_{\mathrm{branch}}
+\]
+
+则发生接触时 UAV base 的目标位置为：
+
+\[
+\boxed{
+\mathbf p_{\mathrm{contact}}
+=
+\mathbf p_{\mathrm{branch}}
+-
+R_{\mathrm{world}}^{\mathrm{base}}
+\mathbf p_{\mathrm{cutting,base}}
+}
+\]
+
+CONTACT 不是提前写死的，而是由：
+
+\[
+\boxed{
+\text{枝条几何}
++
+\text{机械臂构型}
++
+\text{链锯几何}
+}
+\]
+
+共同决定。
+
+> **先确定链锯有效切割区域应该落在哪里，再经过坐标系转换，反推出 UAV base 应该停在哪里**
+
+这一步完成后，我们已经知道最终“**要切到哪里**”以及“**无人机最终接触位置在哪里**”，接下来再决定 UAV 应该从哪个方向接近这一位置。
+
+---
+
+# 5. 问题四：确定 UAV 接近目标的方向及 FAR / NEAR / CUT_IN 作业位置
+
+CONTACT 确定后，下一步要解决：
+
+> **无人机应该从哪个方向靠近 CONTACT，并怎样逐级进入切割区域？**
 
 如果直接让 UAV 朝目标飞，运动方向中可能带有沿枝条主轴的分量，不一定是在横向切入。
 
@@ -171,7 +333,7 @@ TAKEOFF
 }
 \]
 
-设 UAV 指向目标切割点的方向为 \(\mathbf t\)，去掉其中沿枝条主轴的分量：
+设 UAV 指向目标切割区域的方向为 \(\mathbf t\)，去掉其中沿枝条主轴的分量：
 
 \[
 \boxed{
@@ -199,161 +361,9 @@ TAKEOFF
 
 可以简单理解为：
 
-> UAV 原本朝向树枝的方向里，可能混有“顺着树枝”的分量；把这一部分去掉，只保留横向分量，就得到切入方向。
+> UAV 原本朝向树枝的方向里，可能混有“顺着树枝”的分量；把这一部分去掉，只保留横向分量，就得到位于枝条横截面内的切入方向。
 
-该方向同时用于 UAV 接近、FAR/NEAR 布置和 CUT_IN。
-
----
-
-# 4. 问题三：初步确定 UAV yaw 与机械臂姿态的联合关系
-
-切割平面和切入方向确定后，还需要让链锯导板真正摆到目标姿态。
-
-当前链锯导板主要位于 `chainsaw_body` 的局部 \(XY\) 平面，其局部法向为：
-
-\[
-\mathbf e_z=
-\begin{bmatrix}
-0\\
-0\\
-1
-\end{bmatrix}
-\]
-
-若工具在 world 中的旋转矩阵为 \(R_{\mathrm{world}}^{\mathrm{tool}}\)，则导板法向为：
-
-\[
-\boxed{
-\mathbf n_{\mathrm{saw}}
-=
-R_{\mathrm{world}}^{\mathrm{tool}}
-\mathbf e_z
-}
-\]
-
-理想情况下希望：
-
-\[
-\boxed{
-\mathbf n_{\mathrm{saw}}
-\parallel
-\mathbf d
-}
-\]
-
-即链锯导板平面与枝条主轴垂直。
-
-为了评价对齐程度，定义：
-
-\[
-\boxed{
-\eta_{\mathrm{align}}
-=
-\left|
-\mathbf n_{\mathrm{saw}}^T
-\mathbf d
-\right|
-}
-\]
-
-当 \(\eta_{\mathrm{align}}\) 越接近 1，说明链锯导板与目标切割平面越一致。
-
-## 4.1 只调整 UAV yaw 不够
-
-UAV yaw 只能改变无人机在**水平面内**的朝向。
-
-如果枝条在三维空间中向上、向下或斜着生长，仅靠 yaw 无法让链锯导板完全贴合枝条横截面，因此需要：
-
-- **UAV yaw**：调整水平朝向；
-- **J2/J3**：调整链锯位置和整体俯仰；
-- **J4**：调整导板滚转方向。
-
-因此最终由：
-
-\[
-\boxed{
-\text{UAV yaw}
-+
-\text{J2/J3/J4}
-\rightarrow
-\text{CUT\_ALIGN}
-}
-\]
-
-共同确定切割姿态。
-
-机械臂末端姿态关系为：
-
-\[
-\boxed{
-R_{\mathrm{world}}^{\mathrm{tool}}
-=
-R_z(\psi_{\mathrm{UAV}})
-R_y(-(q_2+q_3))
-R_x\left(q_4+\frac{\pi}{2}\right)
-}
-\]
-
-程序需要找到合适的：
-
-\[
-\left(
-\psi_{\mathrm{UAV}},q_2,q_3,q_4
-\right)
-\]
-
-使导板法向尽量满足：
-
-\[
-R_{\mathrm{world}}^{\mathrm{tool}}
-\mathbf e_z
-\approx
-\pm\mathbf d
-\]
-
-同时满足关节限位。
-
----
-
-# 5. 问题四：建立链锯有效切割区域与目标枝条的几何关系
-
-链锯姿态确定后，还要回答：
-
-> **无人机应该停在哪里，才能让真正参与切割的链锯区域落到目标树枝上？**
-
-这里不能简单把机械臂 TCP 直接当作切割点，因为真正参与锯切的是导板上的有效切割区域。
-
-因此采用：
-
-> **先确定有效切割区域应该落在哪里，再反推 UAV 应该停在哪里。**
-
-设有效切割点在 UAV base 坐标系中的位置为：
-
-\[
-\mathbf p_{\mathrm{cutting,base}}
-\]
-
-目标枝条切割点为：
-
-\[
-\mathbf p_{\mathrm{branch}}
-\]
-
-则接触时 UAV base 的目标位置为：
-
-\[
-\boxed{
-\mathbf p_{\mathrm{contact}}
-=
-\mathbf p_{\mathrm{branch}}
--
-\mathbf p_{\mathrm{cutting,base}}
-}
-\]
-
-即已知“树枝要在哪里被锯到”和“链锯相对无人机在哪里”，就可以反推出无人机应该停在哪里。
-
-为了避免直接冲到 CONTACT，沿切入方向设置 NEAR 与 FAR：
+有了 CONTACT 和切入方向后，再沿 \(\mathbf u_{\mathrm{insert}}\) 向后布置 NEAR 与 FAR：
 
 \[
 \boxed{
@@ -386,7 +396,7 @@ d_{\mathrm{near}}
 >0
 \]
 
-于是接近过程为：
+于是形成：
 
 ```text
 FAR
@@ -397,25 +407,31 @@ FAR
 → CONTACT
 ```
 
-因此 UAV 作业位置不是预先写死，而是由：
+这里各位置的作用可以简单理解为：
 
-\[
-\boxed{
-\text{枝条几何}
-+
-\text{机械臂几何}
-+
-\text{链锯几何}
-}
-\]
+- **FAR**：在离树体较远的位置完成主要作业准备；
+- **NEAR**：进入切割前的近距离准备区域；
+- **CUT_IN**：保持 CUT_ALIGN，沿 \(\mathbf u_{\mathrm{insert}}\) 低速向 CONTACT 推进。
 
-共同决定。
+因此，UAV 的接近方向和作业位置并不是预先固定，而是根据当前枝条、机械臂和链锯几何实时生成。
 
 ---
 
 # 6. 问题五：搭建可分段执行、恢复、一键执行的作业架构
 
-前面四个问题解决“怎么切”，这一部分负责把几何结果组织成真正可运行的任务。
+前面四个问题已经回答了：
+
+```text
+切哪个平面
+↓
+链锯怎么摆
+↓
+有效切割区域要落在哪里
+↓
+UAV 从哪里、怎么接近
+```
+
+最后还需要把这些几何结果组织成真正可运行的任务。
 
 当前架构的核心是：
 
@@ -459,7 +475,7 @@ r^*
 }
 \]
 
-这样可以避免执行过程中 BranchModel 的小幅波动不断改变 FAR、NEAR 和 CUT_ALIGN。
+这样可以避免执行过程中 BranchModel 的小幅波动不断改变切割几何。
 
 ## 6.2 机械臂姿态与安全撤退
 
@@ -467,7 +483,7 @@ r^*
 
 - **HOME**：飞行、返航、降落；
 - **PREWORK**：固定过渡姿态；
-- **CUT_ALIGN**：根据枝条方向动态计算的作业姿态。
+- **CUT_ALIGN**：根据当前枝条几何动态计算的作业姿态。
 
 进入作业区：
 
@@ -517,7 +533,7 @@ retreat / armhome / land
 start
 ```
 
-运行完整任务，同时保留 `pause / resume / retry / reset / abort` 等基本恢复功能。
+即可运行完整任务，同时保留 `pause / resume / retry / reset / abort` 等基本恢复功能。
 
 ---
 
@@ -564,6 +580,8 @@ yaw 同样进行对应转换：
 \]
 
 这样上层感知与几何规划可以统一在 world 坐标中完成，只在最终发送 PX4 指令时做转换。
+
+---
 
 ---
 
@@ -650,25 +668,37 @@ TAKEOFF
 
 ---
 
+---
+
 # 9. Stage D 阶段总结
 
-Stage D 表面上完成的是一个 Offboard 自动切割 Demo，但核心是把以下问题第一次连成了一条完整任务链：
+Stage D 表面上完成的是一个 Offboard 自动切割 Demo，但核心是把下面这条任务几何链第一次完整连了起来：
 
 ```text
-枝条方向
+BranchModel.direction
 ↓
 切割平面
 ↓
-切入方向
-↓
-UAV yaw + 机械臂姿态
+UAV yaw + CUT_ALIGN
 ↓
 链锯有效切割位置
 ↓
-UAV 作业位置
+CONTACT base
+↓
+切入方向
+↓
+FAR / NEAR / CUT_IN
 ↓
 自动切割与安全恢复
 ```
+
+换句话说，本阶段依次解决了：
+
+1. **枝条应该沿哪个平面切；**
+2. **链锯导板应该怎样摆到这个平面；**
+3. **链锯真正参与切割的区域应该落在哪里；**
+4. **UAV 应从哪个方向接近，并怎样布置 FAR / NEAR / CUT_IN；**
+5. **如何把这些几何结果组织成可调试、可恢复、可一键运行的任务。**
 
 因此，本阶段形成了：
 

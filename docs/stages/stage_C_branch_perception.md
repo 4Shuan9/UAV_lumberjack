@@ -240,7 +240,7 @@ V\ge30
 改进后在多个角度和不同光照下，目标识别明显更加稳定。
 
 <p align="center">
-  <img src="target_branch.png" width="85%">
+  <img src="/media/images/perception/target_branch.png" width="85%">
 </p>
 
 ---
@@ -323,7 +323,7 @@ c_y-f_y\frac{Z_C}{X_C}
 > 反过来，一个 LiDAR 点也知道自己应该落在图像哪里。
 
 <p align="center">
-  <img src="Lidar2Camera.png" width="85%">
+  <img src="/media/images/perception/Lidar2Camera.png" width="85%">
 </p>
 
 ### 5.3 利用 Mask 筛选目标三维点
@@ -369,7 +369,7 @@ LiDAR 3D 点
 ```
 
 <p align="center">
-  <img src="target_cloud_outliers.png" width="85%">
+  <img src="/media/images/perception/target_cloud_outliers.png" width="85%">
 </p>
 
 ### 5.4 深度聚类：去掉远处背景点
@@ -432,7 +432,7 @@ frame_id = base_link
 **不再只看“点”，而是从这些点里面算出枝条的方向、中心、长度和粗细。**
 
 <p align="center">
-  <img src="target_branch_marker.png" width="85%">
+  <img src="/media/images/perception/target_branch_marker.png" width="85%">
 </p>
 
 ### 6.1 PCA（Principal Component Analysis，主成分分析）提取主方向
