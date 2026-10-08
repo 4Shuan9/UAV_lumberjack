@@ -1,4 +1,4 @@
-# Stage D 之后的研究规划：从“最小切割闭环”到自主伐枝任务系统
+# Technical route
 
 > 当前 Stage D 已经完成了一个能够自动运行的最小闭环：  
 > **感知枝条 → 建立几何模型 → 计算切割姿态 → UAV–机械臂协同接近 → 完成切割 → 安全撤退。**
@@ -28,17 +28,6 @@
 \]
 
 最终形成一套面向复杂树冠和输电线路环境的 UAV–机械臂协同伐枝系统。
-
-可以把整个系统理解为四层：
-
-```text
-感知层
-→ 决策层
-→ 运动规划层
-→ 执行层
-```
-
-其中：
 
 - 感知层负责树枝、树叶、输电线和局部环境建模；
 - 决策层负责选枝、候选切割点和 CLEAR / CUT 判断；
@@ -123,11 +112,11 @@ G=(V,E)
 
 ```text
 枝梢
-↓
+    ↓
 沿枝条骨架向根部搜索
-↓
+    ↓
 经过多个分叉点
-↓
+    ↓
 生成候选切割位置
 ```
 
@@ -219,11 +208,13 @@ S\geq S_{\min}
 
 ---
 
-## 6. 各类框架的作用
+## 6. 待移植框架
 
 后续准备引入的框架不会替换现有系统，而是分别负责不同部分。
 
 ### 感知：Open3D / PCL
+> [Open3D: A Modern Library for 3D Data Processing](https://github.com/isl-org/Open3D)
+> [Point Cloud Library (PCL)](https://github.com/PointCloudLibrary/pcl)
 
 Open3D 可以优先用于：
 
@@ -238,6 +229,7 @@ DBSCAN
 PCL 后续可用于更复杂的 RANSAC、圆柱拟合、法向与几何分割等。
 
 ### 机械臂：MoveIt 2
+> [🤖 MoveIt for ROS 2](https://github.com/moveit/moveit2)
 
 MoveIt 2 主要用于：
 
