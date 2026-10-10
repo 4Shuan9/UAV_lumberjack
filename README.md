@@ -1,28 +1,20 @@
 # UAV_lumberjack
 
-## 结构
+<p align="center">
+  <img src="/media/images/perception/agriculture_world.png" width="100%">
+</p>
 
-```text
-UAV_lumberjack/
-├── docs/                         
-├── media/                        
-├── ros2_ws/src/
-│   ├── uav_lumberjack_control/
-│   ├── uav_lumberjack_interfaces/
-│   └── uav_lumberjack_perception/
-└── sim/                 
-```
+## System Requirements
 
-> 历史说明文档保留在 `docs/archive/legacy/`
-
-## 环境
-
-- Ubuntu 22.04
-- ROS2 Humble
-- PX4 1.16.2
-- Gazebo Harmonic / gz-sim 8
-- ros_gz_bridge
-- Micro-XRCE-DDS-Agent
+| **Component** | **Version** |
+| :--- | :--- |
+| Ubuntu | 22.04.5 LTS |
+| ROS 2 | Humble |
+| PX4 Autopilot | 1.16.2 |
+| px4_msgs & px4_ros_com | release/1.16 |
+| Micro-XRCE-DDS-Agent | 3.0.1 |
+| Gazebo Harmonic | 8.x |
+| ros_gz_bridge | gzharmonic |
 
 ## 构建
 
