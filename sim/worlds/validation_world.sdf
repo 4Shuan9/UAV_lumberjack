@@ -2,7 +2,7 @@
 
 <sdf version="1.9">
 
-  <world name="x500_lumberjack_world">
+  <world name="validation_world">
 
 
     <!-- ====================================================== -->

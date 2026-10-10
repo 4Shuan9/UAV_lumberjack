@@ -775,7 +775,7 @@ source /opt/ros/humble/setup.bash
 source ~/ws_ros2/install/setup.bash
 source install/setup.bash
 
-ros2 launch uav_lumberjack_control uav_lumberjack_sim.launch.py
+ros2 launch uav_lumberjack_control uav_lumberjack_validation.launch.py
 ```
 
 ---

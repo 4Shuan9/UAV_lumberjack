@@ -31,7 +31,7 @@ def launch_setup(context, *args, **kwargs):
     world_file = os.path.join(
         sim_root,
         'worlds',
-        'x500_lumberjack_world.sdf'
+        'validation_world.sdf'
     )
 
     model_path = os.path.join(
@@ -41,7 +41,7 @@ def launch_setup(context, *args, **kwargs):
 
     bridge_config = os.path.join(
         sim_root,
-        'bridge_gazebo_ros2.yaml'
+        'bridge_validation_ros2.yaml'
     )
 
     px4_binary = os.path.join(
