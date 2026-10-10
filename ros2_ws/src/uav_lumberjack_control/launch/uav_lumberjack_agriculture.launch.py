@@ -1,0 +1,400 @@
+import os
+
+from launch import LaunchDescription
+from launch.actions import (
+    DeclareLaunchArgument,
+    ExecuteProcess,
+    OpaqueFunction,
+    TimerAction,
+    RegisterEventHandler,
+)
+from launch.event_handlers import OnProcessExit
+from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
+
+
+def launch_setup(context, *args, **kwargs):
+    project_root = LaunchConfiguration('project_root').perform(context)
+    px4_root = LaunchConfiguration('px4_root').perform(context)
+    start_dds_agent = LaunchConfiguration('start_dds_agent').perform(context).lower() in ('1', 'true', 'yes', 'on')
+    dds_agent_port = LaunchConfiguration('dds_agent_port').perform(context)
+
+    # ============================================================
+    # Current Gazebo simulation paths
+    # ============================================================
+
+    sim_root = os.path.join(
+        project_root,
+        'sim',
+    )
+
+    world_file = os.path.join(
+        sim_root,
+        'worlds',
+        'agriculture_world.sdf'
+    )
+
+    model_path = os.path.join(
+        sim_root,
+        'models'
+    )
+
+    bridge_config = os.path.join(
+        sim_root,
+        'bridge_agriculture_ros2.yaml'
+    )
+
+    px4_binary = os.path.join(
+        px4_root,
+        'build',
+        'px4_sitl_default',
+        'bin',
+        'px4'
+    )
+
+    # ============================================================
+    # Gazebo resource path
+    # ============================================================
+
+    old_gz_path = os.environ.get('GZ_SIM_RESOURCE_PATH', '')
+
+    px4_model_path = os.path.join(
+        px4_root,
+        'Tools',
+        'simulation',
+        'gz',
+        'models'
+    )
+
+    agriculture_texture_path = os.path.join(
+        model_path,
+        'cpr_agriculture',
+        'materials',
+        'textures'
+    )
+
+    gz_resource_path = ':'.join([
+        model_path,
+        px4_model_path,
+        agriculture_texture_path,
+    ])
+
+    if old_gz_path:
+        gz_resource_path += ':' + old_gz_path
+
+    # ============================================================
+    # Cleanup old Gazebo / PX4 processes
+    #
+    # "[g]z sim" prevents pkill from matching this cleanup command
+    # itself.
+    # ============================================================
+
+    cleanup_cmd = (
+        'echo "[LAUNCH] Cleaning old Gazebo / PX4 processes..."; '
+        'pkill -f "[g]z sim" 2>/dev/null || true; '
+        'pkill -x px4 2>/dev/null || true; '
+    )
+    if start_dds_agent:
+        cleanup_cmd += 'pkill -x MicroXRCEAgent 2>/dev/null || true; '
+    cleanup_cmd += (
+        'sleep 0.5; '
+        'echo "[LAUNCH] Cleanup complete."'
+    )
+
+    cleanup = ExecuteProcess(
+        cmd=['bash', '-c', cleanup_cmd],
+        output='screen'
+    )
+
+    # ============================================================
+    # Gazebo
+    # ============================================================
+
+    gazebo = ExecuteProcess(
+        cmd=[
+            'gz',
+            'sim',
+            '-v',
+            '4',
+            '-r',
+            world_file
+        ],
+        cwd=sim_root,
+        additional_env={
+            'GZ_SIM_RESOURCE_PATH': gz_resource_path
+        },
+        output='screen'
+    )
+
+    # ============================================================
+    # ROS2 <-> Gazebo bridge
+    #
+    # Start 1 second after Gazebo starts
+    # ============================================================
+
+    bridge = TimerAction(
+        period=1.0,
+        actions=[
+            Node(
+                package='ros_gz_bridge',
+                executable='parameter_bridge',
+                parameters=[
+                    {
+                        'config_file': bridge_config
+                    }
+                ],
+                output='screen'
+            )
+        ]
+    )
+
+    # ============================================================
+    # Target branch contact monitor
+    # ============================================================
+
+    target_contact_monitor = TimerAction(
+        period=1.5,
+        actions=[
+            Node(
+                package='uav_lumberjack_control',
+                executable='target_contact_monitor',
+                output='screen'
+            )
+        ]
+    )
+
+    # ============================================================
+    # Automatic cutting controller
+    #
+    # Uses target-contact state + actual saw RPM.
+    # Publishes ROS /target_branch/detach after effective cutting.
+    # ============================================================
+
+    auto_cut_controller = TimerAction(
+        period=1.7,
+        actions=[
+            Node(
+                package='uav_lumberjack_control',
+                executable='auto_cut_controller',
+                output='screen'
+            )
+        ]
+    )
+
+    # ============================================================
+    # Camera static TF chain
+    #
+    # SDF:
+    # base_link -> camera_link:
+    #   xyz = [0.120, 0, -0.025]
+    #   rpy = [0, 0.436332, 0]   (25 deg pitch)
+    #
+    # The camera sensor "imager" has zero pose relative to
+    # camera_link, so the second transform is identity.
+    # ============================================================
+
+    tf_base_to_camera_link = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='tf_base_to_camera_link',
+        arguments=[
+            '--x', '0.120',
+            '--y', '0',
+            '--z', '-0.025',
+            '--roll', '0',
+            '--pitch', '0.436332',
+            '--yaw', '0',
+            '--frame-id', 'base_link',
+            '--child-frame-id', 'camera_link'
+        ],
+        output='screen'
+    )
+
+    tf_camera_link_to_sensor = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='tf_camera_link_to_sensor',
+        arguments=[
+            '--x', '0',
+            '--y', '0',
+            '--z', '0',
+            '--roll', '0',
+            '--pitch', '0',
+            '--yaw', '0',
+            '--frame-id', 'camera_link',
+            '--child-frame-id',
+            'x500_lumberjack/camera_link/imager'
+        ],
+        output='screen'
+    )
+
+    # ============================================================
+    # MID360 static TF chain
+    #
+    # base_link -> mid360_mount_link -> mid360_link -> lidar frame
+    # ============================================================
+
+    tf_base_to_mid360_mount = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='tf_base_to_mid360_mount',
+        arguments=[
+            '--x', '0.099',
+            '--y', '0',
+            '--z', '0.010',
+            '--roll', '0',
+            '--pitch', '0.349066',
+            '--yaw', '0',
+            '--frame-id', 'base_link',
+            '--child-frame-id', 'mid360_mount_link'
+        ],
+        output='screen'
+    )
+
+    tf_mid360_mount_to_link = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='tf_mid360_mount_to_link',
+        arguments=[
+            '--x', '0',
+            '--y', '0',
+            '--z', '0.033',
+            '--roll', '0',
+            '--pitch', '0',
+            '--yaw', '3.141593',
+            '--frame-id', 'mid360_mount_link',
+            '--child-frame-id', 'mid360_link'
+        ],
+        output='screen'
+    )
+
+    tf_mid360_link_to_sensor = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='tf_mid360_link_to_sensor',
+        arguments=[
+            '--x', '0',
+            '--y', '0',
+            '--z', '0',
+            '--roll', '0',
+            '--pitch', '0',
+            '--yaw', '0',
+            '--frame-id', 'mid360_link',
+            '--child-frame-id',
+            'x500_lumberjack/mid360_link/mid360_gpu_lidar'
+        ],
+        output='screen'
+    )
+
+    # ============================================================
+    # Micro XRCE-DDS Agent
+    #
+    # Enabled by default for SITL. Disable with:
+    #   start_dds_agent:=false
+    # when an external Agent is already running or when the launch
+    # is reused in a different DDS setup.
+    # ============================================================
+
+    dds_agent = ExecuteProcess(
+        cmd=[
+            'MicroXRCEAgent',
+            'udp4',
+            '-p',
+            dds_agent_port
+        ],
+        output='screen'
+    )
+
+    # ============================================================
+    # PX4 SITL
+    #
+    # Start 3 seconds after Gazebo starts
+    # ============================================================
+
+    px4 = TimerAction(
+        period=3.0,
+        actions=[
+            ExecuteProcess(
+                cmd=[
+                    px4_binary
+                ],
+                cwd=px4_root,
+                additional_env={
+                    'PX4_GZ_STANDALONE': '1',
+                    'PX4_SYS_AUTOSTART': '4001',
+                    'PX4_GZ_MODEL_NAME': 'x500_lumberjack',
+                    'GZ_SIM_RESOURCE_PATH': gz_resource_path
+                },
+                output='screen'
+            )
+        ]
+    )
+
+    # ============================================================
+    # Start simulation only AFTER cleanup exits
+    #
+    # Event handler must be registered before cleanup starts.
+    # ============================================================
+
+    post_cleanup_actions = [
+        gazebo,
+        bridge,
+        target_contact_monitor,
+        auto_cut_controller,
+
+        tf_base_to_camera_link,
+        tf_camera_link_to_sensor,
+
+        tf_base_to_mid360_mount,
+        tf_mid360_mount_to_link,
+        tf_mid360_link_to_sensor,
+    ]
+
+    if start_dds_agent:
+        post_cleanup_actions.append(dds_agent)
+
+    post_cleanup_actions.append(px4)
+
+    start_after_cleanup = RegisterEventHandler(
+        OnProcessExit(
+            target_action=cleanup,
+            on_exit=post_cleanup_actions
+        )
+    )
+
+    return [
+        start_after_cleanup,
+        cleanup
+    ]
+
+
+def generate_launch_description():
+    return LaunchDescription([
+        DeclareLaunchArgument(
+            'project_root',
+            default_value=os.path.expanduser('~/UAV_lumberjack'),
+            description='UAV_lumberjack project root'
+        ),
+
+        DeclareLaunchArgument(
+            'px4_root',
+            default_value=os.path.expanduser('~/PX4-Autopilot'),
+            description='PX4-Autopilot root'
+        ),
+
+        DeclareLaunchArgument(
+            'start_dds_agent',
+            default_value='true',
+            description='Start MicroXRCEAgent automatically for PX4 SITL'
+        ),
+
+        DeclareLaunchArgument(
+            'dds_agent_port',
+            default_value='8888',
+            description='Micro XRCE-DDS Agent UDP port'
+        ),
+
+        OpaqueFunction(
+            function=launch_setup
+        )
+    ])

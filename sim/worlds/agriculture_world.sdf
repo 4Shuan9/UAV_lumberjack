@@ -1,121 +1,132 @@
-<?xml version='1.0'?>
-<sdf version='1.6'>
-  <world name='default'>
-    <light name='sun' type='directional'>
-      <cast_shadows>1</cast_shadows>
-      <pose frame=''>0 0 10 0 -0 0</pose>
-      <diffuse>1 1 1 1</diffuse>
-      <specular>0.2 0.2 0.2 1</specular>
-      <attenuation>
-        <range>1000</range>
-        <constant>0.9</constant>
-        <linear>0.01</linear>
-        <quadratic>0.001</quadratic>
-      </attenuation>
-      <direction>-0.5 -0.5 -1</direction>
-    </light>
-    <physics name='default_physics' default='0' type='ode'>
-      <max_step_size>0.001</max_step_size>
-      <real_time_factor>1</real_time_factor>
-      <real_time_update_rate>1000</real_time_update_rate>
+<?xml version='1.0' encoding='utf-8'?>
+<sdf version="1.9">
+
+  <world name="agriculture_world">
+
+
+
+
+
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics" />
+
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands" />
+
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster" />
+
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+
+    <plugin filename="gz-sim-contact-system" name="gz::sim::systems::Contact" />
+
+    <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu" />
+
+    <plugin filename="gz-sim-magnetometer-system" name="gz::sim::systems::Magnetometer" />
+
+    <plugin filename="gz-sim-altimeter-system" name="gz::sim::systems::Altimeter" />
+
+    <plugin filename="gz-sim-navsat-system" name="gz::sim::systems::NavSat" />
+
+    <plugin filename="gz-sim-air-pressure-system" name="gz::sim::systems::AirPressure" />
+
+
+
+
+
+
+
+    <physics name="default_physics" type="ode">
+      <max_step_size>0.0025</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+      <real_time_update_rate>400</real_time_update_rate>
     </physics>
+
+    <gravity>0 0 -9.81</gravity>
+
+    <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
+
+    <atmosphere type="adiabatic" />
+
+
+
+
+
+
     <scene>
-      <ambient>1 1 1 1</ambient>
-      <background>1 1 1 1</background>
-      <shadows>1</shadows>
+      <grid>false</grid>
+      <ambient>0.4 0.4 0.4 1</ambient>
+      <background>0.7 0.7 0.7 1</background>
+      <shadows>true</shadows>
     </scene>
+
+
+
+
+
+
+    <light name="sun" type="directional">
+      <pose>0 0 500 0 0 0</pose>
+      <cast_shadows>true</cast_shadows>
+      <intensity>1</intensity>
+      <direction>0.001 0.625 -0.78</direction>
+      <diffuse>0.904 0.904 0.904 1</diffuse>
+      <specular>0.271 0.271 0.271 1</specular>
+    </light>
+
+
+
+
+
+
     <spherical_coordinates>
       <surface_model>EARTH_WGS84</surface_model>
-      <latitude_deg>0</latitude_deg>
-      <longitude_deg>0</longitude_deg>
+      <world_frame_orientation>ENU</world_frame_orientation>
+      <latitude_deg>24.623911</latitude_deg>
+      <longitude_deg>118.087898</longitude_deg>
       <elevation>0</elevation>
-      <heading_deg>0</heading_deg>
     </spherical_coordinates>
-    <state world_name='default'>
-      <sim_time>203 490000000</sim_time>
-      <real_time>168 470627290</real_time>
-      <wall_time>1596490486 155571625</wall_time>
-      <iterations>167975</iterations>
-      <model name='agriculture_geom'>
-        <pose frame=''>0 0 0 0 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='agriculture_world_link'>
-          <pose frame=''>0 0 0 0 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 0 0 -0 0</acceleration>
-          <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <light name='sun'>
-        <pose frame=''>0 0 10 0 -0 0</pose>
-      </light>
-    </state>
-    <gui fullscreen='0'>
-      <camera name='user_camera'>
-        <pose frame=''>218.674 28.4041 66.9437 0 0.275643 3.14159</pose>
-        <view_controller>orbit</view_controller>
-        <projection_type>perspective</projection_type>
-      </camera>
-    </gui>
-    <gravity>0 0 -9.8</gravity>
-    <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
-    <atmosphere type='adiabatic'/>
-    <audio>
-      <device>default</device>
-    </audio>
-    <wind/>
-    <model name='agriculture_geom'>
-      <link name='agriculture_world_link'>
-        <pose frame=''>0 0 0 0 -0 0</pose>
-        <inertial>
-          <pose frame=''>0 0 0 0 -0 0</pose>
-          <mass>1</mass>
-          <inertia>
-            <ixx>1</ixx>
-            <ixy>0</ixy>
-            <ixz>0</ixz>
-            <iyy>1</iyy>
-            <iyz>0</iyz>
-            <izz>1</izz>
-          </inertia>
-        </inertial>
-        <collision name='agriculture_world_link_collision'>
-          <pose frame=''>0 0 0 0 -0 0</pose>
-          <geometry>
-            <mesh>
-              <scale>1 1 1</scale>
-              <uri>model://cpr_agriculture/meshes/agriculture_world.dae</uri>
-            </mesh>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='agriculture_world_link_visual'>
-          <pose frame=''>0 0 0 0 -0 0</pose>
-          <geometry>
-            <mesh>
-              <scale>1 1 1</scale>
-              <uri>model://cpr_agriculture/meshes/agriculture_world.dae</uri>
-            </mesh>
-          </geometry>
-        </visual>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-      <static>1</static>
-      <pose frame=''>0 0 0 0 -0 0</pose>
-    </model>
+
+
+
+
+
+
+    <include>
+      <name>agriculture_geom</name>
+      <uri>model://cpr_agriculture</uri>
+      <pose>-37.5 -45 -1.431281 0 0 0</pose>
+    </include>
+
+
+
+
+
+
+    <include><name>helipad</name><uri>model://helipad</uri><pose>-37.5 15 -0.924796 0 0 1.57079632679</pose></include><include>
+      <name>x500_lumberjack</name>
+      <uri>model://x500_lumberjack</uri>
+      <pose>-37.5 15 0.197204 0 0 0</pose>
+    </include>
+
+
+
+
+
+
+
+    <include>
+      <name>target_branch</name>
+      <uri>model://target_branch</uri>
+      <pose>-0.305 0.060 2.950 0 1.08 2.961593</pose>
+    </include>
+
+    <include>
+      <name>test_tree</name>
+      <uri>model://test_tree</uri>
+      <pose>0 0 0 0 0 0</pose>
+    </include>
+
+
   </world>
+
 </sdf>
