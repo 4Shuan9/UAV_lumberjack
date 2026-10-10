@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<sdf version="1.8">
+    <model name="boulder_01">
+        <static>true</static>
+        <link name="link">
+            <collision name="collision">
+                <laser_retro>3</laser_retro>
+                <geometry>
+                    <mesh><uri>mesh/boulder_01_collision.glb</uri></mesh>
+                </geometry>
+            </collision>
+            <visual name="visual">
+                <laser_retro>3</laser_retro>
+                <geometry>
+                    <mesh><uri>mesh/boulder_01.glb</uri></mesh>
+                </geometry>
+            </visual>
+        </link>
+    </model>
+</sdf>

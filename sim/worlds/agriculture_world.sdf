@@ -127,6 +127,1299 @@
     </include>
 
 
-  </world>
+  
+
+    <!-- AGRICULTURE VEGETATION: 40 TREES + 10 BOULDERS -->
+<model name="vegetation_001_tree_island_tree_02">
+  <pose>-32.400 25.669 -0.959527 0 0 2.002032</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.260456 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.193916</radius>
+          <length>2.520912</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
+          <scale>0.969582 0.969582 0.969582</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_002_tree_island_tree_01">
+  <pose>29.374 -26.598 -2.719041 0 0 2.854982</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.889185 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.245083</radius>
+          <length>3.778370</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
+          <scale>1.021181 1.021181 1.021181</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_003_tree_tree_small_02">
+  <pose>-27.317 26.086 -0.798830 0 0 1.130212</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.770164 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.193109</radius>
+          <length>3.540327</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://tree_small_02_lite/mesh/tree_small_02_lite.glb</uri>
+          <scale>1.072826 1.072826 1.072826</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_004_tree_island_tree_02">
+  <pose>-28.198 20.632 -0.724246 0 0 4.259812</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.496146 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.230176</radius>
+          <length>2.992293</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
+          <scale>1.150882 1.150882 1.150882</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_005_tree_island_tree_02">
+  <pose>-22.902 23.177 -0.595014 0 0 1.758410</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.452755 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.223501</radius>
+          <length>2.905510</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
+          <scale>1.117504 1.117504 1.117504</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_006_tree_island_tree_02">
+  <pose>-36.457 24.423 -1.051018 0 0 4.645597</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.358385 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.208982</radius>
+          <length>2.716770</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
+          <scale>1.044911 1.044911 1.044911</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_007_tree_island_tree_01">
+  <pose>-61.490 36.243 -1.907198 0 0 4.503382</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.785992 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.231696</radius>
+          <length>3.571985</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
+          <scale>0.965401 0.965401 0.965401</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_008_tree_island_tree_02">
+  <pose>-60.607 40.671 -1.991314 0 0 2.117822</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.479838 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.227667</radius>
+          <length>2.959677</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
+          <scale>1.138337 1.138337 1.138337</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_009_tree_island_tree_01">
+  <pose>-58.091 33.285 -1.794557 0 0 3.845182</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.915964 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.248557</radius>
+          <length>3.831927</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
+          <scale>1.035656 1.035656 1.035656</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_010_tree_island_tree_02">
+  <pose>-61.536 31.664 -1.838807 0 0 4.625854</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.421406 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.218678</radius>
+          <length>2.842813</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
+          <scale>1.093389 1.093389 1.093389</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_011_tree_island_tree_01">
+  <pose>-53.009 33.015 -1.668139 0 0 4.825059</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.974505 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.256152</radius>
+          <length>3.949011</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
+          <scale>1.067300 1.067300 1.067300</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_012_tree_island_tree_01">
+  <pose>-55.664 29.603 -1.643242 0 0 3.918872</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.933763 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.250867</radius>
+          <length>3.867525</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
+          <scale>1.045277 1.045277 1.045277</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_013_tree_island_tree_02">
+  <pose>29.491 3.113 -1.691432 0 0 1.998148</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.476420 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.227142</radius>
+          <length>2.952840</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
+          <scale>1.135708 1.135708 1.135708</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_014_tree_tree_small_02">
+  <pose>-54.577 2.743 -1.442784 0 0 5.020048</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.817386 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.198260</radius>
+          <length>3.634773</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://tree_small_02_lite/mesh/tree_small_02_lite.glb</uri>
+          <scale>1.101446 1.101446 1.101446</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_015_tree_island_tree_02">
+  <pose>10.496 11.430 0.026276 0 0 5.466181</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.410065 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.216933</radius>
+          <length>2.820130</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
+          <scale>1.084665 1.084665 1.084665</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_016_tree_island_tree_02">
+  <pose>-32.269 45.004 -1.999104 0 0 2.019908</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.309838 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.201514</radius>
+          <length>2.619676</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
+          <scale>1.007568 1.007568 1.007568</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_017_tree_island_tree_02">
+  <pose>26.175 42.728 -2.251811 0 0 5.598008</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.400537 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.215467</radius>
+          <length>2.801075</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
+          <scale>1.077336 1.077336 1.077336</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_018_tree_island_tree_02">
+  <pose>-52.563 -0.696 -1.445495 0 0 3.719679</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.503751 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.231346</radius>
+          <length>3.007502</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
+          <scale>1.156732 1.156732 1.156732</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_019_tree_island_tree_02">
+  <pose>-9.568 -7.006 -0.588427 0 0 5.614572</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.271408 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.195601</radius>
+          <length>2.542816</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
+          <scale>0.978006 0.978006 0.978006</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_020_tree_island_tree_02">
+  <pose>1.037 35.728 -0.789071 0 0 5.677640</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.425998 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.219384</radius>
+          <length>2.851996</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
+          <scale>1.096922 1.096922 1.096922</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_021_tree_island_tree_01">
+  <pose>-13.177 -5.334 -0.702583 0 0 2.328703</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.996583 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.259016</radius>
+          <length>3.993166</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
+          <scale>1.079234 1.079234 1.079234</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_022_tree_island_tree_01">
+  <pose>-14.730 -13.934 -1.111781 0 0 0.582480</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.755829 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.227783</radius>
+          <length>3.511659</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
+          <scale>0.949097 0.949097 0.949097</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_023_tree_island_tree_01">
+  <pose>-17.972 -6.349 -0.919525 0 0 2.374673</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.893666 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.245665</radius>
+          <length>3.787332</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
+          <scale>1.023603 1.023603 1.023603</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_024_tree_island_tree_01">
+  <pose>24.104 -11.856 -1.743909 0 0 3.258538</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.669592 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.216596</radius>
+          <length>3.339183</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
+          <scale>0.902482 0.902482 0.902482</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_025_tree_island_tree_01">
+  <pose>-3.418 -12.800 -0.514900 0 0 3.493519</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.873768 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.243083</radius>
+          <length>3.747535</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
+          <scale>1.012847 1.012847 1.012847</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_026_tree_tree_small_02">
+  <pose>-6.459 -20.356 -0.858805 0 0 3.153742</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.666820 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.181835</radius>
+          <length>3.333639</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://tree_small_02_lite/mesh/tree_small_02_lite.glb</uri>
+          <scale>1.010194 1.010194 1.010194</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_027_tree_island_tree_01">
+  <pose>1.782 -18.637 -0.648380 0 0 5.911112</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.760874 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.228438</radius>
+          <length>3.521747</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
+          <scale>0.951824 0.951824 0.951824</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_028_tree_tree_small_02">
+  <pose>-9.461 -15.819 -0.905916 0 0 3.107993</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.677580 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.183009</radius>
+          <length>3.355159</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://tree_small_02_lite/mesh/tree_small_02_lite.glb</uri>
+          <scale>1.016715 1.016715 1.016715</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_029_tree_island_tree_02">
+  <pose>-11.488 -21.519 -1.068836 0 0 4.764832</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.314444 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.202222</radius>
+          <length>2.628887</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
+          <scale>1.011111 1.011111 1.011111</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_030_tree_island_tree_02">
+  <pose>-1.682 -19.429 -0.693282 0 0 3.904776</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.479110 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.227555</radius>
+          <length>2.958221</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
+          <scale>1.137777 1.137777 1.137777</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_031_tree_island_tree_02">
+  <pose>0.122 -28.806 -0.867483 0 0 5.604571</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.335946 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.205530</radius>
+          <length>2.671891</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
+          <scale>1.027651 1.027651 1.027651</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_032_tree_island_tree_02">
+  <pose>6.043 -9.985 -0.291730 0 0 4.196896</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.439395 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.221445</radius>
+          <length>2.878790</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
+          <scale>1.107227 1.107227 1.107227</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_033_tree_island_tree_01">
+  <pose>21.762 35.458 -1.412088 0 0 3.949117</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.836832 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.238292</radius>
+          <length>3.673663</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
+          <scale>0.992882 0.992882 0.992882</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_034_tree_island_tree_02">
+  <pose>24.198 30.361 -1.245449 0 0 3.083303</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.420864 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.218594</radius>
+          <length>2.841728</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
+          <scale>1.092972 1.092972 1.092972</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_035_tree_island_tree_01">
+  <pose>-7.492 21.682 -0.122346 0 0 3.426603</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.942256 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.251968</radius>
+          <length>3.884512</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
+          <scale>1.049868 1.049868 1.049868</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_036_tree_island_tree_01">
+  <pose>12.781 42.000 -1.739591 0 0 5.885939</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.757542 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.228005</radius>
+          <length>3.515083</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
+          <scale>0.950023 0.950023 0.950023</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_037_tree_island_tree_02">
+  <pose>-14.576 23.531 -0.305853 0 0 6.128354</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.312876 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.201981</radius>
+          <length>2.625753</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
+          <scale>1.009905 1.009905 1.009905</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_038_tree_island_tree_01">
+  <pose>-12.855 42.000 -1.218031 0 0 0.478727</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.742269 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.226024</radius>
+          <length>3.484538</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
+          <scale>0.941767 0.941767 0.941767</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_039_tree_island_tree_02">
+  <pose>-57.606 -11.889 -1.713355 0 0 2.332206</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.261680 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.194105</radius>
+          <length>2.523361</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
+          <scale>0.970523 0.970523 0.970523</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_040_tree_island_tree_01">
+  <pose>18.453 31.709 -1.052099 0 0 4.789653</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="trunk_collision_simple">
+      <pose>0 0 1.864063 0 0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>0.241824</radius>
+          <length>3.728126</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>1</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
+          <scale>1.007602 1.007602 1.007602</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_041_rock_boulder_01">
+  <pose>8.872 43.991 -1.823885 0 0 5.620689</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="rock_collision_simple">
+      <pose>0 0 1.097570 0 0 0</pose>
+      <geometry>
+        <box>
+          <size>2.783865 4.005089 2.195139</size>
+        </box>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>3</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://boulder_01/mesh/boulder_01.glb</uri>
+          <scale>2.188573 2.188573 2.188573</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_042_rock_boulder_01">
+  <pose>-31.465 34.071 -1.304894 0 0 2.873849</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="rock_collision_simple">
+      <pose>0 0 1.076299 0 0 0</pose>
+      <geometry>
+        <box>
+          <size>2.729915 3.927472 2.152598</size>
+        </box>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>3</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://boulder_01/mesh/boulder_01.glb</uri>
+          <scale>2.146160 2.146160 2.146160</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_043_rock_boulder_01">
+  <pose>-55.140 39.069 -1.867612 0 0 2.210682</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="rock_collision_simple">
+      <pose>0 0 0.860453 0 0 0</pose>
+      <geometry>
+        <box>
+          <size>2.182446 3.139839 1.720907</size>
+        </box>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>3</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://boulder_01/mesh/boulder_01.glb</uri>
+          <scale>1.715759 1.715759 1.715759</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_044_rock_boulder_01">
+  <pose>-52.086 17.706 -1.326816 0 0 2.134232</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="rock_collision_simple">
+      <pose>0 0 1.140579 0 0 0</pose>
+      <geometry>
+        <box>
+          <size>2.892953 4.162032 2.281157</size>
+        </box>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>3</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://boulder_01/mesh/boulder_01.glb</uri>
+          <scale>2.274334 2.274334 2.274334</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_045_rock_boulder_01">
+  <pose>13.795 -9.895 -0.719801 0 0 0.065278</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="rock_collision_simple">
+      <pose>0 0 0.799562 0 0 0</pose>
+      <geometry>
+        <box>
+          <size>2.028002 2.917644 1.599124</size>
+        </box>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>3</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://boulder_01/mesh/boulder_01.glb</uri>
+          <scale>1.594341 1.594341 1.594341</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_046_rock_boulder_01">
+  <pose>29.456 26.801 -1.379380 0 0 5.313246</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="rock_collision_simple">
+      <pose>0 0 1.106395 0 0 0</pose>
+      <geometry>
+        <box>
+          <size>2.806250 4.037294 2.212790</size>
+        </box>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>3</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://boulder_01/mesh/boulder_01.glb</uri>
+          <scale>2.206171 2.206171 2.206171</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_047_rock_boulder_01">
+  <pose>-36.669 41.999 -1.913560 0 0 5.735907</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="rock_collision_simple">
+      <pose>0 0 1.146541 0 0 0</pose>
+      <geometry>
+        <box>
+          <size>2.908077 4.183790 2.293083</size>
+        </box>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>3</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://boulder_01/mesh/boulder_01.glb</uri>
+          <scale>2.286224 2.286224 2.286224</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_048_rock_boulder_01">
+  <pose>22.122 -24.102 -1.989607 0 0 3.652654</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="rock_collision_simple">
+      <pose>0 0 1.047587 0 0 0</pose>
+      <geometry>
+        <box>
+          <size>2.657091 3.822702 2.095175</size>
+        </box>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>3</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://boulder_01/mesh/boulder_01.glb</uri>
+          <scale>2.088908 2.088908 2.088908</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_049_rock_boulder_01">
+  <pose>23.632 -0.705 -1.231807 0 0 4.366627</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="rock_collision_simple">
+      <pose>0 0 1.142363 0 0 0</pose>
+      <geometry>
+        <box>
+          <size>2.897479 4.168543 2.284726</size>
+        </box>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>3</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://boulder_01/mesh/boulder_01.glb</uri>
+          <scale>2.277892 2.277892 2.277892</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+<model name="vegetation_050_rock_boulder_01">
+  <pose>-8.433 33.392 -0.617097 0 0 4.398213</pose>
+  <static>true</static>
+  <link name="link">
+    <collision name="rock_collision_simple">
+      <pose>0 0 1.000668 0 0 0</pose>
+      <geometry>
+        <box>
+          <size>2.538085 3.651491 2.001336</size>
+        </box>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <laser_retro>3</laser_retro>
+      <geometry>
+        <mesh>
+          <uri>model://boulder_01/mesh/boulder_01.glb</uri>
+          <scale>1.995350 1.995350 1.995350</scale>
+        </mesh>
+      </geometry>
+    </visual>
+  </link>
+</model>
+
+
+</world>
 
 </sdf>
