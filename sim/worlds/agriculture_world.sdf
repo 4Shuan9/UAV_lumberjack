@@ -73,22 +73,22 @@
       <model name="vegetation_001_tree_island_tree_01">
         <pose>29.374 -26.598 -2.719041 0 0 2.854982</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.889185 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.245083</radius>
-                <length>3.778370</length>
+                <radius>0.22430</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_001_tree_island_tree_01_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
-                <scale>1.021181 1.021181 1.021181</scale>
+                <uri>model://lemon_tree_03/meshes/lemon_tree_03.glb</uri>
+                <scale>1.431303408 1.431303408 1.431303408</scale>
               </mesh>
             </geometry>
           </visual>
@@ -97,22 +97,22 @@
       <model name="vegetation_002_tree_tree_small_02">
         <pose>-27.317 26.086 -0.798830 0 0 1.130212</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.770164 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.193109</radius>
-                <length>3.540327</length>
+                <radius>0.20717</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_002_tree_tree_small_02_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://tree_small_02_lite/mesh/tree_small_02_lite.glb</uri>
-                <scale>1.072826 1.072826 1.072826</scale>
+                <uri>model://lemon_tree_03/meshes/lemon_tree_03.glb</uri>
+                <scale>1.322005144 1.322005144 1.322005144</scale>
               </mesh>
             </geometry>
           </visual>
@@ -121,46 +121,88 @@
       <model name="vegetation_003_tree_island_tree_02">
         <pose>-28.198 20.632 -0.724246 0 0 4.259812</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.496146 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.230176</radius>
-                <length>2.992293</length>
+                <radius>0.23921</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_003_tree_island_tree_02_visual_01">
+            <pose>0.000000000 0.000000000 0.045273043 0.000000000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
-                <scale>1.150882 1.150882 1.150882</scale>
+                <uri>model://oak_tree/meshes/oak_tree.dae</uri>
+                <submesh>
+                  <name>Branch</name>
+                </submesh>
+                <scale>0.644111656 0.644111656 0.644111656</scale>
               </mesh>
             </geometry>
+            <material>
+              <double_sided>true</double_sided>
+              <diffuse>1.0 1.0 1.0</diffuse>
+              <script>
+                <uri>model://oak_tree/materials/scripts/</uri>
+                <uri>model://oak_tree/materials/textures/</uri>
+                <name>OakTree/Branch</name>
+              </script>
+              <pbr>
+                <metal>
+                  <albedo_map>model://oak_tree/materials/textures/branch_diffuse.png</albedo_map>
+                </metal>
+              </pbr>
+            </material>
+          </visual>
+          <visual name="vegetation_003_tree_island_tree_02_visual_02">
+            <pose>0.000000000 0.000000000 0.045273043 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://oak_tree/meshes/oak_tree.dae</uri>
+                <submesh>
+                  <name>Bark</name>
+                </submesh>
+                <scale>0.644111656 0.644111656 0.644111656</scale>
+              </mesh>
+            </geometry>
+            <material>
+              <diffuse>1.0 1.0 1.0</diffuse>
+              <script>
+                <uri>model://oak_tree/materials/scripts/</uri>
+                <uri>model://oak_tree/materials/textures/</uri>
+                <name>OakTree/Bark</name>
+              </script>
+              <pbr>
+                <metal>
+                  <albedo_map>model://oak_tree/materials/textures/bark_diffuse.png</albedo_map>
+                </metal>
+              </pbr>
+            </material>
           </visual>
         </link>
       </model>
       <model name="vegetation_004_tree_island_tree_02">
         <pose>-22.902 23.177 -0.595014 0 0 1.758410</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.452755 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.25074 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.223501</radius>
-                <length>2.905510</length>
+                <radius>0.16724</radius>
+                <length>2.50148</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_004_tree_island_tree_02_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
-                <scale>1.117504 1.117504 1.117504</scale>
+                <uri>model://lemon_tree_04/meshes/lemon_tree_04.glb</uri>
+                <scale>1.207126681 1.207126681 1.207126681</scale>
               </mesh>
             </geometry>
           </visual>
@@ -169,22 +211,22 @@
       <model name="vegetation_005_tree_island_tree_02">
         <pose>-36.457 24.423 -1.051018 0 0 4.645597</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.358385 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.208982</radius>
-                <length>2.716770</length>
+                <radius>0.18469</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_005_tree_island_tree_02_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
-                <scale>1.044911 1.044911 1.044911</scale>
+                <uri>model://lemon_tree_04/meshes/lemon_tree_04.glb</uri>
+                <scale>1.333085348 1.333085348 1.333085348</scale>
               </mesh>
             </geometry>
           </visual>
@@ -193,22 +235,22 @@
       <model name="vegetation_006_tree_island_tree_01">
         <pose>-61.490 36.243 -1.907198 0 0 4.503382</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.785992 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.231696</radius>
-                <length>3.571985</length>
+                <radius>0.14277</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_006_tree_island_tree_01_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 1.570796327 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
-                <scale>0.965401 0.965401 0.965401</scale>
+                <uri>model://maple_tree/meshes/maple_tree.glb</uri>
+                <scale>0.982835184 0.982835184 0.982835184</scale>
               </mesh>
             </geometry>
           </visual>
@@ -217,46 +259,88 @@
       <model name="vegetation_007_tree_island_tree_02">
         <pose>-60.607 40.671 -1.991314 0 0 2.117822</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.479838 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.27451 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.227667</radius>
-                <length>2.959677</length>
+                <radius>0.22072</radius>
+                <length>2.54901</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_007_tree_island_tree_02_visual_01">
+            <pose>0.000000000 0.000000000 0.041774349 0.000000000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
-                <scale>1.138337 1.138337 1.138337</scale>
+                <uri>model://oak_tree/meshes/oak_tree.dae</uri>
+                <submesh>
+                  <name>Branch</name>
+                </submesh>
+                <scale>0.594334796 0.594334796 0.594334796</scale>
               </mesh>
             </geometry>
+            <material>
+              <double_sided>true</double_sided>
+              <diffuse>1.0 1.0 1.0</diffuse>
+              <script>
+                <uri>model://oak_tree/materials/scripts/</uri>
+                <uri>model://oak_tree/materials/textures/</uri>
+                <name>OakTree/Branch</name>
+              </script>
+              <pbr>
+                <metal>
+                  <albedo_map>model://oak_tree/materials/textures/branch_diffuse.png</albedo_map>
+                </metal>
+              </pbr>
+            </material>
+          </visual>
+          <visual name="vegetation_007_tree_island_tree_02_visual_02">
+            <pose>0.000000000 0.000000000 0.041774349 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://oak_tree/meshes/oak_tree.dae</uri>
+                <submesh>
+                  <name>Bark</name>
+                </submesh>
+                <scale>0.594334796 0.594334796 0.594334796</scale>
+              </mesh>
+            </geometry>
+            <material>
+              <diffuse>1.0 1.0 1.0</diffuse>
+              <script>
+                <uri>model://oak_tree/materials/scripts/</uri>
+                <uri>model://oak_tree/materials/textures/</uri>
+                <name>OakTree/Bark</name>
+              </script>
+              <pbr>
+                <metal>
+                  <albedo_map>model://oak_tree/materials/textures/bark_diffuse.png</albedo_map>
+                </metal>
+              </pbr>
+            </material>
           </visual>
         </link>
       </model>
       <model name="vegetation_008_tree_island_tree_01">
         <pose>-58.091 33.285 -1.794557 0 0 3.845182</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.915964 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.248557</radius>
-                <length>3.831927</length>
+                <radius>0.19117</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_008_tree_island_tree_01_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
-                <scale>1.035656 1.035656 1.035656</scale>
+                <uri>model://lemon_tree_04/meshes/lemon_tree_04.glb</uri>
+                <scale>1.379845690 1.379845690 1.379845690</scale>
               </mesh>
             </geometry>
           </visual>
@@ -265,46 +349,88 @@
       <model name="vegetation_009_tree_island_tree_01">
         <pose>-53.009 33.015 -1.668139 0 0 4.825059</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.974505 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.256152</radius>
-                <length>3.949011</length>
+                <radius>0.26330</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_009_tree_island_tree_01_visual_01">
+            <pose>0.000000000 0.000000000 0.049832743 0.000000000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
-                <scale>1.067300 1.067300 1.067300</scale>
+                <uri>model://oak_tree/meshes/oak_tree.dae</uri>
+                <submesh>
+                  <name>Branch</name>
+                </submesh>
+                <scale>0.708983724 0.708983724 0.708983724</scale>
               </mesh>
             </geometry>
+            <material>
+              <double_sided>true</double_sided>
+              <diffuse>1.0 1.0 1.0</diffuse>
+              <script>
+                <uri>model://oak_tree/materials/scripts/</uri>
+                <uri>model://oak_tree/materials/textures/</uri>
+                <name>OakTree/Branch</name>
+              </script>
+              <pbr>
+                <metal>
+                  <albedo_map>model://oak_tree/materials/textures/branch_diffuse.png</albedo_map>
+                </metal>
+              </pbr>
+            </material>
+          </visual>
+          <visual name="vegetation_009_tree_island_tree_01_visual_02">
+            <pose>0.000000000 0.000000000 0.049832743 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://oak_tree/meshes/oak_tree.dae</uri>
+                <submesh>
+                  <name>Bark</name>
+                </submesh>
+                <scale>0.708983724 0.708983724 0.708983724</scale>
+              </mesh>
+            </geometry>
+            <material>
+              <diffuse>1.0 1.0 1.0</diffuse>
+              <script>
+                <uri>model://oak_tree/materials/scripts/</uri>
+                <uri>model://oak_tree/materials/textures/</uri>
+                <name>OakTree/Bark</name>
+              </script>
+              <pbr>
+                <metal>
+                  <albedo_map>model://oak_tree/materials/textures/bark_diffuse.png</albedo_map>
+                </metal>
+              </pbr>
+            </material>
           </visual>
         </link>
       </model>
       <model name="vegetation_010_tree_island_tree_01">
         <pose>-55.664 29.603 -1.643242 0 0 3.918872</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.933763 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.250867</radius>
-                <length>3.867525</length>
+                <radius>0.18361</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_010_tree_island_tree_01_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
-                <scale>1.045277 1.045277 1.045277</scale>
+                <uri>model://lemon_tree_04/meshes/lemon_tree_04.glb</uri>
+                <scale>1.325288955 1.325288955 1.325288955</scale>
               </mesh>
             </geometry>
           </visual>
@@ -313,22 +439,22 @@
       <model name="vegetation_011_tree_island_tree_02">
         <pose>29.491 3.113 -1.691432 0 0 1.998148</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.476420 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.227142</radius>
-                <length>2.952840</length>
+                <radius>0.15682</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_011_tree_island_tree_02_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 1.570796327 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
-                <scale>1.135708 1.135708 1.135708</scale>
+                <uri>model://maple_tree/meshes/maple_tree.glb</uri>
+                <scale>1.079537538 1.079537538 1.079537538</scale>
               </mesh>
             </geometry>
           </visual>
@@ -337,46 +463,88 @@
       <model name="vegetation_012_tree_tree_small_02">
         <pose>-54.577 2.743 -1.442784 0 0 5.020048</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.817386 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.198260</radius>
-                <length>3.634773</length>
+                <radius>0.25774</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_012_tree_tree_small_02_visual_01">
+            <pose>0.000000000 0.000000000 0.048780564 0.000000000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://tree_small_02_lite/mesh/tree_small_02_lite.glb</uri>
-                <scale>1.101446 1.101446 1.101446</scale>
+                <uri>model://oak_tree/meshes/oak_tree.dae</uri>
+                <submesh>
+                  <name>Branch</name>
+                </submesh>
+                <scale>0.694014095 0.694014095 0.694014095</scale>
               </mesh>
             </geometry>
+            <material>
+              <double_sided>true</double_sided>
+              <diffuse>1.0 1.0 1.0</diffuse>
+              <script>
+                <uri>model://oak_tree/materials/scripts/</uri>
+                <uri>model://oak_tree/materials/textures/</uri>
+                <name>OakTree/Branch</name>
+              </script>
+              <pbr>
+                <metal>
+                  <albedo_map>model://oak_tree/materials/textures/branch_diffuse.png</albedo_map>
+                </metal>
+              </pbr>
+            </material>
+          </visual>
+          <visual name="vegetation_012_tree_tree_small_02_visual_02">
+            <pose>0.000000000 0.000000000 0.048780564 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://oak_tree/meshes/oak_tree.dae</uri>
+                <submesh>
+                  <name>Bark</name>
+                </submesh>
+                <scale>0.694014095 0.694014095 0.694014095</scale>
+              </mesh>
+            </geometry>
+            <material>
+              <diffuse>1.0 1.0 1.0</diffuse>
+              <script>
+                <uri>model://oak_tree/materials/scripts/</uri>
+                <uri>model://oak_tree/materials/textures/</uri>
+                <name>OakTree/Bark</name>
+              </script>
+              <pbr>
+                <metal>
+                  <albedo_map>model://oak_tree/materials/textures/bark_diffuse.png</albedo_map>
+                </metal>
+              </pbr>
+            </material>
           </visual>
         </link>
       </model>
       <model name="vegetation_013_tree_island_tree_02">
         <pose>10.496 11.430 0.026276 0 0 5.466181</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.410065 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.216933</radius>
-                <length>2.820130</length>
+                <radius>0.14628</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_013_tree_island_tree_02_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 1.570796327 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
-                <scale>1.084665 1.084665 1.084665</scale>
+                <uri>model://maple_tree/meshes/maple_tree.glb</uri>
+                <scale>1.006978259 1.006978259 1.006978259</scale>
               </mesh>
             </geometry>
           </visual>
@@ -385,22 +553,22 @@
       <model name="vegetation_014_tree_island_tree_02">
         <pose>-32.269 45.004 -1.999104 0 0 2.019908</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.309838 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.201514</radius>
-                <length>2.619676</length>
+                <radius>0.10949</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_014_tree_island_tree_02_visual_01">
+            <pose>0.000000000 0.000000000 -0.691595764 1.570796000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
-                <scale>1.007568 1.007568 1.007568</scale>
+                <uri>model://tree_v1_001/meshes/tree_v1_001.glb</uri>
+                <scale>0.327449915 0.327449915 0.327449915</scale>
               </mesh>
             </geometry>
           </visual>
@@ -409,22 +577,22 @@
       <model name="vegetation_015_tree_island_tree_02">
         <pose>26.175 42.728 -2.251811 0 0 5.598008</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.400537 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.24038 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.215467</radius>
-                <length>2.801075</length>
+                <radius>0.16586</radius>
+                <length>2.48076</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_015_tree_island_tree_02_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
-                <scale>1.077336 1.077336 1.077336</scale>
+                <uri>model://lemon_tree_04/meshes/lemon_tree_04.glb</uri>
+                <scale>1.197129416 1.197129416 1.197129416</scale>
               </mesh>
             </geometry>
           </visual>
@@ -433,22 +601,22 @@
       <model name="vegetation_016_tree_island_tree_02">
         <pose>-52.563 -0.696 -1.445495 0 0 3.719679</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.503751 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.231346</radius>
-                <length>3.007502</length>
+                <radius>0.15485</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_016_tree_island_tree_02_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 1.570796327 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
-                <scale>1.156732 1.156732 1.156732</scale>
+                <uri>model://maple_tree/meshes/maple_tree.glb</uri>
+                <scale>1.065956827 1.065956827 1.065956827</scale>
               </mesh>
             </geometry>
           </visual>
@@ -457,22 +625,22 @@
       <model name="vegetation_017_tree_island_tree_02">
         <pose>-9.568 -7.006 -0.588427 0 0 5.614572</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.271408 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.195601</radius>
-                <length>2.542816</length>
+                <radius>0.14053</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_017_tree_island_tree_02_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 1.570796327 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
-                <scale>0.978006 0.978006 0.978006</scale>
+                <uri>model://maple_tree/meshes/maple_tree.glb</uri>
+                <scale>0.967392112 0.967392112 0.967392112</scale>
               </mesh>
             </geometry>
           </visual>
@@ -481,22 +649,22 @@
       <model name="vegetation_018_tree_island_tree_02">
         <pose>1.037 35.728 -0.789071 0 0 5.677640</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.425998 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.219384</radius>
-                <length>2.851996</length>
+                <radius>0.10340</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_018_tree_island_tree_02_visual_01">
+            <pose>0.000000000 0.000000000 -0.653126873 1.570796000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
-                <scale>1.096922 1.096922 1.096922</scale>
+                <uri>model://tree_v1_001/meshes/tree_v1_001.glb</uri>
+                <scale>0.309236046 0.309236046 0.309236046</scale>
               </mesh>
             </geometry>
           </visual>
@@ -505,22 +673,22 @@
       <model name="vegetation_019_tree_island_tree_01">
         <pose>-14.730 -13.934 -1.111781 0 0 0.582480</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.755829 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.227783</radius>
-                <length>3.511659</length>
+                <radius>0.16609</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_019_tree_island_tree_01_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 1.570796327 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
-                <scale>0.949097 0.949097 0.949097</scale>
+                <uri>model://maple_tree/meshes/maple_tree.glb</uri>
+                <scale>1.143361718 1.143361718 1.143361718</scale>
               </mesh>
             </geometry>
           </visual>
@@ -529,46 +697,88 @@
       <model name="vegetation_020_tree_island_tree_01">
         <pose>-17.972 -6.349 -0.919525 0 0 2.374673</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.893666 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.245665</radius>
-                <length>3.787332</length>
+                <radius>0.22910</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_020_tree_island_tree_01_visual_01">
+            <pose>0.000000000 0.000000000 0.043360169 0.000000000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
-                <scale>1.023603 1.023603 1.023603</scale>
+                <uri>model://oak_tree/meshes/oak_tree.dae</uri>
+                <submesh>
+                  <name>Branch</name>
+                </submesh>
+                <scale>0.616896692 0.616896692 0.616896692</scale>
               </mesh>
             </geometry>
+            <material>
+              <double_sided>true</double_sided>
+              <diffuse>1.0 1.0 1.0</diffuse>
+              <script>
+                <uri>model://oak_tree/materials/scripts/</uri>
+                <uri>model://oak_tree/materials/textures/</uri>
+                <name>OakTree/Branch</name>
+              </script>
+              <pbr>
+                <metal>
+                  <albedo_map>model://oak_tree/materials/textures/branch_diffuse.png</albedo_map>
+                </metal>
+              </pbr>
+            </material>
+          </visual>
+          <visual name="vegetation_020_tree_island_tree_01_visual_02">
+            <pose>0.000000000 0.000000000 0.043360169 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://oak_tree/meshes/oak_tree.dae</uri>
+                <submesh>
+                  <name>Bark</name>
+                </submesh>
+                <scale>0.616896692 0.616896692 0.616896692</scale>
+              </mesh>
+            </geometry>
+            <material>
+              <diffuse>1.0 1.0 1.0</diffuse>
+              <script>
+                <uri>model://oak_tree/materials/scripts/</uri>
+                <uri>model://oak_tree/materials/textures/</uri>
+                <name>OakTree/Bark</name>
+              </script>
+              <pbr>
+                <metal>
+                  <albedo_map>model://oak_tree/materials/textures/bark_diffuse.png</albedo_map>
+                </metal>
+              </pbr>
+            </material>
           </visual>
         </link>
       </model>
       <model name="vegetation_021_tree_island_tree_01">
         <pose>24.104 -11.856 -1.743909 0 0 3.258538</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.669592 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.216596</radius>
-                <length>3.339183</length>
+                <radius>0.10592</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_021_tree_island_tree_01_visual_01">
+            <pose>0.000000000 0.000000000 -0.669056743 1.570796000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
-                <scale>0.902482 0.902482 0.902482</scale>
+                <uri>model://tree_v1_001/meshes/tree_v1_001.glb</uri>
+                <scale>0.316778363 0.316778363 0.316778363</scale>
               </mesh>
             </geometry>
           </visual>
@@ -577,22 +787,22 @@
       <model name="vegetation_022_tree_island_tree_01">
         <pose>-3.418 -12.800 -0.514900 0 0 3.493519</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.873768 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.243083</radius>
-                <length>3.747535</length>
+                <radius>0.19130</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_022_tree_island_tree_01_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
-                <scale>1.012847 1.012847 1.012847</scale>
+                <uri>model://lemon_tree_03/meshes/lemon_tree_03.glb</uri>
+                <scale>1.220721666 1.220721666 1.220721666</scale>
               </mesh>
             </geometry>
           </visual>
@@ -601,22 +811,22 @@
       <model name="vegetation_023_tree_tree_small_02">
         <pose>-6.459 -20.356 -0.858805 0 0 3.153742</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.666820 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.181835</radius>
-                <length>3.333639</length>
+                <radius>0.13037</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_023_tree_tree_small_02_visual_01">
+            <pose>0.000000000 0.000000000 -0.823469252 1.570796000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://tree_small_02_lite/mesh/tree_small_02_lite.glb</uri>
-                <scale>1.010194 1.010194 1.010194</scale>
+                <uri>model://tree_v1_001/meshes/tree_v1_001.glb</uri>
+                <scale>0.389888069 0.389888069 0.389888069</scale>
               </mesh>
             </geometry>
           </visual>
@@ -625,22 +835,22 @@
       <model name="vegetation_024_tree_tree_small_02">
         <pose>-9.461 -15.819 -0.905916 0 0 3.107993</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.677580 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.183009</radius>
-                <length>3.355159</length>
+                <radius>0.18668</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_024_tree_tree_small_02_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://tree_small_02_lite/mesh/tree_small_02_lite.glb</uri>
-                <scale>1.016715 1.016715 1.016715</scale>
+                <uri>model://lemon_tree_03/meshes/lemon_tree_03.glb</uri>
+                <scale>1.191260470 1.191260470 1.191260470</scale>
               </mesh>
             </geometry>
           </visual>
@@ -649,22 +859,22 @@
       <model name="vegetation_025_tree_island_tree_02">
         <pose>-11.488 -21.519 -1.068836 0 0 4.764832</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.314444 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.202222</radius>
-                <length>2.628887</length>
+                <radius>0.15571</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_025_tree_island_tree_02_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 1.570796327 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
-                <scale>1.011111 1.011111 1.011111</scale>
+                <uri>model://maple_tree/meshes/maple_tree.glb</uri>
+                <scale>1.071883464 1.071883464 1.071883464</scale>
               </mesh>
             </geometry>
           </visual>
@@ -673,22 +883,22 @@
       <model name="vegetation_026_tree_island_tree_02">
         <pose>-1.682 -19.429 -0.693282 0 0 3.904776</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.479110 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.227555</radius>
-                <length>2.958221</length>
+                <radius>0.10501</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_026_tree_island_tree_02_visual_01">
+            <pose>0.000000000 0.000000000 -0.663296236 1.570796000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
-                <scale>1.137777 1.137777 1.137777</scale>
+                <uri>model://tree_v1_001/meshes/tree_v1_001.glb</uri>
+                <scale>0.314050935 0.314050935 0.314050935</scale>
               </mesh>
             </geometry>
           </visual>
@@ -697,22 +907,22 @@
       <model name="vegetation_027_tree_island_tree_02">
         <pose>0.122 -28.806 -0.867483 0 0 5.604571</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.335946 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.29950 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.205530</radius>
-                <length>2.671891</length>
+                <radius>0.10169</radius>
+                <length>2.59900</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_027_tree_island_tree_02_visual_01">
+            <pose>0.000000000 0.000000000 -0.642309094 1.570796000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
-                <scale>1.027651 1.027651 1.027651</scale>
+                <uri>model://tree_v1_001/meshes/tree_v1_001.glb</uri>
+                <scale>0.304114151 0.304114151 0.304114151</scale>
               </mesh>
             </geometry>
           </visual>
@@ -721,22 +931,22 @@
       <model name="vegetation_028_tree_island_tree_02">
         <pose>6.043 -9.985 -0.291730 0 0 4.196896</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.439395 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.221445</radius>
-                <length>2.878790</length>
+                <radius>0.19130</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_028_tree_island_tree_02_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
-                <scale>1.107227 1.107227 1.107227</scale>
+                <uri>model://lemon_tree_03/meshes/lemon_tree_03.glb</uri>
+                <scale>1.220721666 1.220721666 1.220721666</scale>
               </mesh>
             </geometry>
           </visual>
@@ -745,22 +955,22 @@
       <model name="vegetation_029_tree_island_tree_01">
         <pose>21.762 35.458 -1.412088 0 0 3.949117</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.836832 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.238292</radius>
-                <length>3.673663</length>
+                <radius>0.18554</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_029_tree_island_tree_01_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
-                <scale>0.992882 0.992882 0.992882</scale>
+                <uri>model://lemon_tree_04/meshes/lemon_tree_04.glb</uri>
+                <scale>1.339221147 1.339221147 1.339221147</scale>
               </mesh>
             </geometry>
           </visual>
@@ -769,22 +979,22 @@
       <model name="vegetation_030_tree_island_tree_02">
         <pose>24.198 30.361 -1.245449 0 0 3.083303</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.420864 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.218594</radius>
-                <length>2.841728</length>
+                <radius>0.20598</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_030_tree_island_tree_02_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
-                <scale>1.092972 1.092972 1.092972</scale>
+                <uri>model://lemon_tree_03/meshes/lemon_tree_03.glb</uri>
+                <scale>1.314402770 1.314402770 1.314402770</scale>
               </mesh>
             </geometry>
           </visual>
@@ -793,22 +1003,22 @@
       <model name="vegetation_031_tree_island_tree_01">
         <pose>-7.492 21.682 -0.122346 0 0 3.426603</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.942256 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.251968</radius>
-                <length>3.884512</length>
+                <radius>0.22572</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_031_tree_island_tree_01_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
-                <scale>1.049868 1.049868 1.049868</scale>
+                <uri>model://lemon_tree_03/meshes/lemon_tree_03.glb</uri>
+                <scale>1.440366585 1.440366585 1.440366585</scale>
               </mesh>
             </geometry>
           </visual>
@@ -817,70 +1027,154 @@
       <model name="vegetation_032_tree_island_tree_01">
         <pose>12.781 42.000 -1.739591 0 0 5.885939</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.757542 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.228005</radius>
-                <length>3.515083</length>
+                <radius>0.26739</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_032_tree_island_tree_01_visual_01">
+            <pose>0.000000000 0.000000000 0.050607050 0.000000000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
-                <scale>0.950023 0.950023 0.950023</scale>
+                <uri>model://oak_tree/meshes/oak_tree.dae</uri>
+                <submesh>
+                  <name>Branch</name>
+                </submesh>
+                <scale>0.720000000 0.720000000 0.720000000</scale>
               </mesh>
             </geometry>
+            <material>
+              <double_sided>true</double_sided>
+              <diffuse>1.0 1.0 1.0</diffuse>
+              <script>
+                <uri>model://oak_tree/materials/scripts/</uri>
+                <uri>model://oak_tree/materials/textures/</uri>
+                <name>OakTree/Branch</name>
+              </script>
+              <pbr>
+                <metal>
+                  <albedo_map>model://oak_tree/materials/textures/branch_diffuse.png</albedo_map>
+                </metal>
+              </pbr>
+            </material>
+          </visual>
+          <visual name="vegetation_032_tree_island_tree_01_visual_02">
+            <pose>0.000000000 0.000000000 0.050607050 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://oak_tree/meshes/oak_tree.dae</uri>
+                <submesh>
+                  <name>Bark</name>
+                </submesh>
+                <scale>0.720000000 0.720000000 0.720000000</scale>
+              </mesh>
+            </geometry>
+            <material>
+              <diffuse>1.0 1.0 1.0</diffuse>
+              <script>
+                <uri>model://oak_tree/materials/scripts/</uri>
+                <uri>model://oak_tree/materials/textures/</uri>
+                <name>OakTree/Bark</name>
+              </script>
+              <pbr>
+                <metal>
+                  <albedo_map>model://oak_tree/materials/textures/bark_diffuse.png</albedo_map>
+                </metal>
+              </pbr>
+            </material>
           </visual>
         </link>
       </model>
       <model name="vegetation_033_tree_island_tree_02">
         <pose>-14.576 23.531 -0.305853 0 0 6.128354</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.312876 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.201981</radius>
-                <length>2.625753</length>
+                <radius>0.26317</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_033_tree_island_tree_02_visual_01">
+            <pose>0.000000000 0.000000000 0.049808236 0.000000000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
-                <scale>1.009905 1.009905 1.009905</scale>
+                <uri>model://oak_tree/meshes/oak_tree.dae</uri>
+                <submesh>
+                  <name>Branch</name>
+                </submesh>
+                <scale>0.708635053 0.708635053 0.708635053</scale>
               </mesh>
             </geometry>
+            <material>
+              <double_sided>true</double_sided>
+              <diffuse>1.0 1.0 1.0</diffuse>
+              <script>
+                <uri>model://oak_tree/materials/scripts/</uri>
+                <uri>model://oak_tree/materials/textures/</uri>
+                <name>OakTree/Branch</name>
+              </script>
+              <pbr>
+                <metal>
+                  <albedo_map>model://oak_tree/materials/textures/branch_diffuse.png</albedo_map>
+                </metal>
+              </pbr>
+            </material>
+          </visual>
+          <visual name="vegetation_033_tree_island_tree_02_visual_02">
+            <pose>0.000000000 0.000000000 0.049808236 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://oak_tree/meshes/oak_tree.dae</uri>
+                <submesh>
+                  <name>Bark</name>
+                </submesh>
+                <scale>0.708635053 0.708635053 0.708635053</scale>
+              </mesh>
+            </geometry>
+            <material>
+              <diffuse>1.0 1.0 1.0</diffuse>
+              <script>
+                <uri>model://oak_tree/materials/scripts/</uri>
+                <uri>model://oak_tree/materials/textures/</uri>
+                <name>OakTree/Bark</name>
+              </script>
+              <pbr>
+                <metal>
+                  <albedo_map>model://oak_tree/materials/textures/bark_diffuse.png</albedo_map>
+                </metal>
+              </pbr>
+            </material>
           </visual>
         </link>
       </model>
       <model name="vegetation_034_tree_island_tree_01">
         <pose>-12.855 42.000 -1.218031 0 0 0.478727</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.742269 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.226024</radius>
-                <length>3.484538</length>
+                <radius>0.10259</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_034_tree_island_tree_01_visual_01">
+            <pose>0.000000000 0.000000000 -0.648020566 1.570796000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_01_lite/mesh/island_tree_01_lite.glb</uri>
-                <scale>0.941767 0.941767 0.941767</scale>
+                <uri>model://tree_v1_001/meshes/tree_v1_001.glb</uri>
+                <scale>0.306818362 0.306818362 0.306818362</scale>
               </mesh>
             </geometry>
           </visual>
@@ -889,22 +1183,22 @@
       <model name="vegetation_035_tree_island_tree_02">
         <pose>-57.606 -11.889 -1.713355 0 0 2.332206</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="trunk_collision_simple">
-            <pose>0 0 1.261680 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
             <geometry>
               <cylinder>
-                <radius>0.194105</radius>
-                <length>2.523361</length>
+                <radius>0.21843</radius>
+                <length>2.60000</length>
               </cylinder>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>1</laser_retro>
+          <visual name="vegetation_035_tree_island_tree_02_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://island_tree_02_lite/mesh/island_tree_02_lite.glb</uri>
-                <scale>0.970523 0.970523 0.970523</scale>
+                <uri>model://lemon_tree_04/meshes/lemon_tree_04.glb</uri>
+                <scale>1.576550886 1.576550886 1.576550886</scale>
               </mesh>
             </geometry>
           </visual>
@@ -913,21 +1207,21 @@
       <model name="vegetation_036_rock_boulder_01">
         <pose>-32.400000 25.669000 -0.959512 0.000000 0.000000 5.620689</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="rock_collision_simple">
-            <pose>0 0 1.097570 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.23719 0 0 0</pose>
             <geometry>
               <box>
-                <size>2.783865 4.005089 2.195139</size>
+                <size>0.85878 0.85878 0.37950</size>
               </box>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>3</laser_retro>
+          <visual name="vegetation_036_rock_boulder_01_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 1.570796327 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://boulder_01/mesh/boulder_01.glb</uri>
-                <scale>2.188573 2.188573 2.188573</scale>
+                <uri>model://forest_rock_01/meshes/forest_rock_01.glb</uri>
+                <scale>0.527469481 0.527469481 0.527469481</scale>
               </mesh>
             </geometry>
           </visual>
@@ -936,21 +1230,21 @@
       <model name="vegetation_037_rock_boulder_01">
         <pose>-30.400000 26.469000 -1.304894 0.000000 0.000000 2.873849</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="rock_collision_simple">
-            <pose>0 0 1.076299 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0.000000000 0.000000000 0.682010886 0.000000000 0.000000000 0.000000000</pose>
             <geometry>
               <box>
-                <size>2.729915 3.927472 2.152598</size>
+                <size>1.07555 1.07555 0.48123</size>
               </box>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>3</laser_retro>
+          <visual name="vegetation_037_rock_boulder_01_visual_01">
+            <pose>0.000000000 0.000000000 0.381240886 1.570796327 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://boulder_01/mesh/boulder_01.glb</uri>
-                <scale>2.146160 2.146160 2.146160</scale>
+                <uri>model://forest_rock_02/meshes/forest_rock_02.glb</uri>
+                <scale>0.652874446 0.652874446 0.652874446</scale>
               </mesh>
             </geometry>
           </visual>
@@ -959,21 +1253,21 @@
       <model name="vegetation_038_rock_boulder_01">
         <pose>-55.140 39.069 -1.867612 0 0 2.210682</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="rock_collision_simple">
-            <pose>0 0 0.860453 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.16451 0 0 0</pose>
             <geometry>
               <box>
-                <size>2.182446 3.139839 1.720907</size>
+                <size>0.62653 0.62653 0.26322</size>
               </box>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>3</laser_retro>
+          <visual name="vegetation_038_rock_boulder_01_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 1.570796327 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://boulder_01/mesh/boulder_01.glb</uri>
-                <scale>1.715759 1.715759 1.715759</scale>
+                <uri>model://forest_rock_03/meshes/forest_rock_03.glb</uri>
+                <scale>0.296048020 0.296048020 0.296048020</scale>
               </mesh>
             </geometry>
           </visual>
@@ -982,21 +1276,21 @@
       <model name="vegetation_039_rock_boulder_01">
         <pose>-52.086 17.706 -1.326816 0 0 2.134232</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="rock_collision_simple">
-            <pose>0 0 1.140579 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.28342 0 0 0</pose>
             <geometry>
               <box>
-                <size>2.892953 4.162032 2.281157</size>
+                <size>1.07938 1.07938 0.45347</size>
               </box>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>3</laser_retro>
+          <visual name="vegetation_039_rock_boulder_01_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 1.570796327 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://boulder_01/mesh/boulder_01.glb</uri>
-                <scale>2.274334 2.274334 2.274334</scale>
+                <uri>model://forest_rock_03/meshes/forest_rock_03.glb</uri>
+                <scale>0.510030321 0.510030321 0.510030321</scale>
               </mesh>
             </geometry>
           </visual>
@@ -1005,21 +1299,21 @@
       <model name="vegetation_040_rock_boulder_01">
         <pose>13.795 -9.895 -0.719801 0 0 0.065278</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="rock_collision_simple">
-            <pose>0 0 0.799562 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.27460 0 0 0</pose>
             <geometry>
               <box>
-                <size>2.028002 2.917644 1.599124</size>
+                <size>0.98194 0.98194 0.43935</size>
               </box>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>3</laser_retro>
+          <visual name="vegetation_040_rock_boulder_01_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 1.570796327 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://boulder_01/mesh/boulder_01.glb</uri>
-                <scale>1.594341 1.594341 1.594341</scale>
+                <uri>model://forest_rock_02/meshes/forest_rock_02.glb</uri>
+                <scale>0.596056078 0.596056078 0.596056078</scale>
               </mesh>
             </geometry>
           </visual>
@@ -1028,21 +1322,21 @@
       <model name="vegetation_041_rock_boulder_01">
         <pose>29.456 26.801 -1.379380 0 0 5.313246</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="rock_collision_simple">
-            <pose>0 0 1.106395 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.14860 0 0 0</pose>
             <geometry>
               <box>
-                <size>2.806250 4.037294 2.212790</size>
+                <size>0.53138 0.53138 0.23775</size>
               </box>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>3</laser_retro>
+          <visual name="vegetation_041_rock_boulder_01_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 1.570796327 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://boulder_01/mesh/boulder_01.glb</uri>
-                <scale>2.206171 2.206171 2.206171</scale>
+                <uri>model://forest_rock_02/meshes/forest_rock_02.glb</uri>
+                <scale>0.322554414 0.322554414 0.322554414</scale>
               </mesh>
             </geometry>
           </visual>
@@ -1051,21 +1345,21 @@
       <model name="vegetation_042_rock_boulder_01">
         <pose>-49.586000 18.906000 -1.913560 0.000000 0.000000 5.735907</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="rock_collision_simple">
-            <pose>0 0 1.146541 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0.000000000 0.000000000 0.933278912 0.000000000 0.000000000 0.000000000</pose>
             <geometry>
               <box>
-                <size>2.908077 4.183790 2.293083</size>
+                <size>1.09405 1.09405 0.48347</size>
               </box>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>3</laser_retro>
+          <visual name="vegetation_042_rock_boulder_01_visual_01">
+            <pose>0.000000000 0.000000000 0.631108912 1.570796327 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://boulder_01/mesh/boulder_01.glb</uri>
-                <scale>2.286224 2.286224 2.286224</scale>
+                <uri>model://forest_rock_01/meshes/forest_rock_01.glb</uri>
+                <scale>0.671973908 0.671973908 0.671973908</scale>
               </mesh>
             </geometry>
           </visual>
@@ -1074,21 +1368,21 @@
       <model name="vegetation_043_rock_boulder_01">
         <pose>-9.074000 -13.367000 -0.808885 0.000000 0.000000 3.652654</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="rock_collision_simple">
-            <pose>0 0 1.047587 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.14063 0 0 0</pose>
             <geometry>
               <box>
-                <size>2.657091 3.822702 2.095175</size>
+                <size>0.52486 0.52486 0.22501</size>
               </box>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>3</laser_retro>
+          <visual name="vegetation_043_rock_boulder_01_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 1.570796327 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://boulder_01/mesh/boulder_01.glb</uri>
-                <scale>2.088908 2.088908 2.088908</scale>
+                <uri>model://forest_rock_04/meshes/forest_rock_04.glb</uri>
+                <scale>0.245514480 0.245514480 0.245514480</scale>
               </mesh>
             </geometry>
           </visual>
@@ -1097,21 +1391,21 @@
       <model name="vegetation_044_rock_boulder_01">
         <pose>23.632 -0.705 -1.231807 0 0 4.366627</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="rock_collision_simple">
-            <pose>0 0 1.142363 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.34167 0 0 0</pose>
             <geometry>
               <box>
-                <size>2.897479 4.168543 2.284726</size>
+                <size>0.65475 0.65475 0.54668</size>
               </box>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>3</laser_retro>
+          <visual name="vegetation_044_rock_boulder_01_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://boulder_01/mesh/boulder_01.glb</uri>
-                <scale>2.277892 2.277892 2.277892</scale>
+                <uri>model://cliff_rock_01/meshes/cliff_rock_01.glb</uri>
+                <scale>0.858504213 0.858504213 0.858504213</scale>
               </mesh>
             </geometry>
           </visual>
@@ -1120,21 +1414,982 @@
       <model name="vegetation_045_rock_boulder_01">
         <pose>-8.433 33.392 -0.617097 0 0 4.398213</pose>
         <static>true</static>
-        <link name="link">
-          <collision name="rock_collision_simple">
-            <pose>0 0 1.000668 0 0 0</pose>
+        <link name="environment_link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.36582 0 0 0</pose>
             <geometry>
               <box>
-                <size>2.538085 3.651491 2.001336</size>
+                <size>0.70101 0.70101 0.58531</size>
               </box>
             </geometry>
           </collision>
-          <visual name="visual">
-            <laser_retro>3</laser_retro>
+          <visual name="vegetation_045_rock_boulder_01_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
             <geometry>
               <mesh>
-                <uri>model://boulder_01/mesh/boulder_01.glb</uri>
-                <scale>1.995350 1.995350 1.995350</scale>
+                <uri>model://cliff_rock_01/meshes/cliff_rock_01.glb</uri>
+                <scale>0.919172098 0.919172098 0.919172098</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_036_added_tree_tree_v1_001">
+        <pose>29.14400000 -6.81600000 -2.08927559 0.00000000 0.00000000 0.28665786</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.27157 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.09950</radius>
+                <length>2.54313</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_036_added_tree_tree_v1_001_visual_01">
+            <pose>0.000000000 0.000000000 -0.628500793 1.570796000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://tree_v1_001/meshes/tree_v1_001.glb</uri>
+                <scale>0.297576333 0.297576333 0.297576333</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_037_added_tree_maple_tree">
+        <pose>6.07700000 40.76800000 -1.40348861 0.00000000 0.00000000 -0.92094099</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.15113</radius>
+                <length>2.60000</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_037_added_tree_maple_tree_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 1.570796327 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://maple_tree/meshes/maple_tree.glb</uri>
+                <scale>1.040324919 1.040324919 1.040324919</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_038_added_tree_oak_tree">
+        <pose>15.53600000 16.47000000 -0.19524996 0.00000000 0.00000000 -2.27117116</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.23339</radius>
+                <length>2.60000</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_038_added_tree_oak_tree_visual_01">
+            <pose>0.000000000 0.000000000 0.044172197 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://oak_tree/meshes/oak_tree.dae</uri>
+                <submesh>
+                  <name>Branch</name>
+                </submesh>
+                <scale>0.628449632 0.628449632 0.628449632</scale>
+              </mesh>
+            </geometry>
+            <material>
+              <double_sided>true</double_sided>
+              <diffuse>1.0 1.0 1.0</diffuse>
+              <script>
+                <uri>model://oak_tree/materials/scripts/</uri>
+                <uri>model://oak_tree/materials/textures/</uri>
+                <name>OakTree/Branch</name>
+              </script>
+              <pbr>
+                <metal>
+                  <albedo_map>model://oak_tree/materials/textures/branch_diffuse.png</albedo_map>
+                </metal>
+              </pbr>
+            </material>
+          </visual>
+          <visual name="vegetation_038_added_tree_oak_tree_visual_02">
+            <pose>0.000000000 0.000000000 0.044172197 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://oak_tree/meshes/oak_tree.dae</uri>
+                <submesh>
+                  <name>Bark</name>
+                </submesh>
+                <scale>0.628449632 0.628449632 0.628449632</scale>
+              </mesh>
+            </geometry>
+            <material>
+              <diffuse>1.0 1.0 1.0</diffuse>
+              <script>
+                <uri>model://oak_tree/materials/scripts/</uri>
+                <uri>model://oak_tree/materials/textures/</uri>
+                <name>OakTree/Bark</name>
+              </script>
+              <pbr>
+                <metal>
+                  <albedo_map>model://oak_tree/materials/textures/bark_diffuse.png</albedo_map>
+                </metal>
+              </pbr>
+            </material>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_039_added_tree_lemon_tree_04">
+        <pose>5.16200000 -23.76600000 -0.77777036 0.00000000 0.00000000 -0.55198695</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.21256</radius>
+                <length>2.60000</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_039_added_tree_lemon_tree_04_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://lemon_tree_04/meshes/lemon_tree_04.glb</uri>
+                <scale>1.534234384 1.534234384 1.534234384</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_040_added_tree_maple_tree">
+        <pose>29.23800000 35.40100000 -1.74932357 0.00000000 0.00000000 0.58050324</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.13776</radius>
+                <length>2.60000</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_040_added_tree_maple_tree_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 1.570796327 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://maple_tree/meshes/maple_tree.glb</uri>
+                <scale>0.948288633 0.948288633 0.948288633</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_041_added_tree_lemon_tree_03">
+        <pose>-47.96900000 38.05500000 -1.80107312 0.00000000 0.00000000 1.45394022</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.22714 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.16996</radius>
+                <length>2.45429</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_041_added_tree_lemon_tree_03_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://lemon_tree_03/meshes/lemon_tree_03.glb</uri>
+                <scale>1.084526261 1.084526261 1.084526261</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_042_added_tree_lemon_tree_03">
+        <pose>-52.56600000 -6.84900000 -1.51993162 0.00000000 0.00000000 0.16621967</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.21173</radius>
+                <length>2.60000</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_042_added_tree_lemon_tree_03_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://lemon_tree_03/meshes/lemon_tree_03.glb</uri>
+                <scale>1.351099135 1.351099135 1.351099135</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_043_added_tree_lemon_tree_04">
+        <pose>-47.52300000 4.34400000 -1.26761291 0.00000000 0.00000000 2.77409603</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.18652</radius>
+                <length>2.60000</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_043_added_tree_lemon_tree_04_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://lemon_tree_04/meshes/lemon_tree_04.glb</uri>
+                <scale>1.346261918 1.346261918 1.346261918</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_044_added_tree_lemon_tree_03">
+        <pose>-9.53600000 28.57100000 -0.38857887 0.00000000 0.00000000 2.86805195</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.22950</radius>
+                <length>2.60000</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_044_added_tree_lemon_tree_03_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://lemon_tree_03/meshes/lemon_tree_03.glb</uri>
+                <scale>1.464476089 1.464476089 1.464476089</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_045_added_tree_tree_v1_001">
+        <pose>-2.45200000 26.72200000 -0.16745699 0.00000000 0.00000000 1.82968520</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.11461</radius>
+                <length>2.60000</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_045_added_tree_tree_v1_001_visual_01">
+            <pose>0.000000000 0.000000000 -0.723952356 1.570796000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://tree_v1_001/meshes/tree_v1_001.glb</uri>
+                <scale>0.342769794 0.342769794 0.342769794</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_046_added_tree_oak_tree">
+        <pose>-55.56700000 45.71100000 -2.04015576 0.00000000 0.00000000 1.18777268</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.23533</radius>
+                <length>2.60000</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_046_added_tree_oak_tree_visual_01">
+            <pose>0.000000000 0.000000000 0.044539598 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://oak_tree/meshes/oak_tree.dae</uri>
+                <submesh>
+                  <name>Branch</name>
+                </submesh>
+                <scale>0.633676738 0.633676738 0.633676738</scale>
+              </mesh>
+            </geometry>
+            <material>
+              <double_sided>true</double_sided>
+              <diffuse>1.0 1.0 1.0</diffuse>
+              <script>
+                <uri>model://oak_tree/materials/scripts/</uri>
+                <uri>model://oak_tree/materials/textures/</uri>
+                <name>OakTree/Branch</name>
+              </script>
+              <pbr>
+                <metal>
+                  <albedo_map>model://oak_tree/materials/textures/branch_diffuse.png</albedo_map>
+                </metal>
+              </pbr>
+            </material>
+          </visual>
+          <visual name="vegetation_046_added_tree_oak_tree_visual_02">
+            <pose>0.000000000 0.000000000 0.044539598 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://oak_tree/meshes/oak_tree.dae</uri>
+                <submesh>
+                  <name>Bark</name>
+                </submesh>
+                <scale>0.633676738 0.633676738 0.633676738</scale>
+              </mesh>
+            </geometry>
+            <material>
+              <diffuse>1.0 1.0 1.0</diffuse>
+              <script>
+                <uri>model://oak_tree/materials/scripts/</uri>
+                <uri>model://oak_tree/materials/textures/</uri>
+                <name>OakTree/Bark</name>
+              </script>
+              <pbr>
+                <metal>
+                  <albedo_map>model://oak_tree/materials/textures/bark_diffuse.png</albedo_map>
+                </metal>
+              </pbr>
+            </material>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_047_added_tree_oak_tree">
+        <pose>-22.27700000 31.12600000 -0.83963780 0.00000000 0.00000000 2.51854697</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.26739</radius>
+                <length>2.60000</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_047_added_tree_oak_tree_visual_01">
+            <pose>0.000000000 0.000000000 0.050607050 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://oak_tree/meshes/oak_tree.dae</uri>
+                <submesh>
+                  <name>Branch</name>
+                </submesh>
+                <scale>0.720000000 0.720000000 0.720000000</scale>
+              </mesh>
+            </geometry>
+            <material>
+              <double_sided>true</double_sided>
+              <diffuse>1.0 1.0 1.0</diffuse>
+              <script>
+                <uri>model://oak_tree/materials/scripts/</uri>
+                <uri>model://oak_tree/materials/textures/</uri>
+                <name>OakTree/Branch</name>
+              </script>
+              <pbr>
+                <metal>
+                  <albedo_map>model://oak_tree/materials/textures/branch_diffuse.png</albedo_map>
+                </metal>
+              </pbr>
+            </material>
+          </visual>
+          <visual name="vegetation_047_added_tree_oak_tree_visual_02">
+            <pose>0.000000000 0.000000000 0.050607050 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://oak_tree/meshes/oak_tree.dae</uri>
+                <submesh>
+                  <name>Bark</name>
+                </submesh>
+                <scale>0.720000000 0.720000000 0.720000000</scale>
+              </mesh>
+            </geometry>
+            <material>
+              <diffuse>1.0 1.0 1.0</diffuse>
+              <script>
+                <uri>model://oak_tree/materials/scripts/</uri>
+                <uri>model://oak_tree/materials/textures/</uri>
+                <name>OakTree/Bark</name>
+              </script>
+              <pbr>
+                <metal>
+                  <albedo_map>model://oak_tree/materials/textures/bark_diffuse.png</albedo_map>
+                </metal>
+              </pbr>
+            </material>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_048_added_tree_tree_v1_001">
+        <pose>-22.90200000 16.17700000 -0.51146329 0.00000000 0.00000000 2.34076221</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.20804 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.09453</radius>
+                <length>2.41607</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_048_added_tree_tree_v1_001_visual_01">
+            <pose>0.000000000 0.000000000 -0.597099979 1.570796000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://tree_v1_001/meshes/tree_v1_001.glb</uri>
+                <scale>0.282708987 0.282708987 0.282708987</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_049_added_tree_lemon_tree_04">
+        <pose>24.10400000 -18.85600000 -2.00687848 0.00000000 0.00000000 1.12625073</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.21382</radius>
+                <length>2.60000</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_049_added_tree_lemon_tree_04_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://lemon_tree_04/meshes/lemon_tree_04.glb</uri>
+                <scale>1.543294503 1.543294503 1.543294503</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_050_added_tree_maple_tree">
+        <pose>12.78100000 35.00000000 -1.03880904 0.00000000 0.00000000 1.46835845</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 1.30000 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.15238</radius>
+                <length>2.60000</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_050_added_tree_maple_tree_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 1.570796327 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://maple_tree/meshes/maple_tree.glb</uri>
+                <scale>1.048942197 1.048942197 1.048942197</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_shrub_01_lemon_tree_03">
+        <pose>21.49600000 11.43000000 -0.65029878 0.00000000 0.00000000 2.30569282</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.33106 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.10000</radius>
+                <length>0.66213</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_shrub_01_lemon_tree_03_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://lemon_tree_03/meshes/lemon_tree_03.glb</uri>
+                <scale>0.380365352 0.380365352 0.380365352</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_shrub_02_lemon_tree_03">
+        <pose>11.12200000 -28.80600000 -1.22904100 0.00000000 0.00000000 0.22043585</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.37011 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.10000</radius>
+                <length>0.74022</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_shrub_02_lemon_tree_03_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://lemon_tree_03/meshes/lemon_tree_03.glb</uri>
+                <scale>0.425222779 0.425222779 0.425222779</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_shrub_03_lemon_tree_03">
+        <pose>-42.00900000 33.01500000 -1.51035987 0.00000000 0.00000000 2.82614340</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.29993 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.10000</radius>
+                <length>0.59986</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_shrub_03_lemon_tree_03_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://lemon_tree_03/meshes/lemon_tree_03.glb</uri>
+                <scale>0.344591069 0.344591069 0.344591069</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_shrub_04_lemon_tree_03">
+        <pose>1.53900000 -15.81900000 -0.55517651 0.00000000 0.00000000 -1.73030860</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.32667 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.10000</radius>
+                <length>0.65333</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_shrub_04_lemon_tree_03_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://lemon_tree_03/meshes/lemon_tree_03.glb</uri>
+                <scale>0.375310699 0.375310699 0.375310699</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_shrub_05_lemon_tree_03">
+        <pose>-46.60600000 -11.88900000 -1.47733884 0.00000000 0.00000000 0.56309052</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.37926 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.10000</radius>
+                <length>0.75852</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_shrub_05_lemon_tree_03_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://lemon_tree_03/meshes/lemon_tree_03.glb</uri>
+                <scale>0.435738829 0.435738829 0.435738829</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_shrub_06_lemon_tree_03">
+        <pose>-17.19800000 20.63200000 -0.36402967 0.00000000 0.00000000 1.99137708</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.37682 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.10000</radius>
+                <length>0.75363</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_shrub_06_lemon_tree_03_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://lemon_tree_03/meshes/lemon_tree_03.glb</uri>
+                <scale>0.432930542 0.432930542 0.432930542</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_shrub_07_lemon_tree_03">
+        <pose>-41.56300000 -0.69600000 -1.25916647 0.00000000 0.00000000 0.70194360</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.39313 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.10000</radius>
+                <length>0.78626</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_shrub_07_lemon_tree_03_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://lemon_tree_03/meshes/lemon_tree_03.glb</uri>
+                <scale>0.451675524 0.451675524 0.451675524</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_shrub_08_lemon_tree_03">
+        <pose>-47.09100000 33.28500000 -1.61670482 0.00000000 0.00000000 -0.61870910</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.37918 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.10000</radius>
+                <length>0.75835</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_shrub_08_lemon_tree_03_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://lemon_tree_03/meshes/lemon_tree_03.glb</uri>
+                <scale>0.435640121 0.435640121 0.435640121</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_shrub_09_lemon_tree_04">
+        <pose>3.50800000 21.68200000 -0.01442526 0.00000000 0.00000000 -2.08383662</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.29854 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.10000</radius>
+                <length>0.59707</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_shrub_09_lemon_tree_04_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://lemon_tree_04/meshes/lemon_tree_04.glb</uri>
+                <scale>0.374564301 0.374564301 0.374564301</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_shrub_10_lemon_tree_04">
+        <pose>-43.57700000 2.74300000 -1.21588378 0.00000000 0.00000000 1.89931626</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.28984 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.10000</radius>
+                <length>0.57968</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_shrub_10_lemon_tree_04_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://lemon_tree_04/meshes/lemon_tree_04.glb</uri>
+                <scale>0.363653989 0.363653989 0.363653989</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_shrub_11_lemon_tree_04">
+        <pose>-21.26900000 45.00400000 -1.65718740 0.00000000 0.00000000 0.07153706</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.27804 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.10000</radius>
+                <length>0.55609</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_shrub_11_lemon_tree_04_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://lemon_tree_04/meshes/lemon_tree_04.glb</uri>
+                <scale>0.348852638 0.348852638 0.348852638</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_shrub_12_lemon_tree_04">
+        <pose>9.31800000 -19.42900000 -0.81160333 0.00000000 0.00000000 2.55479507</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.34420 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.10000</radius>
+                <length>0.68840</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_shrub_12_lemon_tree_04_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://lemon_tree_04/meshes/lemon_tree_04.glb</uri>
+                <scale>0.431858223 0.431858223 0.431858223</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_shrub_13_lemon_tree_04">
+        <pose>17.04300000 -9.98500000 -0.95435904 0.00000000 0.00000000 -2.95623753</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.30895 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.10000</radius>
+                <length>0.61789</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_shrub_13_lemon_tree_04_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://lemon_tree_04/meshes/lemon_tree_04.glb</uri>
+                <scale>0.387623907 0.387623907 0.387623907</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_shrub_14_lemon_tree_04">
+        <pose>-1.85500000 42.00000000 -1.30257567 0.00000000 0.00000000 -0.52770978</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.26742 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.10000</radius>
+                <length>0.53483</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_shrub_14_lemon_tree_04_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://lemon_tree_04/meshes/lemon_tree_04.glb</uri>
+                <scale>0.335519152 0.335519152 0.335519152</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_shrub_15_lemon_tree_04">
+        <pose>-44.66400000 29.60300000 -1.42726553 0.00000000 0.00000000 1.69819711</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.37010 0 0 0</pose>
+            <geometry>
+              <cylinder>
+                <radius>0.10000</radius>
+                <length>0.74020</length>
+              </cylinder>
+            </geometry>
+          </collision>
+          <visual name="vegetation_shrub_15_lemon_tree_04_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://lemon_tree_04/meshes/lemon_tree_04.glb</uri>
+                <scale>0.464353328 0.464353328 0.464353328</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_added_rock_01_forest_rock_01">
+        <pose>-16.42200000 16.69700000 -0.29283089 0.00000000 0.00000000 -1.23029444</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.31394 0 0 0</pose>
+            <geometry>
+              <box>
+                <size>1.13666 1.13666 0.50230</size>
+              </box>
+            </geometry>
+          </collision>
+          <visual name="vegetation_added_rock_01_forest_rock_01_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 1.570796327 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://forest_rock_01/meshes/forest_rock_01.glb</uri>
+                <scale>0.698145076 0.698145076 0.698145076</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_added_rock_02_forest_rock_03">
+        <pose>30.58400000 -18.33600000 -2.66602373 0.00000000 0.00000000 2.74815184</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.28797 0 0 0</pose>
+            <geometry>
+              <box>
+                <size>1.09671 1.09671 0.46075</size>
+              </box>
+            </geometry>
+          </collision>
+          <visual name="vegetation_added_rock_02_forest_rock_03_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 1.570796327 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://forest_rock_03/meshes/forest_rock_03.glb</uri>
+                <scale>0.518220182 0.518220182 0.518220182</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_added_rock_03_cliff_rock_01">
+        <pose>7.51700000 29.24800000 -0.45383669 0.00000000 0.00000000 2.69401529</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.49698 0 0 0</pose>
+            <geometry>
+              <box>
+                <size>0.95235 0.95235 0.79517</size>
+              </box>
+            </geometry>
+          </collision>
+          <visual name="vegetation_added_rock_03_cliff_rock_01_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://cliff_rock_01/meshes/cliff_rock_01.glb</uri>
+                <scale>1.248730528 1.248730528 1.248730528</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_added_rock_04_forest_rock_04">
+        <pose>16.97600000 4.95000000 -0.39568556 0.00000000 0.00000000 2.15807279</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.13281 0 0 0</pose>
+            <geometry>
+              <box>
+                <size>0.49566 0.49566 0.21249</size>
+              </box>
+            </geometry>
+          </collision>
+          <visual name="vegetation_added_rock_04_forest_rock_04_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 1.570796327 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://forest_rock_04/meshes/forest_rock_04.glb</uri>
+                <scale>0.231857277 0.231857277 0.231857277</scale>
+              </mesh>
+            </geometry>
+          </visual>
+        </link>
+      </model>
+      <model name="vegetation_added_rock_05_cliff_rock_01">
+        <pose>32.65500000 36.24800000 -1.98044664 0.00000000 0.00000000 3.03535650</pose>
+        <static>true</static>
+        <link name="link">
+          <collision name="env_simple_collision">
+            <pose>0 0 0.43284 0 0 0</pose>
+            <geometry>
+              <box>
+                <size>0.82944 0.82944 0.69254</size>
+              </box>
+            </geometry>
+          </collision>
+          <visual name="vegetation_added_rock_05_cliff_rock_01_visual_01">
+            <pose>0.000000000 0.000000000 0.000000000 0.000000000 0.000000000 0.000000000</pose>
+            <geometry>
+              <mesh>
+                <uri>model://cliff_rock_01/meshes/cliff_rock_01.glb</uri>
+                <scale>1.087569752 1.087569752 1.087569752</scale>
               </mesh>
             </geometry>
           </visual>

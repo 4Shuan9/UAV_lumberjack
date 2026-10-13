@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="tree_v1_001">
+    <static>true</static>
+    <link name="tree_link">
+      <visual name="tree_visual">
+        <!-- Original GLB is Y-up; +90 deg roll maps its Y axis to Gazebo Z. -->
+        <!-- Mesh original Y minimum is approx 2.112m; place roots near ground. -->
+        <pose>0 0 -2.112 1.570796 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://tree_v1_001/meshes/tree_v1_001.glb</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+  </model>
+</sdf>

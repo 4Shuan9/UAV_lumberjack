@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="forest_rock_03">
+    <static>true</static>
+    <link name="base_link">
+      <visual name="visual">
+        <!-- Original Forest Nature Set is Y-up; +90 deg roll maps Y to Gazebo Z. -->
+        <pose>0 0 0 1.570796326795 0 0</pose>
+        <geometry><mesh><uri>model://forest_rock_03/meshes/forest_rock_03.glb</uri></mesh></geometry>
+      </visual>
+    </link>
+  </model>
+</sdf>
