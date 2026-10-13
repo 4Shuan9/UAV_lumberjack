@@ -219,6 +219,13 @@ private:
     DONE
   };
 
+  enum class ObserveLeg
+  {
+    TURN_TO_ROUTE,
+    FLY_FORWARD,
+    FACE_TREE
+  };
+
   enum class ScanStage
   {
     IDLE,
@@ -1166,8 +1173,13 @@ private:
 
       case Phase::OBSERVE: {
         compute_observe_geometry();
-        const double yaw = yaw_toward(observe_center_, {tree_hint_x_, tree_hint_y_, observe_center_.z});
-        set_motion_target(observe_center_, yaw, observe_speed_, position_tolerance_);
+        // Face the route before moving: position and heading must not change together.
+        observe_leg_ = ObserveLeg::TURN_TO_ROUTE;
+        const Vec3 delta = observe_center_ - world_position_;
+        observe_route_yaw_ = std::hypot(delta.x, delta.y) > 0.15 ?
+          yaw_toward(world_position_, observe_center_) : world_yaw_;
+        set_motion_target(world_position_, observe_route_yaw_, 0.05, 0.15);
+        safe_print("[OBSERVE] turn to route before forward flight");
         break;
       }
 
@@ -1388,6 +1400,32 @@ private:
 
   void update_motion_phase()
   {
+    // OBSERVE is a three-leg maneuver. Only complete the phase after
+    // turning toward the route, flying straight with that fixed yaw,
+    // and turning to face the tree at the observation point.
+    if (phase_ == Phase::OBSERVE) {
+      if (!target_reached()) {
+        return;
+      }
+      if (observe_leg_ == ObserveLeg::TURN_TO_ROUTE) {
+        observe_leg_ = ObserveLeg::FLY_FORWARD;
+        set_motion_target(
+          observe_center_, observe_route_yaw_, observe_speed_, position_tolerance_);
+        safe_print("[OBSERVE] forward flight along heading");
+        return;
+      }
+      if (observe_leg_ == ObserveLeg::FLY_FORWARD) {
+        observe_leg_ = ObserveLeg::FACE_TREE;
+        const double face_yaw = yaw_toward(
+          observe_center_, {tree_hint_x_, tree_hint_y_, observe_center_.z});
+        set_motion_target(observe_center_, face_yaw, 0.12, 0.15);
+        safe_print("[OBSERVE] at waypoint; turn to face tree");
+        return;
+      }
+      finish_manual_or_continue(Phase::ARC_SCAN);
+      return;
+    }
+
     bool reached = false;
 
     if (phase_ == Phase::RETREAT_NEAR ||
@@ -1407,9 +1445,6 @@ private:
     switch (phase_) {
       case Phase::TAKEOFF:
         finish_manual_or_continue(Phase::OBSERVE);
-        break;
-      case Phase::OBSERVE:
-        finish_manual_or_continue(Phase::ARC_SCAN);
         break;
       case Phase::FAR_APPROACH:
         finish_manual_or_continue(Phase::ARM_PREWORK);
@@ -2814,6 +2849,8 @@ private:
 
   Vec3 observe_center_;
   double observe_center_bearing_{0.0};
+  ObserveLeg observe_leg_{ObserveLeg::TURN_TO_ROUTE};
+  double observe_route_yaw_{0.0};
 
   ScanStage scan_stage_{ScanStage::IDLE};
   Vec3 scan_focus_;

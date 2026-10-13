@@ -212,7 +212,7 @@
 
       <uri>model://x500_lumberjack</uri>
 
-      <pose>0 0 0.25 0 0 0</pose>
+      <pose>-10 0 0.25 0 0 0</pose>
 
     </include>
 
@@ -234,7 +234,7 @@
 
       <uri>model://target_branch</uri>
 
-      <pose>4.195 0.060 2.950 0 1.08 2.961593</pose>
+      <pose>-0.305 0.060 2.950 0 1.08 2.961593</pose>
 
     </include>
 
@@ -245,7 +245,7 @@
 
       <uri>model://test_tree</uri>
 
-      <pose>4.5 0 0 0 0 0</pose>
+      <pose>0 0 0 0 0 0</pose>
 
     </include>
 

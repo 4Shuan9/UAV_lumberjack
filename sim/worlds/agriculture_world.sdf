@@ -60,12 +60,12 @@
     <include>
       <name>target_branch</name>
       <uri>model://target_branch</uri>
-      <pose>-0.305 0.060 2.950 0 1.08 2.961593</pose>
+      <pose>-0.234137 0.204462 2.950 0 1.08 2.437994</pose>
     </include>
     <include>
       <name>test_tree</name>
       <uri>model://test_tree</uri>
-      <pose>0 0 0 0 0 0</pose>
+      <pose>0 0 0 0 0 -0.523599</pose>
     </include>
     <model name="vegetation">
       <static>true</static>

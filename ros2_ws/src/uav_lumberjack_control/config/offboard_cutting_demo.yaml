@@ -5,8 +5,8 @@ offboard_cutting_demo:
     # tree_hint is deliberately coarse. Precise branch geometry must
     # come from /perception/branch_model.
     # ------------------------------------------------------------
-    tree_hint_x: 4.0
-    tree_hint_y: 0.1
+    tree_hint_x: 0.0
+    tree_hint_y: 0.0
     takeoff_height: 3.0
     observe_distance: 1.4
     observe_bearing_offset_deg: 17.0
@@ -54,14 +54,14 @@ offboard_cutting_demo:
     # ------------------------------------------------------------
     # Motion shaping (world-frame setpoint rate limiting)
     # ------------------------------------------------------------
-    takeoff_speed: 0.50
-    observe_speed: 0.45
-    far_speed: 0.55
+    takeoff_speed: 0.60
+    observe_speed: 0.90
+    far_speed: 0.70
     near_speed: 0.18
     cut_in_speed: 0.04
     retreat_speed: 0.12
-    return_speed: 0.60
-    yaw_rate_deg_s: 35.0
+    return_speed: 0.90
+    yaw_rate_deg_s: 45.0
 
     position_tolerance: 0.08
     # NEAR is only a staging/ready position, so it may use a looser tolerance.
