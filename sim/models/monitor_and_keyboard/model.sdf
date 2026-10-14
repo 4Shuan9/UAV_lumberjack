@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+
+<sdf version="1.6">
+  <model name='monitor_and_keyboard'>
+    <static>true</static>
+    <link name="body">
+      <pose>0 0 0 0 0 0</pose>
+
+      <visual name="visual_monitor">
+        <geometry>
+          <mesh>
+            <uri>model://monitor_and_keyboard/meshes/monitor.obj</uri>
+            <scale>0.20 0.20 0.20</scale>
+          </mesh>
+        </geometry>
+        <pose>0 0 0 0 0 0</pose>
+      </visual>
+
+      <!-- Computer screen wallpaper -->
+      <visual name="visual_screen_wallpaper">
+        <pose>-0.030 -0.016 0.345 1.43115 0 -1.570796</pose>
+
+        <geometry>
+          <plane>
+            <normal>0 0 1</normal>
+            <size>0.720 0.405</size>
+          </plane>
+        </geometry>
+
+        <material>
+          <ambient>1 1 1 1</ambient>
+          <diffuse>1 1 1 1</diffuse>
+          <pbr>
+            <metal>
+              <albedo_map>model://monitor_and_keyboard/materials/textures/three_misfits.jpg</albedo_map>
+              <metalness>0</metalness>
+              <roughness>1</roughness>
+            </metal>
+          </pbr>
+        </material>
+      </visual>
+
+      <collision name="collision_monitor">
+        <geometry>
+          <mesh>
+            <uri>model://monitor_and_keyboard/meshes/monitor.obj</uri>
+            <scale>0.20 0.20 0.20</scale>
+          </mesh>
+        </geometry>
+        <pose>0 0 0 0 0 0</pose>
+      </collision>
+
+      <visual name="visual_keyboard">
+        <geometry>
+          <mesh>
+            <uri>model://monitor_and_keyboard/meshes/keyboard.obj</uri>
+            <scale>0.20 0.20 0.20</scale>
+          </mesh>
+        </geometry>
+        <pose>-0.27 0 0 0 0 0</pose>
+      </visual>
+
+      <collision name="collision_keyboard">
+        <geometry>
+          <mesh>
+            <uri>model://monitor_and_keyboard/meshes/keyboard.obj</uri>
+            <scale>0.20 0.20 0.20</scale>
+          </mesh>
+        </geometry>
+        <pose>-0.27 0 0 0 0 0</pose>
+      </collision>
+
+    </link>
+  </model>
+</sdf>

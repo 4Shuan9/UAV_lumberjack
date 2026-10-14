@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+    <model name="ground_station">
+        <static>true</static>
+        <include>
+            <name>tent</name>
+            <uri>https://fuel.gazebosim.org/1.0/openrobotics/models/tent</uri>
+        </include>
+        <include>
+            <name>table_a</name>
+            <pose>0.5 0.9 0.0 0.0 0.0 0.0</pose>
+            <uri>https://fuel.gazebosim.org/1.0/openrobotics/models/foldable_table</uri>
+        </include>
+        <include>
+            <name>table_b</name>
+            <pose>1.0 -0.5 0.0 0.0 0.0 1.57</pose>
+            <uri>https://fuel.gazebosim.org/1.0/openrobotics/models/foldable_table</uri>
+        </include>
+        <include>
+            <name>chair_a</name>
+            <pose>0.2 0 0 0 0 1.57</pose>
+            <uri>https://fuel.gazebosim.org/1.0/openrobotics/models/foldable_chair</uri>
+        </include>
+        <include>
+            <name>chair_b</name>
+            <pose>0.2 -0.8 0 0 0 1.57</pose>
+            <uri>https://fuel.gazebosim.org/1.0/openrobotics/models/foldable_chair</uri>
+        </include>
+        <include>
+            <name>chair_c</name>
+            <pose>-0.6 0.8 0 0 0 1.57</pose>
+            <uri>https://fuel.gazebosim.org/1.0/openrobotics/models/foldable_chair</uri>
+        </include>
+        <!-- Operator seated on chair_a (station-local x=0.2, y=0).
+             Korok's face points towards local -Y before yaw. -->
+        <include>
+            <name>environment_yahaha_korok_01</name>
+            <uri>model://yahaha_korok</uri>
+            <pose>0.20 0.00 0.46 0 0 1.570796327</pose>
+        </include>
+        <!-- Monitor + keyboard on table_a facing chair_a. Estimated tabletop at z=0.74 m. -->
+        <include>
+            <name>environment_monitor_keyboard_01</name>
+            <uri>model://monitor_and_keyboard</uri>
+            <pose>1.20 0.02 0.68 0 0 0</pose>
+        </include>
+    </model>
+</sdf>

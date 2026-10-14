@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="yahaha_korok">
+    <static>true</static>
+    <link name="korok_link">
+      <visual name="brown_body_textured">
+        <pose>0 0 0.357526902 0 0 0</pose>
+        <geometry><mesh><uri>model://yahaha_korok/meshes/body_v4_textured.dae</uri><scale>0.024902557 0.024902557 0.024902557</scale></mesh></geometry>
+      </visual>
+      <!-- Textured green mesh follows the V3 original geometry; black recessed triangles unchanged. -->
+      <visual name="green_leaf_textured">
+        <pose>0 0 0.357526902 0 0 0</pose>
+        <geometry><mesh><uri>model://yahaha_korok/meshes/leaf_v4_textured.dae</uri><scale>0.024902557 0.024902557 0.024902557</scale></mesh></geometry>
+      </visual>
+      <!-- Black faces are original STL triangle faces in the RECESSED eye/mouth/forehead regions, NOT decals. -->
+      <visual name="black_recess_original_faces">
+        <pose>0 0 0.357526902 0 0 0</pose>
+        <geometry><mesh><uri>model://yahaha_korok/meshes/face_black_original_faces.stl</uri><scale>0.024902557 0.024902557 0.024902557</scale></mesh></geometry>
+        <material><ambient>0.015 0.017 0.014 1</ambient><diffuse>0.025 0.029 0.022 1</diffuse><specular>0.004 0.004 0.004 1</specular></material>
+        <cast_shadows>false</cast_shadows>
+      </visual>
+      <collision name="simple_body_collision">
+        <pose>0 -0.035 0.29 0 0 0</pose>
+        <geometry><box><size>0.57 0.38 0.56</size></box></geometry>
+      </collision>
+    </link>
+  </model>
+</sdf>

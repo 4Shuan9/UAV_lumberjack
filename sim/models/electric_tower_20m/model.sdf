@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="electric_tower_20m">
+    <static>true</static>
+    <link name="tower_link">
+      <!-- First-stage visual test only. Precise collision geometry will be designed after acceptance. -->
+      <visual name="tower_visual">
+        <geometry>
+          <mesh><uri>model://electric_tower_20m/meshes/electric_tower_20m.glb</uri></mesh>
+        </geometry>
+      </visual>
+    </link>
+  </model>
+</sdf>
