@@ -10,11 +10,17 @@
 | :--- | :--- |
 | Ubuntu | 22.04.5 LTS |
 | ROS 2 | Humble |
+| Python | 3.10.12 |
 | PX4 Autopilot | 1.16.2 |
 | px4_msgs & px4_ros_com | release/1.16 |
 | Micro-XRCE-DDS-Agent | 3.0.1 |
-| Gazebo Harmonic | 8.x |
+| Gazebo Harmonic | 8.15.0 |
 | ros_gz_bridge | gzharmonic |
+| QGroundControl | 5.0.8 |
+| OpenCV | 4.13.0 |
+| NumPy | 2.2.6 |
+| SciPy | 1.15.3 |
+| Open3D | 0.19.0 |
 
 ## 构建
 

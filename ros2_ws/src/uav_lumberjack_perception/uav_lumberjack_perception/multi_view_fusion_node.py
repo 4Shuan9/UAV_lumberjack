@@ -2,6 +2,7 @@ import math
 import re
 
 import numpy as np
+import open3d as o3d
 
 import rclpy
 from rclpy.node import Node
@@ -32,6 +33,7 @@ class MultiViewFusionNode(Node):
     This keeps the previous identity / endpoint safeguards, while allowing
     an early imperfect model to be corrected by later multi-view evidence.
 
+    Open3D supplies voxel aggregation and nearest-neighbour queries.
     No ICP / TSDF / heavy PCL pipeline is required.
     """
 
@@ -390,10 +392,11 @@ class MultiViewFusionNode(Node):
             '[FUSION]\n'
             '  status          : ready\n'
             '  auto fusion     : ON\n'
-            f'  voxel           : {1000.0*self.voxel_size:.0f} mm\n'
+            f'  voxel           : {1000.0*self.voxel_size:.0f} mm (Open3D)\n'
             f'  bootstrap       : {self.bootstrap_confirm_frames} stable frames\n'
             f'  endpoint confirm: {self.endpoint_confirm_frames} frames\n'
             f'  rolling window  : {self.fusion_window_frames} frames\n'
+            '  nearest neighbor: Open3D KD-tree\n'
             f'  support         : >= {self.fusion_min_frame_support} frames '
             f'within {1000.0*self.fusion_support_distance:.0f} mm\n'
             f'  robust prune    : '
@@ -522,38 +525,23 @@ class MultiViewFusionNode(Node):
     # ============================================================
 
     def voxel_downsample(self, points):
+        """Open3D centroid voxel sampling, at the existing 5 mm default.
+
+        Kept as an internal fusion operation: the original MID360 cloud is
+        never modified, and the ROS message interface is unchanged.
+        Open3D's voxel origin can differ from the former world-grid origin,
+        so exact point-for-point equality with the NumPy backend is not
+        expected.
+        """
         if points.shape[0] == 0:
-            return points.astype(
-                np.float32,
-                copy=False
-            )
+            return points.astype(np.float32, copy=False)
 
-        voxel_index = np.floor(
-            points / self.voxel_size
-        ).astype(np.int64)
-
-        unique_voxels, inverse = np.unique(
-            voxel_index,
-            axis=0,
-            return_inverse=True
+        cloud = o3d.geometry.PointCloud()
+        cloud.points = o3d.utility.Vector3dVector(
+            np.asarray(points, dtype=np.float64)
         )
-
-        sums = np.zeros(
-            (unique_voxels.shape[0], 3),
-            dtype=np.float64
-        )
-
-        counts = np.zeros(
-            unique_voxels.shape[0],
-            dtype=np.int64
-        )
-
-        np.add.at(sums, inverse, points)
-        np.add.at(counts, inverse, 1)
-
-        return (
-            sums / counts[:, None]
-        ).astype(np.float32)
+        sampled = cloud.voxel_down_sample(self.voxel_size)
+        return np.asarray(sampled.points, dtype=np.float32).copy()
 
     # ============================================================
     # PCA reference axis
@@ -1131,68 +1119,29 @@ class MultiViewFusionNode(Node):
     # ============================================================
 
     @staticmethod
-    def nearest_distances(
-        query_points,
-        model_points
-    ):
+    def nearest_distances(query_points, model_points):
+        """Exact nearest-surface distances via Open3D's native KD-tree.
+
+        Computes one nearest-neighbour distance for every query point,
+        without allocating a NumPy (query_count x model_count x 3) array.
+        """
         if query_points.shape[0] == 0:
-            return np.empty(
-                (0,),
-                dtype=np.float64
-            )
-
+            return np.empty((0,), dtype=np.float64)
         if model_points.shape[0] == 0:
-            return np.full(
-                query_points.shape[0],
-                np.inf,
-                dtype=np.float64
-            )
+            return np.full(query_points.shape[0], np.inf, dtype=np.float64)
 
-        query = query_points.astype(
-            np.float64,
-            copy=False
+        source = o3d.geometry.PointCloud()
+        source.points = o3d.utility.Vector3dVector(
+            np.asarray(query_points, dtype=np.float64)
         )
-
-        model = model_points.astype(
-            np.float64,
-            copy=False
+        target = o3d.geometry.PointCloud()
+        target.points = o3d.utility.Vector3dVector(
+            np.asarray(model_points, dtype=np.float64)
         )
-
-        result = np.empty(
-            query.shape[0],
+        return np.asarray(
+            source.compute_point_cloud_distance(target),
             dtype=np.float64
-        )
-
-        chunk_size = 128
-
-        for start in range(
-            0,
-            query.shape[0],
-            chunk_size
-        ):
-            stop = min(
-                query.shape[0],
-                start + chunk_size
-            )
-
-            diff = (
-                query[start:stop, None, :]
-                - model[None, :, :]
-            )
-
-            dist2 = np.sum(
-                diff * diff,
-                axis=2
-            )
-
-            result[start:stop] = np.sqrt(
-                np.min(
-                    dist2,
-                    axis=1
-                )
-            )
-
-        return result
+        ).copy()
 
     # ============================================================
     # Self-correcting rolling model
