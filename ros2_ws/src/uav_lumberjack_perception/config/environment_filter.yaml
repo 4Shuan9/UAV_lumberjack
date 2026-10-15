@@ -26,15 +26,18 @@ environment_preprocessor:
     ground_seed_link_radius_cells: 2.6
     ground_seed_max_step_rise_m: 0.42
     ground_anchor_quantile: 0.15
-    # Agriculture-specific guard: world mesh cpr_agriculture terrain
-    # Plane_001 local max Z ~= -0.80, model pose Z=-1.431; max ~-2.23m.
-    # -1.8m is conservative clearance: trees/platform above cannot be ground.
-    # For a different world, adjust or set 999.0 to disable.
-    ground_max_world_z_m: -1.8
+    # AUTO ground candidate search based on current scan's lower returns.
+    # Candidate selection only. Ground deletion still requires a PMF surface.
+    # Avoid a fixed -1.8 m ceiling: farm observed min was -1.768 m, and
+    # validation has a z=0 plane. Both worlds use these same parameters.
+    ground_auto_height_quantile: 0.25
+    ground_auto_height_margin_m: 1.10
+    # Optional world height cap, disabled by 999.0.
+    ground_max_world_z_m: 999.0
 
     # Raised takeoff platform remains an obstacle: NEVER remove in these XY bounds.
     platform_center_xy: [-37.5, 15.0]
     platform_half_size_xy: [2.05, 2.05]
 
     publish_rate_hz: 10.0
-    log_period_sec: 5.0
+    log_period_sec: 20.0

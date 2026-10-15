@@ -51,7 +51,9 @@ class EnvironmentPreprocessor(Node):
         self.declare_parameter('ground_seed_max_step_rise_m', 0.42)
         self.declare_parameter('ground_anchor_quantile', 0.15)
         self.declare_parameter('ground_max_world_z_m', 999.0)
-        self.declare_parameter('log_period_sec', 5.0)
+        self.declare_parameter('ground_auto_height_quantile', 0.25)
+        self.declare_parameter('ground_auto_height_margin_m', 1.10)
+        self.declare_parameter('log_period_sec', 20.0)
         # Match MID360 scans; no artificial 3 Hz limit.
         self.declare_parameter('publish_rate_hz', 10.0)
         # Preserve the known, raised launch platform as an obstacle.
@@ -80,6 +82,8 @@ class EnvironmentPreprocessor(Node):
             anchor_quantile=float(param('ground_anchor_quantile')),
             max_ground_world_z_m=float(param('ground_max_world_z_m')),
             max_seed_rise_m=float(param('ground_max_seed_rise_m')),
+            auto_height_quantile=float(param('ground_auto_height_quantile')),
+            auto_height_margin_m=float(param('ground_auto_height_margin_m')),
         )
         self.log_period_ns = int(float(param('log_period_sec')) * 1e9)
         self.publish_rate_hz = float(param('publish_rate_hz'))
@@ -97,7 +101,9 @@ class EnvironmentPreprocessor(Node):
         if not (1.0 <= self.ground_cfg.seed_link_radius_cells <= 5.0
                 and 0.05 <= self.ground_cfg.seed_max_step_rise_m <= 1.5
                 and 0.01 <= self.ground_cfg.anchor_quantile <= .4
-                and np.isfinite(self.ground_cfg.max_ground_world_z_m)):
+                and np.isfinite(self.ground_cfg.max_ground_world_z_m)
+                and 0.05 <= self.ground_cfg.auto_height_quantile <= 0.50
+                and 0.15 <= self.ground_cfg.auto_height_margin_m <= 5.0):
             raise ValueError('Invalid terrain surface anchoring parameters')
         self.last_cloud_process_ns = None
         self.latest_joint_deg = None
@@ -128,12 +134,22 @@ class EnvironmentPreprocessor(Node):
         self.create_subscription(PointCloud2, str(param('points_topic')),
                                  self.cloud_callback, qos_profile_sensor_data)
         self.get_logger().info(
-            '[ENVIRONMENT] ready | backend=anchored PMF-style terrain grid (NumPy/SciPy) | '
-            'self mask=SDF geometry + live J2/J3/J4 | '
-            'input=' + str(param('points_topic')) + ' | input_frame=' + self.expected_frame
-            + ' | output_frame=world | process_rate=%.1fHz | cell=%.2fm | platform protected' %
-            (self.publish_rate_hz, self.ground_cfg.cell_size_m)
-            + ' | ground_world_z_ceiling=%.2fm' % self.ground_cfg.max_ground_world_z_m)
+            '[ENVIRONMENT]\n'
+            '  status          : ready\n'
+            '  backend         : anchored PMF terrain grid\n'
+            '  self filter     : SDF + live J2/J3/J4\n'
+            '  input           : %s\n'
+            '  ground output   : /perception/lidar/points_ground\n'
+            '  nonground output: /perception/lidar/points_nonground\n'
+            '  frame           : world\n'
+            '  max rate        : %.1f Hz\n'
+            '  terrain cell    : %.2f m\n'
+            '  height candidate: q%.0f + %.2f m\n'
+            '  platform guard  : ON' % (
+                str(param('points_topic')), self.publish_rate_hz,
+                self.ground_cfg.cell_size_m,
+                100 * self.ground_cfg.auto_height_quantile,
+                self.ground_cfg.auto_height_margin_m))
 
     def now_ns(self):
         return int(self.get_clock().now().nanoseconds)
@@ -275,8 +291,8 @@ class EnvironmentPreprocessor(Node):
             self.last_log_ns = now_ns
             self.published_since_log = 0
             self.get_logger().info(
-                '[ENVIRONMENT] input=%d self_removed=%d ground=%d nonground=%d '
-                'ground_status=%s output_hz=%.1f process_ms=%.1f frame=world' %
+                '[ENVIRONMENT] input=%d self=%d ground=%d nonground=%d '
+                '| status=%s | %.1f Hz | %.1f ms' %
                 (len(raw), int(remove.sum()), int(ground.sum()),
                  len(kept_base) - int(ground.sum()), ground_status,
                  pub_rate, self.last_processing_ms))

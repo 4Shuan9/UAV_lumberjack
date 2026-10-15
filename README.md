@@ -1,6 +1,10 @@
 # UAV_lumberjack
 
 <p align="center">
+  <img src="/media/images/perception/cloud_point.jpg" width="100%">
+</p>
+
+<p align="center">
   <img src="/media/images/perception/agriculture_world.png" width="100%">
 </p>
 

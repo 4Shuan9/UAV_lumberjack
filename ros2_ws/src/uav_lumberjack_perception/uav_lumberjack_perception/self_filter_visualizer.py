@@ -71,7 +71,7 @@ class SelfFilterVisualizer(Node):
         self.declare_parameter('joint_states_topic', '/lumberjack_arm/joint_states')
         self.declare_parameter('marker_topic', '/perception/lidar/self_filter_geometry')
         self.declare_parameter('self_filter_margin_m', .008)
-        self.declare_parameter('visualization_rate_hz', 5.0)
+        self.declare_parameter('visualization_rate_hz', 15.0)
         self.declare_parameter('max_pose_age_sec', .75)
         self.margin = float(self.get_parameter('self_filter_margin_m').value)
         rate = float(self.get_parameter('visualization_rate_hz').value)
@@ -93,9 +93,14 @@ class SelfFilterVisualizer(Node):
         self.joint_stamp_ns = None
         self.timer = self.create_timer(1./rate, self.publish)
         self.get_logger().info(
-            '[SELF FILTER VIZ] ready | marker=' +
-            str(self.get_parameter('marker_topic').value) +
-            ' | frame=world | body/rotors/skids/arm/saw | %.1f Hz' % rate)
+            '[SELF FILTER VIZ]\n'
+            '  status          : ready\n'
+            '  topic           : %s\n'
+            '  frame           : world\n'
+            '  geometry        : body/rotors/skids/arm/saw\n'
+            '  alpha           : 0.75\n'
+            '  publish rate    : %.1f Hz' %
+            (str(self.get_parameter('marker_topic').value), rate))
 
     def now_ns(self):
         return int(self.get_clock().now().nanoseconds)
@@ -152,7 +157,7 @@ class SelfFilterVisualizer(Node):
             marker.pose.orientation.x, marker.pose.orientation.y, marker.pose.orientation.z, marker.pose.orientation.w = map(float, q)
             marker.scale.x, marker.scale.y, marker.scale.z = map(float, size)
             marker.color.r, marker.color.g, marker.color.b, marker.color.a = color
-            # Intentionally opaque: these solids show the *actual* exclusions.
+            # Fixed alpha requested for easy RViz2 inspection.
             marker.color.a = 0.75
             marker.lifetime = Duration(sec=1, nanosec=0)
             arr.markers.append(marker)

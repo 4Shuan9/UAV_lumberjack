@@ -42,6 +42,11 @@ class TerrainConfig:
     # Optional known site envelope in world coordinates, disabled by default.
     # Useful when an available Gazebo terrain mesh gives a firm upper bound.
     max_ground_world_z_m: float = float("inf")
+    # Auto candidate ceiling is estimated from *this scan*, not a world mesh.
+    # Works for a flat validation world and for the undulating farm world.
+    # Absolute upper bound is optional and disabled by default.
+    auto_height_quantile: float = 0.25
+    auto_height_margin_m: float = 1.10
 
 
 def _terrain_slopes(xy, height, max_gradient, count=8):
@@ -89,10 +94,21 @@ def classify_ground(points_world, platform_mask=None, config=None):
                  else np.asarray(platform_mask, dtype=bool))
     if protected.shape != (n,):
         raise ValueError('platform_mask shape mismatch')
-    indices = np.flatnonzero(~protected & np.isfinite(pts).all(axis=1) &
-                                 (pts[:, 2] <= cfg.max_ground_world_z_m))
-    if len(indices) < cfg.min_ground_points:
+    valid = ~protected & np.isfinite(pts).all(axis=1)
+    outside = np.flatnonzero(valid)
+    if len(outside) < cfg.min_ground_points:
         return ground, 'terrain_too_few_points'
+
+    # Determine a broad search envelope from lower scan returns, before PMF.
+    # This is candidate selection, NOT direct deletion by height: only points
+    # supported by the resulting local terrain model become ground.
+    # A global fixed -1.8m threshold excluded every observed farm return.
+    auto_cap = (float(np.quantile(pts[outside, 2], cfg.auto_height_quantile))
+                + cfg.auto_height_margin_m)
+    ceiling = min(auto_cap, cfg.max_ground_world_z_m)
+    indices = outside[pts[outside, 2] <= ceiling]
+    if len(indices) < cfg.min_ground_points:
+        return ground, 'terrain_too_few_candidates'
     p = pts[indices]
     keys = np.floor(p[:, :2] / cfg.cell_size_m).astype(np.int64)
     origin = keys.min(axis=0)

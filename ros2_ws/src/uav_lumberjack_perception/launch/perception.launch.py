@@ -1,4 +1,8 @@
 from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch.conditions import IfCondition
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import Node
 
 
@@ -17,7 +21,16 @@ def generate_launch_description():
         'RCUTILS_CONSOLE_OUTPUT_FORMAT': '{message}'
     }
 
+    environment_config = PathJoinSubstitution([
+        FindPackageShare('uav_lumberjack_perception'),
+        'config', 'environment_filter.yaml'
+    ])
+
     return LaunchDescription([
+        DeclareLaunchArgument('environment', default_value='true',
+                              description='Enable Stage 2 LiDAR self/ground filtering'),
+        DeclareLaunchArgument('self_filter_viz', default_value='true',
+                              description='Publish RViz2 self-filter MarkerArray'),
         Node(
             package='uav_lumberjack_perception',
             executable='tfsrc',
@@ -98,5 +111,28 @@ def generate_launch_description():
             emulate_tty=True,
             parameters=common_parameters,
             additional_env=clean_env
+        ),
+
+        # Stage 2: shared for validation_world and agriculture_world.
+        # Both bridges provide /mid360/points, joint_states, and Gazebo odom.
+        Node(
+            package='uav_lumberjack_perception',
+            executable='environment_preprocessor',
+            name='environment_preprocessor',
+            output='screen',
+            emulate_tty=True,
+            parameters=[environment_config, {'use_sim_time': True}],
+            additional_env=clean_env,
+            condition=IfCondition(LaunchConfiguration('environment')),
+        ),
+        Node(
+            package='uav_lumberjack_perception',
+            executable='self_filter_visualizer',
+            name='self_filter_visualizer',
+            output='screen',
+            emulate_tty=True,
+            parameters=common_parameters,
+            additional_env=clean_env,
+            condition=IfCondition(LaunchConfiguration('self_filter_viz')),
         ),
     ])
