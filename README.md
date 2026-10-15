@@ -22,31 +22,91 @@
 | SciPy | 1.15.3 |
 | Open3D | 0.19.0 |
 
-## 构建
+---
+
+## Quick Start Guide
+## Build
 
 ```bash
 cd ~/UAV_lumberjack/ros2_ws
+
 source /opt/ros/humble/setup.bash
 colcon build --symlink-install
 source install/setup.bash
 ```
 
-## 启动仿真
+---
+
+### Simulation
 
 ```bash
 cd ~/UAV_lumberjack/ros2_ws
+
 source /opt/ros/humble/setup.bash
+source ~/ws_ros2/install/setup.bash
 source install/setup.bash
+
 ros2 launch uav_lumberjack_control uav_lumberjack_validation.launch.py
 ```
 
-## 启动感知
+---
+
+### Arm controller
 
 ```bash
 cd ~/UAV_lumberjack/ros2_ws
+
 source /opt/ros/humble/setup.bash
+source ~/ws_ros2/install/setup.bash
 source install/setup.bash
+
+ros2 run uav_lumberjack_control arm_controller
+```
+
+---
+
+### Env perception
+
+```bash
+cd ~/UAV_lumberjack/ros2_ws
+
+source /opt/ros/humble/setup.bash
+source ~/ws_ros2/install/setup.bash
+source install/setup.bash
+
 ros2 launch uav_lumberjack_perception perception.launch.py
+```
+
+---
+
+### RViz
+
+```bash
+cd ~/UAV_lumberjack/ros2_ws
+
+source /opt/ros/humble/setup.bash
+source ~/ws_ros2/install/setup.bash
+source install/setup.bash
+
+rviz2 -d ~/UAV_lumberjack/sim/default.rviz \
+  --ros-args -p use_sim_time:=true
+```
+
+---
+
+### Offboard Demo
+
+```bash
+cd ~/UAV_lumberjack/ros2_ws
+
+source /opt/ros/humble/setup.bash
+source ~/ws_ros2/install/setup.bash
+source install/setup.bash
+
+ros2 run uav_lumberjack_control offboard_cutting_demo \
+  --ros-args \
+  --params-file \
+  "$(ros2 pkg prefix --share uav_lumberjack_control)/config/offboard_cutting_demo.yaml"
 ```
 
 ## 最终枝条模型接口

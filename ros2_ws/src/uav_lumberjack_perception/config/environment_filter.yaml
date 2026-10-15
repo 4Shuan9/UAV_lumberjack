@@ -1,0 +1,40 @@
+environment_preprocessor:
+  ros__parameters:
+    points_topic: /mid360/points
+    sensor_frame: x500_lumberjack/mid360_link/mid360_gpu_lidar
+    odom_topic: /model/x500_lumberjack/base_link_odometry
+    joint_states_topic: /lumberjack_arm/joint_states
+
+    self_filter_margin_m: 0.008
+    require_joint_states: true
+    joint_states_max_age_sec: 0.50
+    odom_max_age_sec: 0.40
+
+    # Terrain segmentation: low-elevation grid + progressive morphology.
+    # Handles local slopes and uneven ground; does not assume a single plane.
+    # This implementation is PMF-inspired (not PCL's compiled PMF).
+    ground_enabled: true
+    ground_cell_size_m: 0.65
+    ground_height_tolerance_m: 0.10
+    ground_max_slope_deg: 35.0
+    ground_max_reference_distance_m: 0.95
+    ground_min_grid_cells: 12
+    ground_min_ground_points: 50
+    ground_opening_slope: 0.22
+    ground_max_seed_rise_m: 0.36
+    # Low anchored, slope-connected ground; avoid canopy-only seeds.
+    ground_seed_link_radius_cells: 2.6
+    ground_seed_max_step_rise_m: 0.42
+    ground_anchor_quantile: 0.15
+    # Agriculture-specific guard: world mesh cpr_agriculture terrain
+    # Plane_001 local max Z ~= -0.80, model pose Z=-1.431; max ~-2.23m.
+    # -1.8m is conservative clearance: trees/platform above cannot be ground.
+    # For a different world, adjust or set 999.0 to disable.
+    ground_max_world_z_m: -1.8
+
+    # Raised takeoff platform remains an obstacle: NEVER remove in these XY bounds.
+    platform_center_xy: [-37.5, 15.0]
+    platform_half_size_xy: [2.05, 2.05]
+
+    publish_rate_hz: 10.0
+    log_period_sec: 5.0
