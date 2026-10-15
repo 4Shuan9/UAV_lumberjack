@@ -1,0 +1,22 @@
+tree_semantic_mapper:
+  ros__parameters:
+    nonground_topic: /perception/lidar/points_nonground
+    ground_topic: /perception/lidar/points_ground
+    image_topic: /camera/image_raw
+    camera_info_topic: /camera/camera_info
+    odom_topic: /model/x500_lumberjack/base_link_odometry
+    target_topic: /perception/target_branch_cloud_world
+    window_sec: 8.0
+    detect_hz: 1.0
+    min_distinct_images: 4
+    min_evidence_span_sec: 2.5
+    min_pending_sec: 2.0
+    max_pending_xy_drift_m: 0.75
+    min_unique_voxels: 14
+    range_m: 26.0
+    max_sensor_time_delta_sec: 0.35
+    min_local_texture_std: 8.0
+    show_candidates: true
+    mesh_file: /home/ashuang/UAV_lumberjack/sim/rviz_assets/forest_tree_broadleaf_04/forest_tree_broadleaf_04.dae
+    marker_topic: /perception/obstacle_trees/markers
+    candidate_topic: /perception/obstacle_trees/candidates

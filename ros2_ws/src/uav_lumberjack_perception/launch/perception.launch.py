@@ -29,6 +29,8 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument('environment', default_value='true',
                               description='Enable Stage 2 LiDAR self/ground filtering'),
+        DeclareLaunchArgument('tree_mapping', default_value='false',
+                              description='Stage 3 static obstacle tree map'),
         DeclareLaunchArgument('self_filter_viz', default_value='true',
                               description='Publish RViz2 self-filter MarkerArray'),
         Node(
@@ -134,5 +136,19 @@ def generate_launch_description():
             parameters=common_parameters,
             additional_env=clean_env,
             condition=IfCondition(LaunchConfiguration('self_filter_viz')),
+        ),
+        # Stage 3: off by default until the first RViz test passes.
+        Node(
+            package='uav_lumberjack_perception',
+            executable='tree_semantic_mapper',
+            name='tree_semantic_mapper',
+            output='screen',
+            emulate_tty=True,
+            parameters=[PathJoinSubstitution([
+                FindPackageShare('uav_lumberjack_perception'),
+                'config', 'tree_mapping.yaml'
+            ]), {'use_sim_time': True}],
+            additional_env=clean_env,
+            condition=IfCondition(LaunchConfiguration('tree_mapping')),
         ),
     ])

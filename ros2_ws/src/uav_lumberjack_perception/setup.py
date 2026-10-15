@@ -56,6 +56,7 @@ setup(
             'single = uav_lumberjack_perception.branch_pca_node:main',
             'fusion = uav_lumberjack_perception.multi_view_fusion_node:main',
             'environment_preprocessor = uav_lumberjack_perception.environment_preprocessor:main',
+            'tree_semantic_mapper = uav_lumberjack_perception.tree_semantic_mapper:main',
             'self_filter_visualizer = uav_lumberjack_perception.self_filter_visualizer:main',
             'model = uav_lumberjack_perception.branch_pca_fused_node:main',
         ],
